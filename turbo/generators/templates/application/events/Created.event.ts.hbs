@@ -1,0 +1,20 @@
+/**
+ * @fileoverview {{pascalCase context}} Created Application Event Handler
+ */
+
+import { createLogger } from '@foundry/logger'
+import type { IEventHandler } from '@/shared'
+import type { {{pascalCase context}}CreatedEvent } from '@foundry/domain'
+
+const logger = createLogger('{{pascalCase context}}CreatedEventHandler')
+
+export class {{pascalCase context}}CreatedEventHandler implements IEventHandler<{{pascalCase context}}CreatedEvent> {
+	async handle(event: {{pascalCase context}}CreatedEvent): Promise<void> {
+		// TODO: Implement event handling logic
+		// Examples:
+		// - Send welcome email
+		// - Create related records
+		// - Publish to external systems
+		logger.info({ aggregateId: event.aggregateId }, '{{pascalCase context}} created')
+	}
+}

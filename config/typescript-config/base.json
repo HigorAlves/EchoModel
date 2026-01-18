@@ -1,0 +1,28 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"display": "node",
+	"compilerOptions": {
+		"baseUrl": "src",
+		"lib": ["es2022", "DOM", "DOM.Iterable"],
+		"target": "es2022",
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"declaration": true,
+		"declarationMap": true,
+		"incremental": false,
+		"isolatedModules": true,
+		"module": "esnext",
+		"moduleResolution": "node",
+		"moduleDetection": "force",
+		"noUncheckedIndexedAccess": true,
+		"resolveJsonModule": true,
+		"rootDirs": ["src"],
+		"outDir": "dist",
+		"types": ["reflect-metadata", "node"],
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"allowJs": true
+	},
+	"exclude": ["node_modules", "dist", "coverage"]
+}

@@ -1,0 +1,91 @@
+{
+	"name": "foundry",
+	"private": true,
+	"type": "module",
+	"version": "1.0.0",
+	"scripts": {
+		"dev": "turbo run dev",
+		"dev:web": "turbo run dev --filter=@foundry/dashboard",
+		"build": "turbo run build",
+		"build:lambdas": "turbo run build --filter=@foundry/api-user --filter=@foundry/api-feature-flag",
+		"lint": "biome check .",
+		"lint:fix": "biome check . --write",
+		"check-types": "turbo run check-types",
+		"test": "turbo run test",
+		"test:unit": "turbo run test:unit",
+		"test:e2e": "turbo run test:e2e",
+		"test:e2e:dashboard": "turbo run test:e2e --filter=@foundry/e2e",
+		"coverage": "yarn test:unit && yarn collect:reports && yarn merge:reports && yarn view:report",
+		"view:report": "turbo run view-report --filter=@foundry/vitest-config",
+		"collect:reports": "turbo run collect-json-reports --filter=@foundry/vitest-config",
+		"merge:reports": "turbo run merge-json-reports --filter=@foundry/vitest-config",
+		"bootstrap": "bash scripts/bootstrap.sh",
+		"verify": "bash scripts/verify.sh",
+		"verify:fix": "bash scripts/verify.sh --fix",
+		"verify:full": "bash scripts/verify.sh --with-e2e",
+		"ci:local": "bash scripts/ci-local.sh",
+		"ci:full": "bash scripts/ci-local.sh --full",
+		"affected": "bash scripts/affected.sh",
+		"affected:test": "bash scripts/affected.sh --task test",
+		"clean": "bash scripts/clean-monorepo.sh",
+		"system:up": "bash scripts/docker.sh",
+		"system:down": "bash scripts/docker-down.sh",
+		"system:reset": "bash scripts/docker-down.sh --volumes && bash scripts/docker.sh",
+		"generate": "bash scripts/generate.sh",
+		"gen": "bash scripts/generate.sh",
+		"gen:application": "npx turbo gen application",
+		"gen:domain": "npx turbo gen domain",
+		"doctor": "bash scripts/environment-audit.sh",
+		"security": "bash scripts/security-audit.sh",
+		"update:deps": "bash scripts/update-dependencies.sh",
+		"prepare": "lefthook install",
+		"commit": "cz",
+		"release": "semantic-release",
+		"release:dry-run": "semantic-release --dry-run",
+		"release:local": "bash scripts/release.sh"
+	},
+	"engines": {
+		"node": ">=22"
+	},
+	"packageManager": "yarn@4.9.4",
+	"workspaces": [
+		"apps/*",
+		"apps/lambdas/*",
+		"config/*",
+		"infra/*",
+		"kernel/*",
+		"libs/*",
+		"packages/*",
+		"tools/*"
+	],
+	"author": {
+		"email": "me@higoralves.dev",
+		"name": "Higor Alves",
+		"url": "https://higoralves.dev"
+	},
+	"config": {
+		"commitizen": {
+			"path": "cz-conventional-changelog"
+		}
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.3.8",
+		"@commitlint/cli": "19.8.1",
+		"@commitlint/config-conventional": "19.8.1",
+		"@commitlint/prompt-cli": "19.8.1",
+		"@semantic-release/changelog": "6.0.3",
+		"@semantic-release/exec": "7.1.0",
+		"@semantic-release/git": "10.0.1",
+		"@semantic-release/github": "11.0.3",
+		"@turbo/gen": "^2.5.4",
+		"@types/node": "^24.5.2",
+		"all-contributors-cli": "^6.26.1",
+		"commitizen": "^4.3.1",
+		"lefthook": "1.12.2",
+		"semantic-release": "24.2.7",
+		"shadcn": "^3.6.3",
+		"turbo": "^2.5.4",
+		"typescript": "^5.9.2",
+		"vitest": "^3.2.4"
+	}
+}

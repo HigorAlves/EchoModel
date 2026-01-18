@@ -1,0 +1,11 @@
+/**
+ * @fileoverview Get {{pascalCase context}} By ID Input DTO
+ */
+
+import { z } from 'zod'
+
+export const Get{{pascalCase context}}ByIdSchema = z.object({
+	{{camelCase context}}Id: z.string().uuid(),
+})
+
+export type Get{{pascalCase context}}ByIdInput = z.infer<typeof Get{{pascalCase context}}ByIdSchema>

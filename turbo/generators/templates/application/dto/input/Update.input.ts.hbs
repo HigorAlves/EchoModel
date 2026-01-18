@@ -1,0 +1,15 @@
+/**
+ * @fileoverview Update {{pascalCase context}} Input DTO
+ */
+
+import { z } from 'zod'
+
+export const Update{{pascalCase context}}Schema = z.object({
+	{{camelCase context}}Id: z.string().uuid(),
+	// TODO: Add {{camelCase context}}-specific optional fields
+	// Example:
+	// name: z.string().min(2).max(100).optional(),
+	// status: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED']).optional(),
+})
+
+export type Update{{pascalCase context}}Input = z.infer<typeof Update{{pascalCase context}}Schema>

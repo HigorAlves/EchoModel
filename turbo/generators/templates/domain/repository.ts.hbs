@@ -1,0 +1,126 @@
+import type { {{pascalCase context}} } from './{{pascalCase context}}.entity'
+import type { {{pascalCase context}}Status } from './{{camelCase context}}.enum'
+
+/**
+ * @fileoverview {{pascalCase context}} Repository Interface
+ *
+ * Repositories provide a collection-like interface for accessing domain objects.
+ * They encapsulate the logic needed to access data sources and act as:
+ * - An in-memory domain object collection
+ * - A bridge between the domain and data mapping layers
+ * - A more object-oriented view of the persistence layer
+ *
+ * Repositories should:
+ * - Use domain language and concepts
+ * - Provide query methods that express business rules
+ * - Hide persistence technology details
+ * - Return domain objects, not data structures
+ * - Support unit testing through interfaces
+ */
+
+/**
+ * Persistence representation of {{pascalCase context}}
+ * This represents how the entity is stored in the database
+ */
+export interface Persistence{{pascalCase context}} {
+	readonly id: string
+	readonly status: {{pascalCase context}}Status
+	readonly createdAt: Date
+	readonly updatedAt: Date
+	readonly deletedAt: Date | null
+}
+
+/**
+ * Query filters for {{pascalCase context}} searches
+ */
+export interface {{pascalCase context}}QueryFilters {
+	readonly status?: {{pascalCase context}}Status
+	readonly includeDeleted?: boolean
+	readonly limit?: number
+	readonly offset?: number
+	readonly sortBy?: string
+	readonly sortOrder?: 'asc' | 'desc'
+}
+
+/**
+ * {{pascalCase context}} Repository Interface
+ *
+ * Defines the contract for accessing and persisting {{pascalCase context}} entities.
+ * This interface uses domain language and hides implementation details.
+ */
+export interface I{{pascalCase context}}Repository {
+	/**
+	 * Creates a new {{camelCase context}} and returns the generated ID
+	 * @param {{camelCase context}} - The {{camelCase context}} entity to create
+	 * @returns Promise with the created entity's ID
+	 * @throws Error if creation fails
+	 */
+	create({{camelCase context}}: {{pascalCase context}}): Promise<string>
+
+	/**
+	 * Saves a {{camelCase context}} with a specific ID (create or replace)
+	 * @param id - The ID to use for the entity
+	 * @param {{camelCase context}} - The {{camelCase context}} entity to save
+	 * @returns Promise that resolves when save is complete
+	 * @throws Error if save fails
+	 */
+	save(id: string, {{camelCase context}}: {{pascalCase context}}): Promise<void>
+
+	/**
+	 * Updates an existing {{camelCase context}}
+	 * @param {{camelCase context}} - The {{camelCase context}} entity with updates
+	 * @returns Promise that resolves when update is complete
+	 * @throws Error if entity doesn't exist or update fails
+	 */
+	update({{camelCase context}}: {{pascalCase context}}): Promise<void>
+
+	/**
+	 * Removes a {{camelCase context}} by its ID
+	 * @param id - The ID of the {{camelCase context}} to delete
+	 * @returns Promise that resolves when deletion is complete
+	 * @throws Error if entity doesn't exist or deletion fails
+	 */
+	remove(id: string): Promise<void>
+
+	/**
+	 * Finds a {{camelCase context}} by its ID
+	 * @param id - The ID to search for
+	 * @returns Promise with the {{camelCase context}} entity or null if not found
+	 */
+	findById(id: string): Promise<{{pascalCase context}} | null>
+
+	/**
+	 * Finds all {{camelCase context}}s that match the given criteria
+	 * @param filters - Query filters to apply
+	 * @returns Promise with array of matching {{camelCase context}} entities
+	 */
+	findMany(filters?: {{pascalCase context}}QueryFilters): Promise<{{pascalCase context}}[]>
+
+	/**
+	 * Finds a single {{camelCase context}} that matches the given criteria
+	 * @param filters - Query filters to apply
+	 * @returns Promise with the first matching {{camelCase context}} or null
+	 */
+	findOne(filters: {{pascalCase context}}QueryFilters): Promise<{{pascalCase context}} | null>
+
+	/**
+	 * Counts the number of {{camelCase context}}s that match the given criteria
+	 * @param filters - Query filters to apply
+	 * @returns Promise with the count
+	 */
+	count(filters?: {{pascalCase context}}QueryFilters): Promise<number>
+
+	/**
+	 * Checks if a {{camelCase context}} exists with the given ID
+	 * @param id - The ID to check
+	 * @returns Promise with true if exists, false otherwise
+	 */
+	exists(id: string): Promise<boolean>
+
+	/**
+	 * Finds {{camelCase context}}s by status
+	 * @param status - The status to filter by
+	 * @returns Promise with array of matching {{camelCase context}} entities
+	 */
+	findByStatus(status: {{pascalCase context}}Status): Promise<{{pascalCase context}}[]>
+}

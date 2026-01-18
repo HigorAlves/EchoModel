@@ -1,0 +1,84 @@
+import { z } from 'zod'
+import { {{pascalCase context}}ValidationError } from '../{{camelCase context}}.error'
+
+/**
+ * @fileoverview {{pascalCase context}} ID Value Object
+ *
+ * Value Objects are immutable objects that represent a concept in the domain.
+ * They are defined by their attributes rather than identity. Key characteristics:
+ * - Immutable: Once created, they cannot be modified
+ * - Equality: Two value objects are equal if all their attributes are equal
+ * - No identity: They don't have a unique identifier
+ * - Self-validating: They ensure they are always in a valid state
+ *
+ * Value Objects should:
+ * - Encapsulate validation logic
+ * - Be side-effect free
+ * - Express domain concepts clearly
+ * - Replace primitive obsession with meaningful types
+ */
+
+/**
+ * {{pascalCase context}} ID Value Object
+ *
+ * Represents a unique identifier for {{pascalCase context}} entities.
+ * Encapsulates validation rules and ensures type safety for IDs.
+ */
+export class {{pascalCase context}}Id {
+	private constructor(private readonly data: string) {}
+
+	/**
+	 * Factory method to create a {{pascalCase context}}Id
+	 * @param data - The ID string to validate and wrap
+	 * @returns New {{pascalCase context}}Id instance
+	 * @throws Error if the ID is invalid
+	 */
+	static create(data: string): {{pascalCase context}}Id {
+		const schema = z
+			.string()
+			.min(1, 'ID cannot be empty')
+			.max(255, 'ID cannot exceed 255 characters')
+			.regex(/^[a-zA-Z0-9_-]+$/, 'ID can only contain alphanumeric characters, underscores, and hyphens')
+
+		const result = schema.safeParse(data)
+		if (!result.success) {
+			const errors = result.error.errors.map((e) => e.message)
+			throw new {{pascalCase context}}ValidationError(errors, { field: '{{camelCase context}}Id', value: data })
+		}
+
+		return new {{pascalCase context}}Id(data)
+	}
+
+	/**
+	 * Get the raw ID value
+	 * @returns The ID string
+	 */
+	get value(): string {
+		return this.data
+	}
+
+	/**
+	 * Check if this ID equals another ID
+	 * @param other - Another {{pascalCase context}}Id to compare
+	 * @returns True if IDs are equal
+	 */
+	equals(other: {{pascalCase context}}Id): boolean {
+		return this.data === other.data
+	}
+
+	/**
+	 * Convert to string representation
+	 * @returns The ID string
+	 */
+	toString(): string {
+		return this.data
+	}
+
+	/**
+	 * Convert to JSON representation
+	 * @returns The ID string for JSON serialization
+	 */
+	toJSON(): string {
+		return this.data
+	}
+}

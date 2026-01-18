@@ -1,0 +1,58 @@
+{
+	"name": "@foundry/api-user",
+	"version": "1.0.0",
+	"description": "User bounded context Lambda API",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"license": "ISC",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"default": "./dist/index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"scripts": {
+		"build": "tsdown",
+		"dev": "tsdown --watch",
+		"check-types": "tsc --noEmit",
+		"test": "vitest",
+		"test:unit": "vitest run",
+		"test:e2e": "vitest run --config vitest.e2e.config.ts",
+		"test:watch": "vitest --watch",
+		"start:local": "tsx watch src/local.ts"
+	},
+	"author": {
+		"email": "me@higoralves.dev",
+		"name": "Higor Alves",
+		"url": "https://higoralves.dev"
+	},
+	"dependencies": {
+		"@foundry/application": "*",
+		"@foundry/database": "*",
+		"@foundry/domain": "*",
+		"@foundry/error": "*",
+		"@foundry/lambda": "*",
+		"@foundry/logger": "*",
+		"@foundry/testing": "*",
+		"@hono/node-server": "^1.19.9",
+		"hono": "^4.11.4",
+		"reflect-metadata": "^0.2.2",
+		"typedi": "^0.10.0",
+		"typeorm": "^0.3.28",
+		"zod": "^3.25.76"
+	},
+	"devDependencies": {
+		"@foundry/typescript-config": "*",
+		"@foundry/vitest-config": "*",
+		"@testcontainers/postgresql": "^11.0.3",
+		"@types/aws-lambda": "^8.10.145",
+		"@types/node": "^24.0.6",
+		"testcontainers": "^11.0.3",
+		"tsdown": "^0.14.1",
+		"tsx": "^4.19.2",
+		"typescript": "^5.8.3",
+		"vitest": "^3.2.4"
+	}
+}

@@ -1,0 +1,299 @@
+{
+	"metadata": {
+		"title": "Foundry Dashboard",
+		"description": "Foundry Dashboard Application"
+	},
+	"common": {
+		"login": "Login",
+		"signup": "Sign up",
+		"logout": "Log out",
+		"email": "Email",
+		"password": "Password",
+		"confirmPassword": "Confirm Password",
+		"submit": "Submit",
+		"cancel": "Cancel",
+		"save": "Save",
+		"delete": "Delete",
+		"edit": "Edit",
+		"more": "More",
+		"loading": "Loading...",
+		"error": "Error",
+		"success": "Success",
+		"termsOfService": "Terms of Service",
+		"privacyPolicy": "Privacy Policy"
+	},
+	"home": {
+		"getStarted": "To get started, edit the page.tsx file.",
+		"lookingForStart": "Looking for a starting point or more instructions? Head over to",
+		"lookingForMiddle": "or the",
+		"lookingForEnd": " center.",
+		"templates": "Templates",
+		"learning": "Learning",
+		"deployNow": "Deploy Now",
+		"documentation": "Documentation"
+	},
+	"auth": {
+		"login": {
+			"title": "Welcome back",
+			"subtitle": "Login to your Acme Inc account",
+			"forgotPassword": "Forgot your password?",
+			"loggingIn": "Logging in...",
+			"loginButton": "Login",
+			"orContinueWith": "Or continue with",
+			"noAccount": "Don't have an account?",
+			"signupLink": "Sign up",
+			"loginWithApple": "Login with Apple",
+			"loginWithGoogle": "Login with Google",
+			"loginWithMeta": "Login with Meta",
+			"termsAgreementStart": "By clicking continue, you agree to our",
+			"termsAgreementMiddle": "and"
+		},
+		"signup": {
+			"title": "Create your account",
+			"subtitle": "Enter your email below to create your account",
+			"emailDescription": "We'll use this to contact you. We will not share your email with anyone else.",
+			"passwordMinLength": "Must be at least 8 characters long.",
+			"creatingAccount": "Creating Account...",
+			"createAccountButton": "Create Account",
+			"orContinueWith": "Or continue with",
+			"hasAccount": "Already have an account?",
+			"signinLink": "Sign in",
+			"signupWithApple": "Sign up with Apple",
+			"signupWithGoogle": "Sign up with Google",
+			"signupWithMeta": "Sign up with Meta",
+			"termsAgreementStart": "By clicking continue, you agree to our",
+			"termsAgreementMiddle": "and"
+		},
+		"validation": {
+			"emailRequired": "Email is required",
+			"emailInvalid": "Please enter a valid email",
+			"passwordRequired": "Password is required",
+			"passwordMinLength": "Password must be at least 8 characters",
+			"confirmPasswordRequired": "Please confirm your password",
+			"passwordsDoNotMatch": "Passwords do not match"
+		}
+	},
+	"passwordStrength": {
+		"label": "Password strength:",
+		"veryWeak": "Very weak",
+		"weak": "Weak",
+		"fair": "Fair",
+		"strong": "Strong",
+		"veryStrong": "Very strong"
+	},
+	"navigation": {
+		"finance": "Finance",
+		"management": "Management",
+		"platform": "Platform",
+		"projects": "Projects",
+		"teams": "Teams",
+		"addTeam": "Add team"
+	},
+	"sidebar": {
+		"dashboard": "Dashboard",
+		"overview": "Overview",
+		"netWorth": "Net Worth",
+		"monthlySummary": "Monthly Summary",
+		"accounts": "Accounts",
+		"allAccounts": "All Accounts",
+		"bankAccounts": "Bank Accounts",
+		"creditCards": "Credit Cards",
+		"cashWallets": "Cash & Wallets",
+		"addAccount": "Add Account",
+		"transactions": "Transactions",
+		"allTransactions": "All Transactions",
+		"income": "Income",
+		"expenses": "Expenses",
+		"transfers": "Transfers",
+		"import": "Import",
+		"budget": "Budget",
+		"categories": "Categories",
+		"planning": "Planning",
+		"alerts": "Alerts",
+		"investments": "Investments",
+		"portfolio": "Portfolio",
+		"stocksEtfs": "Stocks & ETFs",
+		"crypto": "Crypto",
+		"fixedIncome": "Fixed Income",
+		"realEstate": "Real Estate",
+		"funds": "Funds",
+		"goals": "Goals",
+		"allGoals": "All Goals",
+		"emergencyFund": "Emergency Fund",
+		"savings": "Savings",
+		"milestones": "Milestones",
+		"bills": "Bills",
+		"upcoming": "Upcoming",
+		"subscriptions": "Subscriptions",
+		"recurring": "Recurring",
+		"history": "History",
+		"reports": "Reports",
+		"cashFlow": "Cash Flow",
+		"byCategory": "By Category",
+		"taxReport": "Tax Report",
+		"settings": "Settings",
+		"general": "General",
+		"currencies": "Currencies",
+		"importExport": "Import/Export",
+		"notifications": "Notifications"
+	},
+	"projects": {
+		"designEngineering": "Design Engineering",
+		"salesMarketing": "Sales & Marketing",
+		"travel": "Travel",
+		"viewProject": "View Project",
+		"shareProject": "Share Project",
+		"deleteProject": "Delete Project"
+	},
+	"user": {
+		"upgradeToPro": "Upgrade to Pro",
+		"account": "Account",
+		"billing": "Billing",
+		"notifications": "Notifications"
+	},
+	"dashboard": {
+		"breadcrumbs": {
+			"buildingYourApplication": "Building Your Application",
+			"dataFetching": "Data Fetching"
+		}
+	},
+	"localeSwitcher": {
+		"label": "Language",
+		"switchTo": "Switch to {locale}"
+	},
+	"accounts": {
+		"breadcrumbs": {
+			"accounts": "Accounts",
+			"all": "All Accounts",
+			"bank": "Bank Accounts",
+			"creditCards": "Credit Cards",
+			"cashWallets": "Cash & Wallets",
+			"details": "Account Details"
+		},
+		"tabs": {
+			"all": "All",
+			"bank": "Bank",
+			"creditCards": "Credit Cards",
+			"cashWallets": "Cash & Wallets"
+		},
+		"summary": {
+			"bankBalance": "Bank Balance",
+			"creditDebt": "Credit Card Debt",
+			"availableCredit": "Available Credit",
+			"cashWallets": "Cash & Wallets",
+			"totalAccounts": "{count} accounts"
+		},
+		"types": {
+			"bank": "Bank Account",
+			"credit_card": "Credit Card",
+			"cash": "Cash",
+			"wallet": "Digital Wallet"
+		},
+		"subtypes": {
+			"checking": "Checking",
+			"savings": "Savings"
+		},
+		"status": {
+			"active": "Active",
+			"inactive": "Inactive",
+			"closed": "Closed"
+		},
+		"cardBrands": {
+			"visa": "Visa",
+			"mastercard": "Mastercard",
+			"amex": "American Express",
+			"discover": "Discover"
+		},
+		"walletTypes": {
+			"digital": "Digital",
+			"physical": "Physical"
+		},
+		"card": {
+			"balance": "Balance",
+			"available": "Available",
+			"creditLimit": "Credit Limit",
+			"creditUsage": "Credit Usage",
+			"minimumPayment": "Min. Payment",
+			"dueDate": "Due Date",
+			"apr": "APR",
+			"accountNumber": "Account",
+			"location": "Location",
+			"provider": "Provider",
+			"dueSoon": "Due Soon",
+			"overdue": "Overdue"
+		},
+		"detail": {
+			"accountInfo": "Account Information",
+			"creditInfo": "Credit Information",
+			"recentTransactions": "Recent Transactions",
+			"noTransactions": "No recent transactions",
+			"viewAllTransactions": "View all transactions",
+			"quickActions": "Quick Actions",
+			"transfer": "Transfer",
+			"makePayment": "Make Payment",
+			"viewStatements": "View Statements"
+		},
+		"dialog": {
+			"addTitle": "Add New Account",
+			"addDescription": "Choose the type of account you want to add",
+			"deleteTitle": "Delete Account",
+			"deleteDescription": "Are you sure you want to delete this account? This action cannot be undone.",
+			"deleteConfirm": "Delete Account",
+			"step1": "Select Type",
+			"step2": "Account Details"
+		},
+		"form": {
+			"name": "Account Name",
+			"namePlaceholder": "Enter account name",
+			"bankName": "Bank Name",
+			"bankNamePlaceholder": "Enter bank name",
+			"accountNumber": "Account Number",
+			"accountNumberPlaceholder": "Enter last 4 digits",
+			"subtype": "Account Type",
+			"balance": "Current Balance",
+			"balancePlaceholder": "0.00",
+			"currency": "Currency",
+			"color": "Color",
+			"cardNumber": "Card Number",
+			"cardNumberPlaceholder": "Enter last 4 digits",
+			"cardHolder": "Card Holder",
+			"expiryDate": "Expiry Date",
+			"cvv": "CVV",
+			"currentBalance": "Current Balance",
+			"cardBrand": "Card Brand",
+			"creditLimit": "Credit Limit",
+			"creditLimitPlaceholder": "0.00",
+			"apr": "Annual Percentage Rate",
+			"aprPlaceholder": "0.00",
+			"dueDate": "Due Date",
+			"location": "Location",
+			"locationPlaceholder": "Where is this cash stored?",
+			"walletType": "Wallet Type",
+			"provider": "Provider",
+			"providerPlaceholder": "e.g. PayPal, Venmo"
+		},
+		"validation": {
+			"nameRequired": "Account name is required",
+			"bankNameRequired": "Bank name is required",
+			"accountNumberRequired": "Account number is required",
+			"balanceRequired": "Balance is required",
+			"currencyRequired": "Currency is required",
+			"cardNumberRequired": "Card number is required",
+			"cardBrandRequired": "Card brand is required",
+			"creditLimitRequired": "Credit limit is required",
+			"aprRequired": "APR is required",
+			"dueDateRequired": "Due date is required",
+			"walletTypeRequired": "Wallet type is required"
+		},
+		"empty": {
+			"title": "No accounts found",
+			"description": "Get started by adding your first account",
+			"addButton": "Add Account"
+		},
+		"actions": {
+			"addAccount": "Add Account",
+			"editAccount": "Edit Account",
+			"deleteAccount": "Delete Account"
+		}
+	}
+}

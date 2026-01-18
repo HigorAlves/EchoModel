@@ -1,0 +1,101 @@
+# Lefthook configuration for Foundry monorepo
+# Docs: https://github.com/evilmartians/lefthook
+
+colors: true
+no_tty: false
+
+commit-msg:
+  commands:
+    commitlint:
+      run: yarn commitlint --edit {1}
+      fail_text: |
+        ❌ Commit message does not follow conventional commits format.
+        Use: <type>(<scope>): <subject>
+        Example: feat(api): add user authentication endpoint
+        Run 'yarn commit' for an interactive prompt.
+
+pre-commit:
+  parallel: true
+  commands:
+    lint-staged:
+      glob: "*.{js,jsx,ts,tsx,json,css,md}"
+      run: yarn biome check --staged --no-errors-on-unmatched --colors=force {staged_files}
+      fail_text: "❌ Linting failed. Run 'yarn lint:fix' to auto-fix issues."
+      stage_fixed: true
+
+    check-types:
+      glob: "*.{ts,tsx}"
+      run: yarn turbo run check-types --output-logs=errors-only
+      fail_text: "❌ TypeScript errors found. Fix type issues before committing."
+
+    check-secrets:
+      glob: "*.{js,jsx,ts,tsx,json,env,yml,yaml}"
+      run: |
+        if git diff --cached --name-only | xargs grep -l -E "(PRIVATE_KEY|SECRET|PASSWORD|API_KEY|TOKEN)=.+" 2>/dev/null; then
+          echo "⚠️  Possible secrets detected in staged files"
+          exit 1
+        fi
+      fail_text: "❌ Possible secrets detected. Remove sensitive data before committing."
+
+    no-debug:
+      glob: "*.{js,jsx,ts,tsx}"
+      run: |
+        if git diff --cached --diff-filter=ACM | grep -E "^\+" | grep -E "(console\.(log|debug|info)|debugger)" | grep -v "// eslint-disable" | grep -v "// biome-ignore"; then
+          echo "⚠️  Debug statements found in staged changes"
+          exit 1
+        fi
+      fail_text: "❌ Remove console.log/debugger statements before committing."
+
+    check-lockfile:
+      glob: "package.json"
+      run: |
+        # Get the staged version of package.json and compare dependencies/devDependencies only
+        staged_deps=$(git show :package.json | jq -S '{dependencies, devDependencies, peerDependencies, optionalDependencies, resolutions}' 2>/dev/null)
+        head_deps=$(git show HEAD:package.json | jq -S '{dependencies, devDependencies, peerDependencies, optionalDependencies, resolutions}' 2>/dev/null)
+
+        if [[ "$staged_deps" != "$head_deps" ]]; then
+          if ! git diff --cached --name-only | grep -q "yarn.lock"; then
+            echo "⚠️  package.json dependencies changed but yarn.lock not updated"
+            exit 1
+          fi
+        fi
+      fail_text: "❌ package.json dependencies were modified. Run 'yarn install' to update yarn.lock."
+
+pre-push:
+  parallel: true
+  commands:
+    test-affected:
+      run: yarn affected --task test:unit --since origin/main
+      fail_text: "❌ Tests failed. Fix failing tests before pushing."
+      skip:
+        - merge
+        - rebase
+
+    build-check:
+      run: yarn turbo run build --dry-run --output-logs=errors-only
+      fail_text: "❌ Build dry-run failed. Ensure the project builds before pushing."
+
+post-checkout:
+  commands:
+    install-deps:
+      run: |
+        changed_files=$(git diff --name-only HEAD@{1} HEAD 2>/dev/null || echo "")
+        if echo "$changed_files" | grep -qE "(package\.json|yarn\.lock)"; then
+          echo "📦 Dependencies changed, running yarn install..."
+          yarn install
+        fi
+
+post-merge:
+  commands:
+    install-deps:
+      run: |
+        changed_files=$(git diff --name-only HEAD@{1} HEAD 2>/dev/null || echo "")
+        if echo "$changed_files" | grep -qE "(package\.json|yarn\.lock)"; then
+          echo "📦 Dependencies changed, running yarn install..."
+          yarn install
+        fi
+
+# Skip hooks in CI environments
+skip_in_env:
+  - CI
+  - GITHUB_ACTIONS

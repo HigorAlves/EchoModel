@@ -1,0 +1,22 @@
+/**
+ * @fileoverview {{pascalCase context}} Mapper
+ */
+
+import type { {{pascalCase context}} } from '@foundry/domain'
+import type { {{pascalCase context}}Output } from '@/{{pascalCase context}}'
+
+export function to{{pascalCase context}}Response({{camelCase context}}: {{pascalCase context}}): {{pascalCase context}}Output {
+	return {
+		id: {{camelCase context}}.id.value,
+		// TODO: Map domain entity fields to output DTO
+		// Example:
+		// name: {{camelCase context}}.name.value,
+		status: {{camelCase context}}.status,
+		createdAt: {{camelCase context}}.createdAt,
+		updatedAt: {{camelCase context}}.updatedAt,
+	}
+}
+
+export function to{{pascalCase context}}ResponseList({{camelCase context}}s: {{pascalCase context}}[]): {{pascalCase context}}Output[] {
+	return {{camelCase context}}s.map(({{camelCase context}}) => to{{pascalCase context}}Response({{camelCase context}}))
+}

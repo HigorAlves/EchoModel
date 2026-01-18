@@ -1,0 +1,91 @@
+/**
+ * @fileoverview {{pascalCase context}} Domain Service
+ *
+ * Domain Services encapsulate business logic that doesn't naturally belong to
+ * any particular entity or value object. They are useful when:
+ * - The operation involves multiple entities
+ * - The operation is a domain concept that doesn't fit in an entity
+ * - The operation requires external dependencies (repositories, external services)
+ *
+ * Domain Services should:
+ * - Be stateless
+ * - Have a clear, domain-focused responsibility
+ * - Use domain language in method names
+ * - Accept and return domain objects
+ */
+
+import type { {{pascalCase context}} } from './{{pascalCase context}}.entity'
+import { {{pascalCase context}}Status } from './{{camelCase context}}.enum'
+import type { I{{pascalCase context}}Repository } from './{{camelCase context}}.repository'
+
+/**
+ * {{pascalCase context}} Domain Service
+ *
+ * Provides domain operations that span multiple entities or require
+ * coordination between different parts of the {{pascalCase context}} aggregate.
+ */
+export class {{pascalCase context}}Service {
+	constructor(private readonly {{camelCase context}}Repository: I{{pascalCase context}}Repository) {}
+
+	/**
+	 * Activates a {{camelCase context}} if it's in a valid state for activation
+	 * @param {{camelCase context}}Id - The ID of the {{camelCase context}} to activate
+	 * @returns The activated {{camelCase context}}
+	 * @throws Error if {{camelCase context}} not found or cannot be activated
+	 */
+	async activate({{camelCase context}}Id: string): Promise<{{pascalCase context}}> {
+		const {{camelCase context}} = await this.{{camelCase context}}Repository.findById({{camelCase context}}Id)
+		if (!{{camelCase context}}) {
+			throw new Error(`{{pascalCase context}} with ID '${{{camelCase context}}Id}' not found`)
+		}
+
+		if ({{camelCase context}}.status === {{pascalCase context}}Status.ACTIVE) {
+			return {{camelCase context}} // Already active
+		}
+
+		const activated = {{camelCase context}}.updateStatus({{pascalCase context}}Status.ACTIVE)
+		await this.{{camelCase context}}Repository.update(activated)
+
+		return activated
+	}
+
+	/**
+	 * Suspends a {{camelCase context}} if it's in a valid state for suspension
+	 * @param {{camelCase context}}Id - The ID of the {{camelCase context}} to suspend
+	 * @returns The suspended {{camelCase context}}
+	 * @throws Error if {{camelCase context}} not found or cannot be suspended
+	 */
+	async suspend({{camelCase context}}Id: string): Promise<{{pascalCase context}}> {
+		const {{camelCase context}} = await this.{{camelCase context}}Repository.findById({{camelCase context}}Id)
+		if (!{{camelCase context}}) {
+			throw new Error(`{{pascalCase context}} with ID '${{{camelCase context}}Id}' not found`)
+		}
+
+		if ({{camelCase context}}.status === {{pascalCase context}}Status.SUSPENDED) {
+			return {{camelCase context}} // Already suspended
+		}
+
+		const suspended = {{camelCase context}}.updateStatus({{pascalCase context}}Status.SUSPENDED)
+		await this.{{camelCase context}}Repository.update(suspended)
+
+		return suspended
+	}
+
+	/**
+	 * Gets statistics about {{camelCase context}}s by status
+	 * @returns Object with counts per status
+	 */
+	async getStatusStatistics(): Promise<Record<{{pascalCase context}}Status, number>> {
+		const [activeCount, inactiveCount, suspendedCount] = await Promise.all([
+			this.{{camelCase context}}Repository.count({ status: {{pascalCase context}}Status.ACTIVE }),
+			this.{{camelCase context}}Repository.count({ status: {{pascalCase context}}Status.INACTIVE }),
+			this.{{camelCase context}}Repository.count({ status: {{pascalCase context}}Status.SUSPENDED }),
+		])
+
+		return {
+			[{{pascalCase context}}Status.ACTIVE]: activeCount,
+			[{{pascalCase context}}Status.INACTIVE]: inactiveCount,
+			[{{pascalCase context}}Status.SUSPENDED]: suspendedCount,
+		}
+	}
+}

@@ -1,0 +1,10 @@
+{
+	"extends": "@foundry/typescript-config/base.json",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"types": ["cypress"],
+		"isolatedModules": false
+	},
+	"include": ["cypress/**/*.ts", "cypress.config.ts"],
+	"exclude": ["node_modules"]
+}

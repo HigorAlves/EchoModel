@@ -1,0 +1,21 @@
+/**
+ * @fileoverview Get {{pascalCase context}} By ID Query Handler
+ */
+
+import type { I{{pascalCase context}}Repository } from '@foundry/domain'
+import type { Get{{pascalCase context}}ByIdInput, {{pascalCase context}}Output } from '../dto'
+import { Get{{pascalCase context}}ByIdSchema } from '../dto'
+import { to{{pascalCase context}}Response } from '../mappers'
+
+export class Get{{pascalCase context}}ByIdQuery {
+	constructor(private readonly {{camelCase context}}Repository: I{{pascalCase context}}Repository) {}
+
+	async execute(input: Get{{pascalCase context}}ByIdInput): Promise<{{pascalCase context}}Output | null> {
+		const { {{camelCase context}}Id } = Get{{pascalCase context}}ByIdSchema.parse(input)
+
+		const {{camelCase context}} = await this.{{camelCase context}}Repository.findById({{camelCase context}}Id)
+		if (!{{camelCase context}}) return null
+
+		return to{{pascalCase context}}Response({{camelCase context}})
+	}
+}

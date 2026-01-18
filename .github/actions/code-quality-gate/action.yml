@@ -1,0 +1,252 @@
+name: "Code Quality Gate"
+description: "Comprehensive code quality checks including linting, typecheck, commitlint, and build validation"
+
+inputs:
+  environment:
+    description: "Deployment environment"
+    required: true
+  skip-commitlint:
+    description: "Skip commit message validation"
+    required: false
+    default: 'false'
+  skip-lint:
+    description: "Skip linting"
+    required: false
+    default: 'false'
+  skip-typecheck:
+    description: "Skip type checking"
+    required: false
+    default: 'false'
+  fail-fast:
+    description: "Fail fast on first error"
+    required: false
+    default: 'true'
+
+outputs:
+  quality-status:
+    description: "Overall quality gate status"
+    value: ${{ steps.quality-summary.outputs.status }}
+  lint-status:
+    description: "Linting status"
+    value: ${{ steps.lint.outputs.status }}
+  typecheck-status:
+    description: "Type checking status"
+    value: ${{ steps.typecheck.outputs.status }}
+  build-status:
+    description: "Build status"
+    value: ${{ steps.build.outputs.status }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Quality Gate Setup
+      shell: bash
+      run: |
+        echo "🏗️ Starting Code Quality Gate"
+        echo "Environment: ${{ inputs.environment }}"
+        echo "Fail fast: ${{ inputs.fail-fast }}"
+        mkdir -p quality-reports
+
+        # Source reporting utilities
+        source .github/scripts/quality-report.sh
+        export REPORT_DIR="quality-reports"
+        export ENVIRONMENT="${{ inputs.environment }}"
+
+    - name: Commit Message Validation
+      id: commitlint
+      if: inputs.skip-commitlint != 'true'
+      shell: bash
+      run: |
+        echo "📝 Validating commit messages"
+        echo "status=pending" >> $GITHUB_OUTPUT
+
+        # Install commitlint dependencies
+        yarn add -D conventional-changelog-conventionalcommits commitlint@latest
+
+        # Run commitlint
+        if yarn commitlint --last --verbose > quality-reports/commitlint.log 2>&1; then
+          echo "✅ Commit message validation passed"
+          echo "status=success" >> $GITHUB_OUTPUT
+        else
+          echo "❌ Commit message validation failed"
+          cat quality-reports/commitlint.log
+          echo "status=failure" >> $GITHUB_OUTPUT
+          if [ "${{ inputs.fail-fast }}" = "true" ]; then
+            exit 1
+          fi
+        fi
+
+    - name: Code Linting
+      id: lint
+      if: inputs.skip-lint != 'true'
+      shell: bash
+      env:
+        TURBO_TOKEN: ${{ env.TURBO_TOKEN }}
+        TURBO_TEAM: ${{ env.TURBO_TEAM }}
+      run: |
+        echo "🔍 Running code linting"
+        echo "status=pending" >> $GITHUB_OUTPUT
+
+        # Run linting via turbo for caching benefits
+        if npx turbo run lint > quality-reports/lint.log 2>&1; then
+          echo "✅ Linting passed"
+          echo "status=success" >> $GITHUB_OUTPUT
+        else
+          echo "❌ Linting failed"
+          cat quality-reports/lint.log
+          echo "status=failure" >> $GITHUB_OUTPUT
+          if [ "${{ inputs.fail-fast }}" = "true" ]; then
+            exit 1
+          fi
+        fi
+
+    - name: Build Project
+      id: build
+      shell: bash
+      env:
+        TURBO_TOKEN: ${{ env.TURBO_TOKEN }}
+        TURBO_TEAM: ${{ env.TURBO_TEAM }}
+        NODE_ENV: production
+        # Increase Node.js memory limit for Next.js builds
+        NODE_OPTIONS: "--max-old-space-size=4096"
+      run: |
+        echo "🏗️ Building project"
+        echo "status=pending" >> $GITHUB_OUTPUT
+
+        # Run build with output directly visible for better debugging
+        if npx turbo run build 2>&1 | tee quality-reports/build.log; then
+          echo "✅ Build completed successfully"
+          echo "status=success" >> $GITHUB_OUTPUT
+        else
+          echo "❌ Build failed"
+          echo "--- Build Log (last 100 lines) ---"
+          tail -100 quality-reports/build.log
+          echo "status=failure" >> $GITHUB_OUTPUT
+          if [ "${{ inputs.fail-fast }}" = "true" ]; then
+            exit 1
+          fi
+        fi
+
+    - name: Type Checking
+      id: typecheck
+      if: inputs.skip-typecheck != 'true'
+      shell: bash
+      env:
+        TURBO_TOKEN: ${{ env.TURBO_TOKEN }}
+        TURBO_TEAM: ${{ env.TURBO_TEAM }}
+      run: |
+        echo "🔧 Running type checking"
+        echo "status=pending" >> $GITHUB_OUTPUT
+
+        if npx turbo run check-types > quality-reports/typecheck.log 2>&1; then
+          echo "✅ Type checking passed"
+          echo "status=success" >> $GITHUB_OUTPUT
+        else
+          echo "❌ Type checking failed"
+          cat quality-reports/typecheck.log
+          echo "status=failure" >> $GITHUB_OUTPUT
+          if [ "${{ inputs.fail-fast }}" = "true" ]; then
+            exit 1
+          fi
+        fi
+
+    - name: Dependency Validation
+      shell: bash
+      run: |
+        echo "📦 Validating dependencies"
+
+        # Check for security vulnerabilities
+        if [ -f "./scripts/security-audit.sh" ]; then
+          if ./scripts/security-audit.sh > quality-reports/dependency-security.log 2>&1; then
+            echo "✅ Dependency security check passed"
+          else
+            echo "❌ Dependency security check failed"
+            cat quality-reports/dependency-security.log
+            if [ "${{ inputs.fail-fast }}" = "true" ]; then
+              exit 1
+            fi
+          fi
+        fi
+
+        # Check for unused dependencies
+        if command -v knip >/dev/null 2>&1; then
+          if yarn knip --reporter json > quality-reports/unused-dependencies.json 2>&1; then
+            echo "✅ No unused dependencies found"
+          else
+            echo "⚠️ Unused dependencies detected (non-blocking)"
+          fi
+        fi
+
+    - name: Code Complexity Analysis
+      shell: bash
+      run: |
+        echo "📊 Analyzing code complexity"
+
+        # Simple line count analysis
+        echo "Code statistics:" > quality-reports/code-stats.txt
+        find . -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" | \
+          grep -v node_modules | grep -v dist | grep -v .next | \
+          xargs wc -l | tail -1 >> quality-reports/code-stats.txt
+
+        echo "TypeScript files:" >> quality-reports/code-stats.txt
+        find . -name "*.ts" -o -name "*.tsx" | grep -v node_modules | wc -l >> quality-reports/code-stats.txt
+
+        echo "JavaScript files:" >> quality-reports/code-stats.txt
+        find . -name "*.js" -o -name "*.jsx" | grep -v node_modules | wc -l >> quality-reports/code-stats.txt
+
+        cat quality-reports/code-stats.txt
+        echo "✅ Code complexity analysis completed"
+
+    - name: Quality Gate Summary
+      id: quality-summary
+      shell: bash
+      run: |
+        echo "📋 Generating quality gate summary"
+
+        # Source reporting utilities
+        source .github/scripts/quality-report.sh
+        export REPORT_DIR="quality-reports"
+
+        # Determine status for each check
+        commitlint_status="${{ steps.commitlint.outputs.status }}"
+        if [ "${{ inputs.skip-commitlint }}" = "true" ]; then
+          commitlint_status="skipped"
+        fi
+
+        lint_status="${{ steps.lint.outputs.status }}"
+        if [ "${{ inputs.skip-lint }}" = "true" ]; then
+          lint_status="skipped"
+        fi
+
+        build_status="${{ steps.build.outputs.status }}"
+
+        typecheck_status="${{ steps.typecheck.outputs.status }}"
+        if [ "${{ inputs.skip-typecheck }}" = "true" ]; then
+          typecheck_status="skipped"
+        fi
+
+        dependency_status="success"
+
+        # Generate comprehensive report
+        if generate_quality_report "$commitlint_status" "$lint_status" "$build_status" "$typecheck_status" "$dependency_status"; then
+          echo "status=pass" >> $GITHUB_OUTPUT
+        else
+          echo "status=fail" >> $GITHUB_OUTPUT
+          if [ "${{ inputs.fail-fast }}" = "true" ]; then
+            exit 1
+          fi
+        fi
+
+    - name: Upload Quality Reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: quality-reports-${{ inputs.environment }}
+        path: quality-reports/
+        retention-days: 30
+
+    - name: Quality Gate Complete
+      shell: bash
+      run: |
+        echo "🏁 Code Quality Gate completed"
+        echo "Status: ${{ steps.quality-summary.outputs.status }}"

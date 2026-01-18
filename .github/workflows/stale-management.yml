@@ -1,0 +1,62 @@
+name: 🧹 Stale Issue and PR Management
+
+on:
+  schedule:
+    # Run every day at 2:00 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    name: Clean Stale Issues & PRs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark stale issues and PRs
+        uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+          # Issues: 30 days stale, 7 days to close
+          stale-issue-message: |
+            This issue has been marked as stale due to inactivity.
+
+            **Next steps:**
+            - Comment to keep it open
+            - Will auto-close in 7 days if no activity
+
+            Thanks for your understanding! 🙏
+          stale-issue-label: 'stale'
+          days-before-issue-stale: 30
+          days-before-issue-close: 7
+
+          # PRs: 14 days stale, 14 days to close
+          stale-pr-message: |
+            This PR has been marked as stale due to inactivity.
+
+            **To reactivate:**
+            - Push commits or comment
+            - Will auto-close in 14 days if no activity
+
+            Thanks for your contribution! 🚀
+          stale-pr-label: 'stale'
+          days-before-pr-stale: 14
+          days-before-pr-close: 14
+
+          # Close messages
+          close-issue-message: |
+            Closed due to inactivity. Comment to reopen or create a new issue.
+          close-pr-message: |
+            Closed due to inactivity. Feel free to reopen when ready to continue.
+
+          # Exempt important items
+          exempt-issue-labels: 'urgent,security,breaking,enhancement'
+          exempt-pr-labels: 'urgent,security,breaking,draft'
+          exempt-draft-pr: true
+
+          # Performance settings
+          operations-per-run: 50
+          remove-stale-when-updated: true

@@ -1,0 +1,47 @@
+/**
+ * @fileoverview Create {{pascalCase context}} Command Handler
+ */
+
+import type { I{{pascalCase context}}Repository, {{pascalCase context}} } from '@foundry/domain'
+import type { Context, IEventBus } from '@/shared'
+import type { Create{{pascalCase context}}Input, Create{{pascalCase context}}Response } from '@/{{pascalCase context}}'
+import { Create{{pascalCase context}}Schema } from '@/{{pascalCase context}}'
+
+export class Create{{pascalCase context}}Command {
+	constructor(
+		private readonly {{camelCase context}}Repository: I{{pascalCase context}}Repository,
+		private readonly eventBus?: IEventBus,
+	) {}
+
+	async execute(input: Create{{pascalCase context}}Input, ctx: Context): Promise<Create{{pascalCase context}}Response> {
+		const validated = Create{{pascalCase context}}Schema.parse(input)
+
+		const { {{pascalCase context}} } = await import('@foundry/domain')
+		const {{camelCase context}} = {{pascalCase context}}.create({
+			// TODO: Map validated input to domain entity props
+			...validated,
+		})
+
+		const {{camelCase context}}Id = await this.{{camelCase context}}Repository.create({{camelCase context}})
+
+		await this.publishEvents({{camelCase context}}, ctx)
+
+		return { {{camelCase context}}Id }
+	}
+
+	private async publishEvents({{camelCase context}}: {{pascalCase context}}, ctx: Context): Promise<void> {
+		if (!this.eventBus) return
+
+		for (const event of {{camelCase context}}.domainEvents) {
+			await this.eventBus.publish({
+				eventType: event.eventType,
+				aggregateType: event.aggregateType,
+				aggregateId: event.aggregateId,
+				payload: event.eventData as Record<string, unknown>,
+				correlationId: ctx.correlationId,
+				occurredAt: new Date(),
+			})
+		}
+		{{camelCase context}}.clearDomainEvents()
+	}
+}

@@ -1,0 +1,114 @@
+name: "Test Suite"
+description: "Run unit and E2E tests with artifact upload"
+
+inputs:
+  environment:
+    description: "Deployment environment"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup environment
+      uses: ./.github/actions/setup
+
+    - name: Setup Test Suite
+      shell: bash
+      run: |
+        echo "🧪 Starting Test Suite"
+        echo "Environment: ${{ inputs.environment }}"
+        mkdir -p test-reports
+
+        # Source reporting utilities
+        source .github/scripts/test-report.sh
+        export REPORT_DIR="test-reports"
+        export ENVIRONMENT="${{ inputs.environment }}"
+
+    - name: Build project
+      id: build
+      shell: bash
+      run: |
+        echo "status=pending" >> $GITHUB_OUTPUT
+        if yarn build > test-reports/build.log 2>&1; then
+          echo "✅ Build completed successfully"
+          echo "status=success" >> $GITHUB_OUTPUT
+        else
+          echo "❌ Build failed"
+          cat test-reports/build.log
+          echo "status=failure" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+      env:
+        TURBO_TOKEN: ${{ env.TURBO_TOKEN }}
+        TURBO_TEAM: ${{ env.TURBO_TEAM }}
+
+    - name: Run Unit Tests
+      id: unit-tests
+      shell: bash
+      run: |
+        echo "status=pending" >> $GITHUB_OUTPUT
+        if yarn test:unit 2>&1 | tee test-reports/unit-test-output.log; then
+          echo "✅ Unit tests passed"
+          echo "status=success" >> $GITHUB_OUTPUT
+        else
+          echo "❌ Unit tests failed"
+          echo "status=failure" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+
+    - name: Run E2E Tests
+      id: e2e-tests
+      if: always()
+      shell: bash
+      continue-on-error: true
+      run: |
+        echo "status=pending" >> $GITHUB_OUTPUT
+        if yarn test:e2e 2>&1 | tee test-reports/e2e-test-output.log; then
+          echo "✅ E2E tests passed"
+          echo "status=success" >> $GITHUB_OUTPUT
+        else
+          echo "❌ E2E tests failed"
+          echo "status=failure" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Generate Test Report
+      if: always()
+      shell: bash
+      run: |
+        # Source reporting utilities
+        source .github/scripts/test-report.sh
+        export REPORT_DIR="test-reports"
+
+        # Determine test statuses
+        build_status="${{ steps.build.outputs.status }}"
+        unit_status="${{ steps.unit-tests.outputs.status }}"
+        e2e_status="${{ steps.e2e-tests.outputs.status }}"
+
+        # Set default if E2E was not run
+        if [ -z "$e2e_status" ]; then
+          e2e_status="skipped"
+        fi
+
+        # Generate comprehensive test report
+        generate_test_report "$build_status" "$unit_status" "$e2e_status" || true
+
+    - name: Upload Test Reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-reports-${{ inputs.environment }}
+        path: test-reports/
+        retention-days: 30
+
+    - name: Upload Coverage Artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-coverage-${{ inputs.environment }}
+        path: |
+          **/coverage
+          **/test-results
+        retention-days: 7

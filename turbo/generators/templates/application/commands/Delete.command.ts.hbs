@@ -1,0 +1,32 @@
+/**
+ * @fileoverview Delete {{pascalCase context}} Command Handler
+ */
+
+import type { I{{pascalCase context}}Repository } from '@foundry/domain'
+import type { Context, IEventBus } from '@/shared'
+import type { Delete{{pascalCase context}}Input, Delete{{pascalCase context}}Response } from '@/{{pascalCase context}}'
+import { Delete{{pascalCase context}}Schema } from '@/{{pascalCase context}}'
+import { ApplicationError } from '@/shared'
+
+export class Delete{{pascalCase context}}Command {
+	constructor(
+		private readonly {{camelCase context}}Repository: I{{pascalCase context}}Repository,
+		private readonly eventBus?: IEventBus,
+	) {}
+
+	async execute(input: Delete{{pascalCase context}}Input, ctx: Context): Promise<Delete{{pascalCase context}}Response> {
+		const validated = Delete{{pascalCase context}}Schema.parse(input)
+		const { {{camelCase context}}Id } = validated
+
+		const existing = await this.{{camelCase context}}Repository.findById({{camelCase context}}Id)
+		if (!existing) {
+			throw ApplicationError.notFound('{{pascalCase context}}', {{camelCase context}}Id)
+		}
+
+		// Soft delete the entity
+		const deleted = existing.delete()
+		await this.{{camelCase context}}Repository.update(deleted)
+
+		return { {{camelCase context}}Id, deleted: true }
+	}
+}

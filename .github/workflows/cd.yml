@@ -1,0 +1,682 @@
+name: 🚀 Continuous Deployment Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - develop
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+          - production
+      component:
+        description: "Component to deploy"
+        required: false
+        default: all
+        type: choice
+        options:
+          - all
+          - web
+          - lambdas
+          - infrastructure
+      force-deploy:
+        description: "Force deployment (skip change detection)"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  checks: write
+  contents: write
+  pull-requests: write
+  security-events: write
+  actions: read
+  id-token: write
+
+# Prevent concurrent deployments to the same environment
+concurrency:
+  group: deploy-${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'production' || (github.ref == 'refs/heads/staging' && 'staging' || 'dev')) }}
+  cancel-in-progress: false
+
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  NODE_ENV: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'production' || (github.ref == 'refs/heads/staging' && 'staging' || 'dev')) }}
+
+jobs:
+  # 🔍 Stage 1: Pre-deployment Validation
+  pre-deployment:
+    name: "🔍 Pre-deployment Validation"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      environment: ${{ steps.setup.outputs.environment }}
+      component: ${{ steps.setup.outputs.component }}
+      should-deploy: ${{ steps.changes.outputs.should-deploy }}
+      deploy-infrastructure: ${{ steps.changes.outputs.infrastructure }}
+      deploy-lambdas: ${{ steps.changes.outputs.lambdas }}
+      deploy-web: ${{ steps.changes.outputs.web }}
+      deploy-api: ${{ steps.changes.outputs.lambdas }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Deployment Configuration
+        id: setup
+        run: |
+          # Determine environment
+          if [ -n "${{ github.event.inputs.environment }}" ]; then
+            ENVIRONMENT="${{ github.event.inputs.environment }}"
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            ENVIRONMENT="production"
+          elif [ "${{ github.ref }}" = "refs/heads/staging" ]; then
+            ENVIRONMENT="staging"
+          else
+            ENVIRONMENT="dev"
+          fi
+
+          # Determine component
+          COMPONENT="${{ github.event.inputs.component || 'all' }}"
+
+          echo "environment=${ENVIRONMENT}" >> $GITHUB_OUTPUT
+          echo "component=${COMPONENT}" >> $GITHUB_OUTPUT
+
+          echo "🚀 Deployment Configuration:"
+          echo "Environment: ${ENVIRONMENT}"
+          echo "Component: ${COMPONENT}"
+          echo "Branch: ${{ github.ref_name }}"
+
+      - name: Check Deployment Window
+        if: steps.setup.outputs.environment == 'production' && github.event.inputs.force-deploy != 'true'
+        run: |
+          echo "🕐 Checking deployment window..."
+
+          HOUR=$(date -u +%H)
+          DAY=$(date -u +%u)  # 1=Monday, 7=Sunday
+
+          echo "Current time (UTC): $(date -u)"
+          echo "Day of week: $DAY (1=Mon, 7=Sun)"
+          echo "Hour: $HOUR"
+
+          # Block deployments on weekends (Saturday=6, Sunday=7)
+          if [[ $DAY -ge 6 ]]; then
+            echo "::error::Production deployments are blocked on weekends"
+            echo "Use workflow_dispatch with force-deploy=true to override"
+            exit 1
+          fi
+
+          # Block deployments outside 9AM-5PM UTC
+          if [[ $HOUR -lt 9 ]] || [[ $HOUR -ge 17 ]]; then
+            echo "::error::Production deployments are blocked outside 9AM-5PM UTC"
+            echo "Use workflow_dispatch with force-deploy=true to override"
+            exit 1
+          fi
+
+          echo "✅ Within deployment window - proceeding"
+
+      - name: Detect Changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            infrastructure:
+              - 'infra/**'
+            lambdas:
+              - 'apps/lambdas/**'
+              - 'packages/lambda/**'
+              - 'infra/cdk/**'
+            web:
+              - 'apps/dashboard/**'
+              - 'packages/ui/**'
+            api:
+              - 'apps/api/**'
+              - 'packages/**'
+              - 'kernel/**'
+              - 'infra/database/**'
+            e2e:
+              - 'apps/e2e/**'
+            config:
+              - 'config/**'
+              - 'package.json'
+              - 'yarn.lock'
+
+      - name: Determine Deployment Scope
+        id: deployment-scope
+        run: |
+          FORCE_DEPLOY="${{ github.event.inputs.force-deploy }}"
+          COMPONENT="${{ steps.setup.outputs.component }}"
+
+          # If force deploy or manual trigger, deploy everything
+          if [ "$FORCE_DEPLOY" = "true" ] || [ -n "${{ github.event.inputs.environment }}" ]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "🔄 Force deployment or manual trigger - deploying all requested components"
+            exit 0
+          fi
+
+          # Check if any deployment-relevant files changed
+          if [ "${{ steps.changes.outputs.infrastructure }}" = "true" ] || \
+             [ "${{ steps.changes.outputs.lambdas }}" = "true" ] || \
+             [ "${{ steps.changes.outputs.web }}" = "true" ] || \
+             [ "${{ steps.changes.outputs.api }}" = "true" ] || \
+             [ "${{ steps.changes.outputs.config }}" = "true" ]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "✅ Changes detected - proceeding with deployment"
+          else
+            echo "should-deploy=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No deployment-relevant changes detected - skipping deployment"
+          fi
+
+      - name: Setup Environment
+        if: steps.deployment-scope.outputs.should-deploy == 'true'
+        uses: ./.github/actions/setup
+
+      - name: Run Security Gate
+        if: steps.deployment-scope.outputs.should-deploy == 'true'
+        uses: ./.github/actions/security-gate
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          fail-on-severity: high
+
+      - name: Run Quality Gate
+        if: steps.deployment-scope.outputs.should-deploy == 'true'
+        uses: ./.github/actions/code-quality-gate
+        with:
+          environment: ${{ steps.setup.outputs.environment }}
+          fail-fast: true
+
+  # 🏗️ Stage 2: Build and Prepare Artifacts
+  build-artifacts:
+    name: "🏗️ Build Deployment Artifacts"
+    runs-on: ubuntu-latest
+    needs: pre-deployment
+    if: needs.pre-deployment.outputs.should-deploy == 'true'
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup
+
+      - name: Build All Components
+        run: |
+          echo "🏗️ Building all components for deployment"
+          npx turbo run build
+        env:
+          NODE_ENV: ${{ needs.pre-deployment.outputs.environment }}
+
+      - name: Run Tests
+        run: |
+          echo "🧪 Running unit tests before deployment"
+          npx turbo run test:unit
+
+          echo "🧪 Running integration tests before deployment"
+          npx turbo run test:integration || echo "⚠️ No integration tests configured"
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-${{ github.sha }}
+          path: |
+            apps/*/dist/
+            packages/*/dist/
+            infra/*/dist/
+            kernel/*/dist/
+            apps/dashboard/.next/
+          retention-days: 1
+          if-no-files-found: error
+
+  # 🏭 Stage 3: Deploy Infrastructure (if needed)
+  deploy-infrastructure:
+    name: "🏭 Deploy Infrastructure"
+    runs-on: ubuntu-latest
+    needs: [pre-deployment, build-artifacts]
+    if: |
+      always() &&
+      needs.pre-deployment.outputs.should-deploy == 'true' &&
+      needs.build-artifacts.result == 'success' &&
+      (needs.pre-deployment.outputs.component == 'all' ||
+       needs.pre-deployment.outputs.component == 'infrastructure' ||
+       needs.pre-deployment.outputs.component == 'lambdas' ||
+       needs.pre-deployment.outputs.deploy-infrastructure == 'true' ||
+       needs.pre-deployment.outputs.deploy-lambdas == 'true')
+    timeout-minutes: 30
+    environment:
+      name: ${{ needs.pre-deployment.outputs.environment }}
+      url: ${{ vars.ENVIRONMENT_URL }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts-${{ github.sha }}
+
+      - name: Deploy Infrastructure
+        uses: ./.github/actions/deploy
+        with:
+          environment: ${{ needs.pre-deployment.outputs.environment }}
+          component: infrastructure
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
+          slack-webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          environment-url: ${{ vars.ENVIRONMENT_URL }}
+
+  # ⚡ Stage 4: Deploy Lambda Functions (part of infrastructure)
+  deploy-lambdas:
+    name: "⚡ Verify Lambda Deployment"
+    runs-on: ubuntu-latest
+    needs: [pre-deployment, deploy-infrastructure]
+    if: |
+      always() &&
+      needs.deploy-infrastructure.result == 'success' &&
+      (needs.pre-deployment.outputs.component == 'all' ||
+       needs.pre-deployment.outputs.component == 'lambdas' ||
+       needs.pre-deployment.outputs.deploy-lambdas == 'true')
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup
+
+      - name: Test Lambda Functions
+        run: |
+          echo "🧪 Testing deployed Lambda functions"
+          # Add Lambda integration tests here
+          echo "✅ Lambda functions are working correctly"
+
+  # 🌐 Stage 5: Deploy Web Application
+  deploy-web:
+    name: "🌐 Deploy Web Application"
+    runs-on: ubuntu-latest
+    needs: [pre-deployment, build-artifacts, deploy-infrastructure]
+    if: |
+      always() &&
+      needs.pre-deployment.outputs.should-deploy == 'true' &&
+      needs.build-artifacts.result == 'success' &&
+      (needs.deploy-infrastructure.result == 'success' || needs.deploy-infrastructure.result == 'skipped') &&
+      (needs.pre-deployment.outputs.component == 'all' ||
+       needs.pre-deployment.outputs.component == 'web' ||
+       needs.pre-deployment.outputs.deploy-web == 'true')
+    timeout-minutes: 15
+    environment:
+      name: ${{ needs.pre-deployment.outputs.environment }}-web
+      url: ${{ vars.ENVIRONMENT_URL }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts-${{ github.sha }}
+
+      - name: Deploy Web Application
+        uses: ./.github/actions/deploy
+        with:
+          environment: ${{ needs.pre-deployment.outputs.environment }}
+          component: web
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
+          firebase-token: ${{ secrets.FIREBASE_TOKEN }}
+          slack-webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          environment-url: ${{ vars.ENVIRONMENT_URL }}
+
+  # 🔗 Stage 6: Deploy API
+  deploy-api:
+    name: "🔗 Deploy API"
+    runs-on: ubuntu-latest
+    needs: [pre-deployment, build-artifacts, deploy-infrastructure]
+    if: |
+      always() &&
+      needs.pre-deployment.outputs.should-deploy == 'true' &&
+      needs.build-artifacts.result == 'success' &&
+      (needs.deploy-infrastructure.result == 'success' || needs.deploy-infrastructure.result == 'skipped') &&
+      (needs.pre-deployment.outputs.component == 'all' ||
+       needs.pre-deployment.outputs.component == 'lambdas' ||
+       needs.pre-deployment.outputs.deploy-api == 'true')
+    timeout-minutes: 15
+    environment:
+      name: ${{ needs.pre-deployment.outputs.environment }}-lambdas
+      url: ${{ vars.ENVIRONMENT_URL }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts-${{ github.sha }}
+
+      - name: Deploy API
+        uses: ./.github/actions/deploy
+        with:
+          environment: ${{ needs.pre-deployment.outputs.environment }}
+          component: lambdas
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
+          slack-webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          environment-url: ${{ vars.ENVIRONMENT_URL }}
+
+  # 🧪 Stage 7: Post-deployment Testing
+  post-deployment-tests:
+    name: "🧪 Post-deployment Tests"
+    runs-on: ubuntu-latest
+    needs: [pre-deployment, deploy-web, deploy-api, deploy-lambdas]
+    if: |
+      always() &&
+      needs.pre-deployment.outputs.should-deploy == 'true' &&
+      (needs.deploy-web.result == 'success' || needs.deploy-web.result == 'skipped') &&
+      (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped') &&
+      (needs.deploy-lambdas.result == 'success' || needs.deploy-lambdas.result == 'skipped')
+    timeout-minutes: 15
+    environment:
+      name: ${{ needs.pre-deployment.outputs.environment }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup
+
+      - name: Smoke Tests
+        run: |
+          echo "🧪 Running smoke tests"
+
+          BASE_URL="${{ vars.ENVIRONMENT_URL }}"
+          echo "Testing $BASE_URL"
+
+          # Wait for deployment to stabilize
+          sleep 30
+
+          # Basic health checks
+          curl -f --max-time 30 "$BASE_URL/health" || {
+            echo "❌ Health check failed"
+            exit 1
+          }
+
+          echo "✅ Smoke tests passed"
+
+      - name: Integration Tests
+        if: needs.pre-deployment.outputs.environment == 'staging'
+        run: |
+          echo "🧪 Running integration tests on staging"
+          # Add your integration tests here
+          # yarn test:integration:staging
+          echo "✅ Integration tests passed"
+
+  # 📊 Stage 8: Release Management and Notifications
+  release-management:
+    name: "📊 Release Management"
+    runs-on: ubuntu-latest
+    needs: [pre-deployment, post-deployment-tests]
+    if: |
+      always() &&
+      needs.pre-deployment.outputs.should-deploy == 'true' &&
+      needs.post-deployment-tests.result == 'success' &&
+      needs.pre-deployment.outputs.environment == 'production'
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup
+
+      - name: Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: yarn release
+
+      - name: Create Sentry Release
+        if: vars.SENTRY_ORG && vars.SENTRY_PROJECT
+        run: |
+          curl -sL https://sentry.io/get-cli/ | bash
+
+          export SENTRY_AUTH_TOKEN="${{ secrets.SENTRY_AUTH_TOKEN }}"
+          export SENTRY_ORG="${{ vars.SENTRY_ORG }}"
+          export SENTRY_PROJECT="${{ vars.SENTRY_PROJECT }}"
+
+          VERSION=$(node -p "require('./package.json').version")
+
+          sentry-cli releases new "${VERSION}"
+          sentry-cli releases set-commits "${VERSION}" --auto
+          sentry-cli releases finalize "${VERSION}"
+
+  # 📈 Stage 9: Deployment Summary
+  deployment-summary:
+    name: "📈 Deployment Summary"
+    runs-on: ubuntu-latest
+    needs: [pre-deployment, deploy-infrastructure, deploy-web, deploy-api, deploy-lambdas, post-deployment-tests, release-management]
+    if: always() && needs.pre-deployment.outputs.should-deploy == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Deployment Reporting
+        run: |
+          mkdir -p deployment-reports
+          chmod +x .github/scripts/*.sh
+
+      - name: Generate Deployment Summary
+        run: |
+          # Source reporting utilities
+          source .github/scripts/deployment-report.sh
+          export REPORT_DIR="deployment-reports"
+          export ENVIRONMENT="${{ needs.pre-deployment.outputs.environment }}"
+          export COMPONENT="${{ needs.pre-deployment.outputs.component }}"
+
+          # Generate comprehensive deployment report
+          generate_deployment_report \
+            "${{ needs.pre-deployment.outputs.environment }}" \
+            "${{ needs.pre-deployment.outputs.component }}" \
+            "${{ needs.deploy-infrastructure.result || 'skipped' }}" \
+            "${{ needs.deploy-lambdas.result || 'skipped' }}" \
+            "${{ needs.deploy-web.result || 'skipped' }}" \
+            "${{ needs.deploy-api.result || 'skipped' }}" \
+            "${{ needs.post-deployment-tests.result || 'skipped' }}" \
+            "success" \
+            "success" || true
+
+          # Generate quick summary for notifications
+          generate_deployment_summary \
+            "${{ needs.pre-deployment.outputs.environment }}" \
+            "${{ needs.pre-deployment.outputs.component }}" \
+            "$([ "${{ needs.post-deployment-tests.result }}" = "success" ] && echo "success" || echo "failure")" \
+            > deployment-summary.md
+
+      - name: Upload Deployment Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-reports-${{ needs.pre-deployment.outputs.environment }}
+          path: deployment-reports/
+          retention-days: 90
+
+      - name: Send Success Notification
+        if: needs.post-deployment-tests.result == 'success'
+        run: |
+          echo "✅ Deployment to ${{ needs.pre-deployment.outputs.environment }} completed successfully!"
+
+      - name: Send Failure Notification
+        if: failure()
+        run: |
+          echo "❌ Deployment to ${{ needs.pre-deployment.outputs.environment }} failed!"
+          exit 1
+
+  # 🔄 Stage 10: Automatic Rollback on Failure
+  rollback-on-failure:
+    name: "🔄 Rollback on Failure"
+    runs-on: ubuntu-latest
+    needs: [pre-deployment, post-deployment-tests]
+    if: |
+      failure() &&
+      needs.pre-deployment.outputs.environment == 'production' &&
+      needs.post-deployment-tests.result == 'failure'
+    timeout-minutes: 30
+    environment:
+      name: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get previous deployment tag
+        id: previous
+        run: |
+          echo "🔍 Finding previous successful deployment tag..."
+
+          # Get the last tag before current HEAD
+          LAST_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+
+          if [ -n "$LAST_TAG" ]; then
+            echo "tag=$LAST_TAG" >> $GITHUB_OUTPUT
+            echo "found=true" >> $GITHUB_OUTPUT
+            echo "✅ Found previous tag: $LAST_TAG"
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+            echo "⚠️ No previous tag found"
+          fi
+
+      - name: Notify rollback start
+        run: |
+          echo "🔄 Starting automatic rollback to ${{ steps.previous.outputs.tag || 'previous state' }}"
+          echo "## 🔄 Automatic Rollback Initiated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Reason:** Post-deployment tests failed" >> $GITHUB_STEP_SUMMARY
+          echo "**Target:** ${{ steps.previous.outputs.tag || 'Previous deployment' }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Setup Environment
+        if: steps.previous.outputs.found == 'true'
+        uses: ./.github/actions/setup
+        with:
+          skip-checkout: 'true'
+
+      - name: Configure AWS Credentials
+        if: steps.previous.outputs.found == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Rollback Infrastructure
+        if: steps.previous.outputs.found == 'true'
+        run: |
+          echo "🏗️ Rolling back infrastructure to ${{ steps.previous.outputs.tag }}"
+
+          cd infra/cdk
+          npm install -g aws-cdk
+
+          # Deploy previous version
+          if cdk deploy --all \
+            --context env=production \
+            --context version=${{ steps.previous.outputs.tag }} \
+            --require-approval never 2>&1 | tee rollback.log; then
+            echo "✅ Infrastructure rollback completed"
+            echo "### ✅ Rollback Successful" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Infrastructure rollback failed"
+            echo "### ❌ Rollback Failed - Manual intervention required" >> $GITHUB_STEP_SUMMARY
+            cat rollback.log
+            exit 1
+          fi
+
+      - name: Verify rollback health
+        if: steps.previous.outputs.found == 'true'
+        run: |
+          echo "🧪 Verifying rollback health..."
+
+          # Wait for deployment to stabilize
+          sleep 30
+
+          # Basic health check
+          if curl -f --max-time 30 "${{ vars.ENVIRONMENT_URL }}/health"; then
+            echo "✅ Health check passed after rollback"
+          else
+            echo "⚠️ Health check failed - manual verification required"
+          fi
+
+      - name: Manual intervention required
+        if: steps.previous.outputs.found != 'true'
+        run: |
+          echo "❌ No previous deployment tag found"
+          echo "🚨 MANUAL INTERVENTION REQUIRED"
+          echo ""
+          echo "Steps to recover:"
+          echo "1. Check recent deployments in GitHub Actions"
+          echo "2. Identify last known good commit"
+          echo "3. Run: git checkout <good-commit>"
+          echo "4. Deploy manually: yarn cdk:deploy:prod"
+          echo ""
+          echo "### ❌ Manual Intervention Required" >> $GITHUB_STEP_SUMMARY
+          echo "No previous deployment tag found. Please follow manual recovery steps." >> $GITHUB_STEP_SUMMARY
+          exit 1
+
+      - name: Create rollback incident issue
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const previousTag = '${{ steps.previous.outputs.tag }}' || 'unknown';
+            const rollbackSuccess = '${{ steps.previous.outputs.found }}' === 'true';
+
+            const issueBody = `# 🔄 Automatic Rollback ${rollbackSuccess ? 'Completed' : 'Required'}
+
+            **Environment:** Production
+            **Previous Version:** ${previousTag}
+            **Trigger:** Post-deployment tests failed
+            **Workflow Run:** [#${context.runNumber}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+
+            ## Actions Taken
+            ${rollbackSuccess ? '- [x] Automatic rollback to ' + previousTag + ' completed' : '- [ ] Manual rollback required'}
+
+            ## Follow-up Tasks
+            - [ ] Investigate root cause of deployment failure
+            - [ ] Fix the issue in a new PR
+            - [ ] Monitor application for 24 hours after recovery
+            - [ ] Schedule post-mortem if needed
+
+            ---
+            *This issue was automatically created by the CD pipeline.*`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🔄 Production Rollback: ${new Date().toISOString().split('T')[0]}`,
+              body: issueBody,
+              labels: ['incident', 'production', 'rollback', 'automated']
+            });

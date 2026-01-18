@@ -1,0 +1,20 @@
+{
+	"name": "@foundry/e2e",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"cypress:open": "cypress open",
+		"cypress:run": "cypress run",
+		"test:e2e": "start-server-and-test 'yarn workspace @foundry/dashboard start' http://localhost:3000 'cypress run'",
+		"test:e2e:headed": "start-server-and-test 'yarn workspace @foundry/dashboard start' http://localhost:3000 'cypress run --headed'",
+		"test:e2e:dev": "start-server-and-test 'yarn workspace @foundry/dashboard dev' http://localhost:3000 'cypress open'",
+		"check-types": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@foundry/dashboard": "*",
+		"@foundry/typescript-config": "*",
+		"cypress": "^14.4.0",
+		"start-server-and-test": "^2.0.10",
+		"typescript": "^5"
+	}
+}

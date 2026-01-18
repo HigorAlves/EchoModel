@@ -1,0 +1,171 @@
+name: Validate Pull Request
+description: |
+  Validates PR title, body, labels, reviewers, size, branch name, and checklist.
+
+runs:
+  using: "composite"
+  steps:
+    - name: Validate PR title format
+      uses: actions/github-script@v6
+      continue-on-error: true
+      with:
+        script: |
+          const pr = context.payload.pull_request;
+          const title = pr.title;
+          const titlePattern = /^\[[A-Za-z]+-\d+\]\s+.+/;
+
+          if (!titlePattern.test(title)) {
+            core.warning("⚠️ PR title should follow the pattern: [ABC-123] Your title here.");
+          }
+
+    - name: Validate PR body includes issue reference
+      uses: actions/github-script@v6
+      continue-on-error: true
+      with:
+        script: |
+          const body = context.payload.pull_request.body || "";
+          const issueMention = /(Fixes|Closes|Resolves)\s+#\d+/i;
+
+          if (!issueMention.test(body)) {
+            core.warning("⚠️ PR body should reference an issue (e.g., Fixes #123).");
+          }
+
+    - name: Check for required labels
+      uses: actions/github-script@v6
+      continue-on-error: true
+      with:
+        script: |
+          const requiredLabels = ["QA Passed", "Ready for Review"];
+          const prLabels = context.payload.pull_request.labels.map(label => label.name);
+
+          const hasRequiredLabel = requiredLabels.some(label => prLabels.includes(label));
+
+          if (!hasRequiredLabel) {
+            core.warning(`⚠️ PR should have at least one of the recommended labels: ${requiredLabels.join(", ")}`);
+          }
+
+    - name: Warn if no reviewers
+      uses: actions/github-script@v6
+      continue-on-error: true
+      with:
+        script: |
+          const reviewers = context.payload.pull_request.requested_reviewers || [];
+          if (reviewers.length === 0) {
+            core.warning("⚠️ No reviewers have been assigned to this PR.");
+          }
+
+    - name: Warn if PR size is large
+      uses: actions/github-script@v6
+      continue-on-error: true
+      with:
+        script: |
+          const { additions, deletions } = context.payload.pull_request;
+          const total = additions + deletions;
+          if (total > 1000) {
+            core.warning(`⚠️ PR has ${total} lines changed. Consider breaking it into smaller PRs.`);
+          }
+
+    - name: Validate branch name convention
+      shell: bash
+      continue-on-error: true
+      run: |
+        BRANCH="${{ github.head_ref }}"
+        if [[ ! "$BRANCH" =~ ^(feat|fix|chore|docs|refactor|test|ci|build)/.+ ]]; then
+          echo "⚠️ Branch name should start with one of: feat/, fix/, chore/, docs/, refactor/, test/, ci/, build/"
+          echo "Current branch: $BRANCH"
+        fi
+
+    - name: Add size label for large PRs
+      uses: actions/github-script@v6
+      continue-on-error: true
+      with:
+        script: |
+          const { data: files } = await github.rest.pulls.listFiles({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.issue.number,
+          });
+
+          const totalChanges = files.reduce((sum, file) => sum + file.changes, 0);
+
+          // Only label large PRs (>200 changes)
+          if (totalChanges > 200) {
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['large']
+            });
+
+            console.log(`Added 'large' label for ${totalChanges} total changes`);
+          }
+
+    - name: Validate PR checklist completion
+      uses: actions/github-script@v6
+      continue-on-error: true
+      with:
+        script: |
+          const body = context.payload.pull_request.body || "";
+          const uncheckedItems = body.match(/- \[ \]/g) || [];
+
+          if (uncheckedItems.length > 0) {
+            core.warning(`⚠️ The PR checklist has ${uncheckedItems.length} unchecked item(s). Please complete the checklist.`);
+          }
+
+    - name: Comment on large PRs with additional guidance
+      uses: actions/github-script@v6
+      continue-on-error: true
+      with:
+        script: |
+          const { data: files } = await github.rest.pulls.listFiles({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.issue.number,
+          });
+
+          const totalChanges = files.reduce((sum, file) => sum + file.changes, 0);
+
+          if (totalChanges > 500) {
+            const marker = '## 📏 Large Pull Request Guidelines';
+            const comment = `${marker}
+
+            This PR contains **${totalChanges}** lines of changes across **${files.length}** files, which qualifies as a large PR.
+
+            ### 💡 Recommendations:
+            - Consider splitting into smaller PRs
+            - Ensure comprehensive testing
+            - Add detailed description
+            - Request extra reviewers
+
+            ### ⚠️ Review Guidelines:
+            - Take time for thorough review
+            - Test changes locally if possible
+            - Verify all tests are comprehensive
+
+            Thank you for your contribution! 🚀`;
+
+            // Find existing comment to update instead of creating duplicates
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existingComment = comments.find(c => c.body.includes(marker));
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
+          }

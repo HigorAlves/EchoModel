@@ -1,0 +1,52 @@
+/**
+ * @fileoverview Update {{pascalCase context}} Command Handler
+ */
+
+import type { I{{pascalCase context}}Repository, {{pascalCase context}} } from '@foundry/domain'
+import type { Context, IEventBus } from '@/shared'
+import type { Update{{pascalCase context}}Input, Update{{pascalCase context}}Response } from '@/{{pascalCase context}}'
+import { Update{{pascalCase context}}Schema } from '@/{{pascalCase context}}'
+import { ApplicationError } from '@/shared'
+
+export class Update{{pascalCase context}}Command {
+	constructor(
+		private readonly {{camelCase context}}Repository: I{{pascalCase context}}Repository,
+		private readonly eventBus?: IEventBus,
+	) {}
+
+	async execute(input: Update{{pascalCase context}}Input, ctx: Context): Promise<Update{{pascalCase context}}Response> {
+		const validated = Update{{pascalCase context}}Schema.parse(input)
+		const { {{camelCase context}}Id } = validated
+
+		const existing = await this.{{camelCase context}}Repository.findById({{camelCase context}}Id)
+		if (!existing) {
+			throw ApplicationError.notFound('{{pascalCase context}}', {{camelCase context}}Id)
+		}
+
+		// Apply updates to entity
+		let updated = existing
+		// TODO: Apply field updates using domain entity methods
+		// Example: if (validated.name) updated = updated.updateName(validated.name)
+
+		await this.{{camelCase context}}Repository.update(updated)
+		await this.publishEvents(updated, ctx)
+
+		return { {{camelCase context}}Id, updated: true }
+	}
+
+	private async publishEvents({{camelCase context}}: {{pascalCase context}}, ctx: Context): Promise<void> {
+		if (!this.eventBus) return
+
+		for (const event of {{camelCase context}}.domainEvents) {
+			await this.eventBus.publish({
+				eventType: event.eventType,
+				aggregateType: event.aggregateType,
+				aggregateId: event.aggregateId,
+				payload: event.eventData as Record<string, unknown>,
+				correlationId: ctx.correlationId,
+				occurredAt: new Date(),
+			})
+		}
+		{{camelCase context}}.clearDomainEvents()
+	}
+}

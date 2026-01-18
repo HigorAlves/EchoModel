@@ -1,0 +1,17 @@
+name: "CodeQL Configuration"
+
+# Exclude bundled/generated files from analysis
+paths-ignore:
+  - "**/dist/**"
+  - "**/node_modules/**"
+  - "**/*.min.js"
+  - "**/coverage/**"
+  - "**/.turbo/**"
+
+# Only analyze source files
+paths:
+  - "apps/**"
+  - "packages/**"
+  - "kernel/**"
+  - "infra/**"
+  - "config/**"

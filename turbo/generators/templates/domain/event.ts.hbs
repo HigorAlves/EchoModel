@@ -1,0 +1,118 @@
+/**
+ * @fileoverview {{pascalCase context}} Domain Events
+ *
+ * Domain Events represent something important that happened in the domain.
+ * They are used to:
+ * - Decouple different parts of the system
+ * - Trigger side effects in other bounded contexts
+ * - Maintain event sourcing capabilities
+ * - Enable eventual consistency patterns
+ *
+ * Events should:
+ * - Be immutable
+ * - Contain all necessary data for handlers
+ * - Use past tense naming (e.g., {{pascalCase context}}Created, {{pascalCase context}}Shipped)
+ * - Include metadata like timestamp, version, etc.
+ */
+
+/**
+ * Base interface for all {{pascalCase context}} domain events
+ */
+export interface Base{{pascalCase context}}Event {
+	readonly eventId: string
+	readonly eventType: string
+	readonly aggregateId: string
+	readonly aggregateType: string
+	readonly eventVersion: number
+	readonly occurredOn: Date
+	readonly eventData: Record<string, unknown>
+}
+
+/**
+ * Event fired when a {{camelCase context}} is created
+ */
+export interface {{pascalCase context}}CreatedEvent extends Base{{pascalCase context}}Event {
+	readonly eventType: '{{pascalCase context}}Created'
+	readonly eventData: {
+		readonly {{camelCase context}}Id: string
+		// Add event-specific data here
+	}
+}
+
+/**
+ * Event fired when a {{camelCase context}} is updated
+ */
+export interface {{pascalCase context}}UpdatedEvent extends Base{{pascalCase context}}Event {
+	readonly eventType: '{{pascalCase context}}Updated'
+	readonly eventData: {
+		readonly {{camelCase context}}Id: string
+		readonly changes: Record<string, { from: unknown; to: unknown }>
+		// Add event-specific data here
+	}
+}
+
+/**
+ * Event fired when a {{camelCase context}} is deleted
+ */
+export interface {{pascalCase context}}DeletedEvent extends Base{{pascalCase context}}Event {
+	readonly eventType: '{{pascalCase context}}Deleted'
+	readonly eventData: {
+		readonly {{camelCase context}}Id: string
+		readonly deletedAt: Date
+		// Add event-specific data here
+	}
+}
+
+/**
+ * Union type of all {{pascalCase context}} events
+ */
+export type {{pascalCase context}}Event = {{pascalCase context}}CreatedEvent | {{pascalCase context}}UpdatedEvent | {{pascalCase context}}DeletedEvent
+
+/**
+ * Factory functions for creating {{pascalCase context}} domain events
+ */
+
+/**
+ * Create a {{pascalCase context}}Created event
+ */
+export function create{{pascalCase context}}CreatedEvent(aggregateId: string, data: {{pascalCase context}}CreatedEvent['eventData']): {{pascalCase context}}CreatedEvent {
+	return {
+		eventId: crypto.randomUUID(),
+		eventType: '{{pascalCase context}}Created',
+		aggregateId,
+		aggregateType: '{{pascalCase context}}',
+		eventVersion: 1,
+		occurredOn: new Date(),
+		eventData: data,
+	}
+}
+
+/**
+ * Create a {{pascalCase context}}Updated event
+ */
+export function create{{pascalCase context}}UpdatedEvent(aggregateId: string, data: {{pascalCase context}}UpdatedEvent['eventData']): {{pascalCase context}}UpdatedEvent {
+	return {
+		eventId: crypto.randomUUID(),
+		eventType: '{{pascalCase context}}Updated',
+		aggregateId,
+		aggregateType: '{{pascalCase context}}',
+		eventVersion: 1,
+		occurredOn: new Date(),
+		eventData: data,
+	}
+}
+
+/**
+ * Create a {{pascalCase context}}Deleted event
+ */
+export function create{{pascalCase context}}DeletedEvent(aggregateId: string, data: {{pascalCase context}}DeletedEvent['eventData']): {{pascalCase context}}DeletedEvent {
+	return {
+		eventId: crypto.randomUUID(),
+		eventType: '{{pascalCase context}}Deleted',
+		aggregateId,
+		aggregateType: '{{pascalCase context}}',
+		eventVersion: 1,
+		occurredOn: new Date(),
+		eventData: data,
+	}
+}

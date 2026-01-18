@@ -1,0 +1,204 @@
+name: 🚨 Hotfix Deployment
+
+on:
+  push:
+    branches:
+      - 'hotfix/**'
+  workflow_dispatch:
+    inputs:
+      hotfix_branch:
+        description: 'Hotfix branch name'
+        required: true
+        type: string
+      severity:
+        description: 'Hotfix severity level'
+        required: true
+        type: choice
+        options:
+          - critical
+          - high
+          - medium
+        default: high
+      target_environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - production
+          - staging
+        default: production
+      skip_approval:
+        description: 'Skip manual approval (critical only)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  deployments: write
+  security-events: write
+
+# Prevent concurrent hotfixes
+concurrency:
+  group: hotfix-${{ github.event.inputs.target_environment || 'production' }}
+  cancel-in-progress: false
+
+jobs:
+  # 🔍 Stage 1: Hotfix Validation
+  hotfix-validation:
+    name: "🔍 Hotfix Validation"
+    runs-on: ubuntu-latest
+    outputs:
+      severity: ${{ steps.classify.outputs.severity }}
+      is_critical: ${{ steps.classify.outputs.is_critical }}
+      target_env: ${{ steps.classify.outputs.target_env }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Classify Hotfix
+        id: classify
+        run: |
+          # Determine severity and environment
+          if [ -n "${{ github.event.inputs.severity }}" ]; then
+            SEVERITY="${{ github.event.inputs.severity }}"
+            TARGET_ENV="${{ github.event.inputs.target_environment }}"
+          else
+            # Auto-classify from branch name
+            BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+            if [[ "$BRANCH_NAME" =~ (critical|security|urgent) ]]; then
+              SEVERITY="critical"
+            elif [[ "$BRANCH_NAME" =~ (high|important) ]]; then
+              SEVERITY="high"
+            else
+              SEVERITY="medium"
+            fi
+            TARGET_ENV="production"
+          fi
+
+          IS_CRITICAL="false"
+          if [ "$SEVERITY" = "critical" ]; then
+            IS_CRITICAL="true"
+          fi
+
+          echo "severity=$SEVERITY" >> $GITHUB_OUTPUT
+          echo "is_critical=$IS_CRITICAL" >> $GITHUB_OUTPUT
+          echo "target_env=$TARGET_ENV" >> $GITHUB_OUTPUT
+
+          echo "🚨 Hotfix Classification:"
+          echo "  Severity: $SEVERITY"
+          echo "  Critical: $IS_CRITICAL"
+          echo "  Target: $TARGET_ENV"
+
+      - name: Create Hotfix Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const severity = '${{ steps.classify.outputs.severity }}';
+            const targetEnv = '${{ steps.classify.outputs.target_env }}';
+            const branch = context.ref.replace('refs/heads/', '');
+
+            const issueBody = `# 🚨 Hotfix Deployment: ${branch}
+
+            **Severity**: ${severity.toUpperCase()}
+            **Target Environment**: ${targetEnv}
+            **Branch**: \`${branch}\`
+            **Triggered by**: @${context.actor}
+
+            ## 📋 Hotfix Checklist
+            - [ ] Code changes reviewed
+            - [ ] Tests passing
+            - [ ] Security validated
+            - [ ] Rollback plan prepared
+            - [ ] Monitoring alerts configured
+            - [ ] Team notified
+
+            ## 🔗 Links
+            - [Workflow Run](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+            - [Branch](https://github.com/${context.repo.owner}/${context.repo.repo}/tree/${branch})
+
+            ---
+            *This issue tracks the hotfix deployment process*`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Hotfix: ${branch} [${severity.toUpperCase()}]`,
+              body: issueBody,
+              labels: ['hotfix', `severity/${severity}`, `environment/${targetEnv}`]
+            });
+
+  # 🚀 Stage 2: Execute Hotfix Using CD Pipeline
+  execute-hotfix:
+    name: "🚀 Execute Hotfix"
+    needs: hotfix-validation
+    uses: ./.github/workflows/cd.yml
+    with:
+      environment: ${{ needs.hotfix-validation.outputs.target_env }}
+      component: all
+      force-deploy: true
+    secrets: inherit
+
+  # 📢 Stage 3: Post-Deployment Notification
+  post-hotfix:
+    name: "📢 Post-Hotfix Actions"
+    runs-on: ubuntu-latest
+    needs: [hotfix-validation, execute-hotfix]
+    if: always()
+    steps:
+      - name: Notify Team
+        run: |
+          STATUS="${{ needs.execute-hotfix.result }}"
+          SEVERITY="${{ needs.hotfix-validation.outputs.severity }}"
+          TARGET_ENV="${{ needs.hotfix-validation.outputs.target_env }}"
+
+          if [ "$STATUS" = "success" ]; then
+            echo "✅ Hotfix deployed successfully to $TARGET_ENV"
+            echo "Severity: $SEVERITY"
+          else
+            echo "❌ Hotfix deployment failed"
+            echo "Manual intervention required"
+            exit 1
+          fi
+
+      - name: Create Follow-up Tasks
+        if: needs.execute-hotfix.result == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const severity = '${{ needs.hotfix-validation.outputs.severity }}';
+            const targetEnv = '${{ needs.hotfix-validation.outputs.target_env }}';
+
+            const followUpBody = `# 📋 Post-Hotfix Follow-up
+
+            Hotfix has been successfully deployed to **${targetEnv}**.
+
+            ## ✅ Immediate Actions Completed
+            - [x] Hotfix deployed
+            - [x] Smoke tests passed
+            - [x] Team notified
+
+            ## 📝 Follow-up Tasks
+            - [ ] Monitor application for 24 hours
+            - [ ] Create proper fix for next release
+            - [ ] Update documentation if needed
+            - [ ] Post-mortem meeting (if critical)
+            - [ ] Backport fix to development branch
+
+            ## 🔗 Related
+            - Environment: ${targetEnv}
+            - Severity: ${severity}
+            - Deployment: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}
+
+            ${severity === 'critical' ? '**Note**: Critical hotfix requires post-mortem within 24 hours' : ''}
+            `;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `📋 Follow-up: Hotfix deployed to ${targetEnv}`,
+              body: followUpBody,
+              labels: ['follow-up', 'hotfix-deployed', `environment/${targetEnv}`],
+              assignees: [context.actor]
+            });

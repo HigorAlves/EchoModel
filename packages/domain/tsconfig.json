@@ -1,0 +1,10 @@
+{
+	"extends": "@foundry/typescript-config/base.json",
+	"compilerOptions": {
+		"moduleResolution": "bundler",
+		"baseUrl": "src",
+		"paths": {
+			"@/*": ["*"]
+		}
+	}
+}

@@ -1,0 +1,299 @@
+{
+	"metadata": {
+		"title": "Foundry Dashboard",
+		"description": "Aplicacao Foundry Dashboard"
+	},
+	"common": {
+		"login": "Entrar",
+		"signup": "Cadastrar",
+		"logout": "Sair",
+		"email": "E-mail",
+		"password": "Senha",
+		"confirmPassword": "Confirmar Senha",
+		"submit": "Enviar",
+		"cancel": "Cancelar",
+		"save": "Salvar",
+		"delete": "Excluir",
+		"edit": "Editar",
+		"more": "Mais",
+		"loading": "Carregando...",
+		"error": "Erro",
+		"success": "Sucesso",
+		"termsOfService": "Termos de Servico",
+		"privacyPolicy": "Politica de Privacidade"
+	},
+	"home": {
+		"getStarted": "Para comecar, edite o arquivo page.tsx.",
+		"lookingForStart": "Procurando um ponto de partida ou mais instrucoes? Acesse os",
+		"lookingForMiddle": "ou o centro de",
+		"lookingForEnd": ".",
+		"templates": "Modelos",
+		"learning": "Aprendizado",
+		"deployNow": "Publicar Agora",
+		"documentation": "Documentacao"
+	},
+	"auth": {
+		"login": {
+			"title": "Bem-vindo de volta",
+			"subtitle": "Entre na sua conta Acme Inc",
+			"forgotPassword": "Esqueceu sua senha?",
+			"loggingIn": "Entrando...",
+			"loginButton": "Entrar",
+			"orContinueWith": "Ou continue com",
+			"noAccount": "Nao tem uma conta?",
+			"signupLink": "Cadastre-se",
+			"loginWithApple": "Entrar com Apple",
+			"loginWithGoogle": "Entrar com Google",
+			"loginWithMeta": "Entrar com Meta",
+			"termsAgreementStart": "Ao clicar em continuar, voce concorda com nossos",
+			"termsAgreementMiddle": "e"
+		},
+		"signup": {
+			"title": "Crie sua conta",
+			"subtitle": "Digite seu e-mail abaixo para criar sua conta",
+			"emailDescription": "Usaremos isso para entrar em contato com voce. Nao compartilharemos seu e-mail com terceiros.",
+			"passwordMinLength": "Deve ter pelo menos 8 caracteres.",
+			"creatingAccount": "Criando Conta...",
+			"createAccountButton": "Criar Conta",
+			"orContinueWith": "Ou continue com",
+			"hasAccount": "Ja tem uma conta?",
+			"signinLink": "Entrar",
+			"signupWithApple": "Cadastrar com Apple",
+			"signupWithGoogle": "Cadastrar com Google",
+			"signupWithMeta": "Cadastrar com Meta",
+			"termsAgreementStart": "Ao clicar em continuar, voce concorda com nossos",
+			"termsAgreementMiddle": "e"
+		},
+		"validation": {
+			"emailRequired": "E-mail e obrigatorio",
+			"emailInvalid": "Por favor, insira um e-mail valido",
+			"passwordRequired": "Senha e obrigatoria",
+			"passwordMinLength": "A senha deve ter pelo menos 8 caracteres",
+			"confirmPasswordRequired": "Por favor, confirme sua senha",
+			"passwordsDoNotMatch": "As senhas nao coincidem"
+		}
+	},
+	"passwordStrength": {
+		"label": "Forca da senha:",
+		"veryWeak": "Muito fraca",
+		"weak": "Fraca",
+		"fair": "Razoavel",
+		"strong": "Forte",
+		"veryStrong": "Muito forte"
+	},
+	"navigation": {
+		"finance": "Financas",
+		"management": "Gerenciamento",
+		"platform": "Plataforma",
+		"projects": "Projetos",
+		"teams": "Equipes",
+		"addTeam": "Adicionar equipe"
+	},
+	"sidebar": {
+		"dashboard": "Painel",
+		"overview": "Visao Geral",
+		"netWorth": "Patrimonio Liquido",
+		"monthlySummary": "Resumo Mensal",
+		"accounts": "Contas",
+		"allAccounts": "Todas as Contas",
+		"bankAccounts": "Contas Bancarias",
+		"creditCards": "Cartoes de Credito",
+		"cashWallets": "Dinheiro e Carteiras",
+		"addAccount": "Adicionar Conta",
+		"transactions": "Transacoes",
+		"allTransactions": "Todas as Transacoes",
+		"income": "Receitas",
+		"expenses": "Despesas",
+		"transfers": "Transferencias",
+		"import": "Importar",
+		"budget": "Orcamento",
+		"categories": "Categorias",
+		"planning": "Planejamento",
+		"alerts": "Alertas",
+		"investments": "Investimentos",
+		"portfolio": "Portfolio",
+		"stocksEtfs": "Acoes e ETFs",
+		"crypto": "Cripto",
+		"fixedIncome": "Renda Fixa",
+		"realEstate": "Imoveis",
+		"funds": "Fundos",
+		"goals": "Metas",
+		"allGoals": "Todas as Metas",
+		"emergencyFund": "Reserva de Emergencia",
+		"savings": "Poupanca",
+		"milestones": "Marcos",
+		"bills": "Contas a Pagar",
+		"upcoming": "Proximas",
+		"subscriptions": "Assinaturas",
+		"recurring": "Recorrentes",
+		"history": "Historico",
+		"reports": "Relatorios",
+		"cashFlow": "Fluxo de Caixa",
+		"byCategory": "Por Categoria",
+		"taxReport": "Relatorio Fiscal",
+		"settings": "Configuracoes",
+		"general": "Geral",
+		"currencies": "Moedas",
+		"importExport": "Importar/Exportar",
+		"notifications": "Notificacoes"
+	},
+	"projects": {
+		"designEngineering": "Engenharia de Design",
+		"salesMarketing": "Vendas e Marketing",
+		"travel": "Viagem",
+		"viewProject": "Ver Projeto",
+		"shareProject": "Compartilhar Projeto",
+		"deleteProject": "Excluir Projeto"
+	},
+	"user": {
+		"upgradeToPro": "Upgrade para Pro",
+		"account": "Conta",
+		"billing": "Cobranca",
+		"notifications": "Notificacoes"
+	},
+	"dashboard": {
+		"breadcrumbs": {
+			"buildingYourApplication": "Construindo Sua Aplicacao",
+			"dataFetching": "Busca de Dados"
+		}
+	},
+	"localeSwitcher": {
+		"label": "Idioma",
+		"switchTo": "Mudar para {locale}"
+	},
+	"accounts": {
+		"breadcrumbs": {
+			"accounts": "Contas",
+			"all": "Todas as Contas",
+			"bank": "Contas Bancarias",
+			"creditCards": "Cartoes de Credito",
+			"cashWallets": "Dinheiro e Carteiras",
+			"details": "Detalhes da Conta"
+		},
+		"tabs": {
+			"all": "Todas",
+			"bank": "Banco",
+			"creditCards": "Cartoes",
+			"cashWallets": "Dinheiro"
+		},
+		"summary": {
+			"bankBalance": "Saldo Bancario",
+			"creditDebt": "Divida do Cartao",
+			"availableCredit": "Credito Disponivel",
+			"cashWallets": "Dinheiro e Carteiras",
+			"totalAccounts": "{count} contas"
+		},
+		"types": {
+			"bank": "Conta Bancaria",
+			"credit_card": "Cartao de Credito",
+			"cash": "Dinheiro",
+			"wallet": "Carteira Digital"
+		},
+		"subtypes": {
+			"checking": "Conta Corrente",
+			"savings": "Poupanca"
+		},
+		"status": {
+			"active": "Ativa",
+			"inactive": "Inativa",
+			"closed": "Encerrada"
+		},
+		"cardBrands": {
+			"visa": "Visa",
+			"mastercard": "Mastercard",
+			"amex": "American Express",
+			"discover": "Discover"
+		},
+		"walletTypes": {
+			"digital": "Digital",
+			"physical": "Fisica"
+		},
+		"card": {
+			"balance": "Saldo",
+			"available": "Disponivel",
+			"creditLimit": "Limite de Credito",
+			"creditUsage": "Uso do Credito",
+			"minimumPayment": "Pag. Minimo",
+			"dueDate": "Vencimento",
+			"apr": "Taxa Anual",
+			"accountNumber": "Conta",
+			"location": "Localizacao",
+			"provider": "Provedor",
+			"dueSoon": "Vence em Breve",
+			"overdue": "Vencido"
+		},
+		"detail": {
+			"accountInfo": "Informacoes da Conta",
+			"creditInfo": "Informacoes de Credito",
+			"recentTransactions": "Transacoes Recentes",
+			"noTransactions": "Sem transacoes recentes",
+			"viewAllTransactions": "Ver todas as transacoes",
+			"quickActions": "Acoes Rapidas",
+			"transfer": "Transferir",
+			"makePayment": "Fazer Pagamento",
+			"viewStatements": "Ver Extratos"
+		},
+		"dialog": {
+			"addTitle": "Adicionar Nova Conta",
+			"addDescription": "Escolha o tipo de conta que deseja adicionar",
+			"deleteTitle": "Excluir Conta",
+			"deleteDescription": "Tem certeza que deseja excluir esta conta? Esta acao nao pode ser desfeita.",
+			"deleteConfirm": "Excluir Conta",
+			"step1": "Selecionar Tipo",
+			"step2": "Detalhes da Conta"
+		},
+		"form": {
+			"name": "Nome da Conta",
+			"namePlaceholder": "Digite o nome da conta",
+			"bankName": "Nome do Banco",
+			"bankNamePlaceholder": "Digite o nome do banco",
+			"accountNumber": "Numero da Conta",
+			"accountNumberPlaceholder": "Digite os ultimos 4 digitos",
+			"subtype": "Tipo de Conta",
+			"balance": "Saldo Atual",
+			"balancePlaceholder": "0,00",
+			"currency": "Moeda",
+			"color": "Cor",
+			"cardNumber": "Numero do Cartao",
+			"cardNumberPlaceholder": "Digite os ultimos 4 digitos",
+			"cardHolder": "Titular do Cartao",
+			"expiryDate": "Data de Validade",
+			"cvv": "CVV",
+			"currentBalance": "Saldo Atual",
+			"cardBrand": "Bandeira do Cartao",
+			"creditLimit": "Limite de Credito",
+			"creditLimitPlaceholder": "0,00",
+			"apr": "Taxa de Juros Anual",
+			"aprPlaceholder": "0,00",
+			"dueDate": "Data de Vencimento",
+			"location": "Localizacao",
+			"locationPlaceholder": "Onde este dinheiro esta guardado?",
+			"walletType": "Tipo de Carteira",
+			"provider": "Provedor",
+			"providerPlaceholder": "ex. PayPal, Venmo"
+		},
+		"validation": {
+			"nameRequired": "Nome da conta e obrigatorio",
+			"bankNameRequired": "Nome do banco e obrigatorio",
+			"accountNumberRequired": "Numero da conta e obrigatorio",
+			"balanceRequired": "Saldo e obrigatorio",
+			"currencyRequired": "Moeda e obrigatoria",
+			"cardNumberRequired": "Numero do cartao e obrigatorio",
+			"cardBrandRequired": "Bandeira do cartao e obrigatoria",
+			"creditLimitRequired": "Limite de credito e obrigatorio",
+			"aprRequired": "Taxa de juros e obrigatoria",
+			"dueDateRequired": "Data de vencimento e obrigatoria",
+			"walletTypeRequired": "Tipo de carteira e obrigatorio"
+		},
+		"empty": {
+			"title": "Nenhuma conta encontrada",
+			"description": "Comece adicionando sua primeira conta",
+			"addButton": "Adicionar Conta"
+		},
+		"actions": {
+			"addAccount": "Adicionar Conta",
+			"editAccount": "Editar Conta",
+			"deleteAccount": "Excluir Conta"
+		}
+	}
+}

@@ -1,0 +1,151 @@
+/**
+ * @fileoverview {{pascalCase context}} Domain Errors
+ *
+ * Domain errors represent business rule violations and exceptional situations
+ * that can occur within the domain. They should:
+ * - Use business language and concepts
+ * - Be specific and actionable
+ * - Provide enough context for handling
+ * - Be typed for better error handling
+ *
+ * Domain errors help:
+ * - Communicate business rule violations clearly
+ * - Provide consistent error handling
+ * - Enable proper error recovery strategies
+ * - Maintain domain integrity
+ */
+
+/**
+ * {{pascalCase context}} Error Codes
+ *
+ * Standard error codes for {{camelCase context}}-related operations.
+ * These codes provide consistent error identification across the domain.
+ */
+export const {{pascalCase context}}ErrorCodes = {
+	// Entity lifecycle errors
+	NOT_FOUND: '{{upperCase context}}_NOT_FOUND',
+	ALREADY_EXISTS: '{{upperCase context}}_ALREADY_EXISTS',
+	CREATION_FAILED: '{{upperCase context}}_CREATION_FAILED',
+	UPDATE_FAILED: '{{upperCase context}}_UPDATE_FAILED',
+	DELETE_FAILED: '{{upperCase context}}_DELETE_FAILED',
+
+	// Validation errors
+	INVALID_INPUT: '{{upperCase context}}_INVALID_INPUT',
+	INVALID_STATUS: '{{upperCase context}}_INVALID_STATUS',
+	INVALID_TRANSITION: '{{upperCase context}}_INVALID_TRANSITION',
+
+	// Business rule violations
+	BUSINESS_RULE_VIOLATION: '{{upperCase context}}_BUSINESS_RULE_VIOLATION',
+	INSUFFICIENT_PERMISSIONS: '{{upperCase context}}_INSUFFICIENT_PERMISSIONS',
+	OPERATION_NOT_ALLOWED: '{{upperCase context}}_OPERATION_NOT_ALLOWED',
+} as const
+
+/**
+ * {{pascalCase context}} Error Messages
+ *
+ * Human-readable error messages corresponding to error codes.
+ */
+export const {{pascalCase context}}ErrorMessages = {
+	[{{pascalCase context}}ErrorCodes.NOT_FOUND]: '{{pascalCase context}} not found',
+	[{{pascalCase context}}ErrorCodes.ALREADY_EXISTS]: '{{pascalCase context}} already exists',
+	[{{pascalCase context}}ErrorCodes.CREATION_FAILED]: 'Failed to create {{camelCase context}}',
+	[{{pascalCase context}}ErrorCodes.UPDATE_FAILED]: 'Failed to update {{camelCase context}}',
+	[{{pascalCase context}}ErrorCodes.DELETE_FAILED]: 'Failed to delete {{camelCase context}}',
+	[{{pascalCase context}}ErrorCodes.INVALID_INPUT]: 'Invalid {{camelCase context}} input provided',
+	[{{pascalCase context}}ErrorCodes.INVALID_STATUS]: 'Invalid {{camelCase context}} status',
+	[{{pascalCase context}}ErrorCodes.INVALID_TRANSITION]: 'Invalid status transition attempted',
+	[{{pascalCase context}}ErrorCodes.BUSINESS_RULE_VIOLATION]: 'Business rule violation detected',
+	[{{pascalCase context}}ErrorCodes.INSUFFICIENT_PERMISSIONS]: 'Insufficient permissions for this operation',
+	[{{pascalCase context}}ErrorCodes.OPERATION_NOT_ALLOWED]: 'Operation not allowed in current state',
+} as const
+
+/**
+ * Base domain error class for {{pascalCase context}} operations
+ */
+export abstract class {{pascalCase context}}DomainError extends Error {
+	abstract readonly code: string
+	abstract readonly statusCode: number
+
+	constructor(
+		message: string,
+		public readonly context?: Record<string, unknown>,
+	) {
+		super(message)
+		this.name = this.constructor.name
+		Error.captureStackTrace(this, this.constructor)
+	}
+}
+
+/**
+ * Error thrown when a {{camelCase context}} is not found
+ */
+export class {{pascalCase context}}NotFoundError extends {{pascalCase context}}DomainError {
+	readonly code = {{pascalCase context}}ErrorCodes.NOT_FOUND
+	readonly statusCode = 404
+
+	constructor(id: string, context?: Record<string, unknown>) {
+		super(`{{pascalCase context}} with ID '${id}' not found`, context)
+	}
+}
+
+/**
+ * Error thrown when trying to create a {{camelCase context}} that already exists
+ */
+export class {{pascalCase context}}AlreadyExistsError extends {{pascalCase context}}DomainError {
+	readonly code = {{pascalCase context}}ErrorCodes.ALREADY_EXISTS
+	readonly statusCode = 409
+
+	constructor(identifier: string, context?: Record<string, unknown>) {
+		super(`{{pascalCase context}} with identifier '${identifier}' already exists`, context)
+	}
+}
+
+/**
+ * Error thrown when {{camelCase context}} validation fails
+ */
+export class {{pascalCase context}}ValidationError extends {{pascalCase context}}DomainError {
+	readonly code = {{pascalCase context}}ErrorCodes.INVALID_INPUT
+	readonly statusCode = 400
+
+	constructor(validationErrors: string[], context?: Record<string, unknown>) {
+		super(`{{pascalCase context}} validation failed: ${validationErrors.join(', ')}`, { ...context, validationErrors })
+	}
+}
+
+/**
+ * Error thrown when a business rule is violated
+ */
+export class {{pascalCase context}}BusinessRuleError extends {{pascalCase context}}DomainError {
+	readonly code = {{pascalCase context}}ErrorCodes.BUSINESS_RULE_VIOLATION
+	readonly statusCode = 422
+
+	constructor(rule: string, context?: Record<string, unknown>) {
+		super(`{{pascalCase context}} business rule violation: ${rule}`, { ...context, rule })
+	}
+}
+
+/**
+ * Error thrown when an invalid status transition is attempted
+ */
+export class {{pascalCase context}}InvalidTransitionError extends {{pascalCase context}}DomainError {
+	readonly code = {{pascalCase context}}ErrorCodes.INVALID_TRANSITION
+	readonly statusCode = 422
+
+	constructor(fromStatus: string, toStatus: string, context?: Record<string, unknown>) {
+		super(`Invalid {{camelCase context}} status transition from '${fromStatus}' to '${toStatus}'`, { ...context, fromStatus, toStatus })
+	}
+}
+
+/**
+ * Type guard to check if an error is a {{pascalCase context}} domain error
+ */
+export function is{{pascalCase context}}DomainError(error: unknown): error is {{pascalCase context}}DomainError {
+	return error instanceof {{pascalCase context}}DomainError
+}
+
+/**
+ * Get error message for a given error code
+ */
+export function get{{pascalCase context}}ErrorMessage(code: string): string {
+	return {{pascalCase context}}ErrorMessages[code as keyof typeof {{pascalCase context}}ErrorMessages] || 'Unknown error'
+}

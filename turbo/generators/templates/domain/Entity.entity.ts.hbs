@@ -1,0 +1,223 @@
+import { randomUUID } from 'node:crypto'
+import { {{pascalCase context}}Status } from './{{camelCase context}}.enum'
+import type { {{pascalCase context}}Event } from './{{camelCase context}}.event'
+import { create{{pascalCase context}}CreatedEvent, create{{pascalCase context}}UpdatedEvent } from './{{camelCase context}}.event'
+import { {{pascalCase context}}Id } from './value-objects'
+
+/**
+ * @fileoverview {{pascalCase context}} Aggregate Root
+ *
+ * This entity serves as the Aggregate Root for the {{pascalCase context}} bounded context.
+ * As an Aggregate Root, it:
+ * - Has a unique identity that persists over time
+ * - Maintains consistency boundaries and enforces business invariants
+ * - Collects domain events for eventual consistency patterns
+ * - Is the only entry point for modifications within the aggregate
+ */
+
+export interface {{pascalCase context}}Props {
+	readonly id: {{pascalCase context}}Id
+	readonly status: {{pascalCase context}}Status
+	readonly createdAt: Date
+	readonly updatedAt: Date
+	readonly deletedAt: Date | null
+}
+
+interface Create{{pascalCase context}}DTO {
+	// TODO: Add required fields for creating a {{camelCase context}}
+	readonly status?: {{pascalCase context}}Status
+}
+
+/**
+ * {{pascalCase context}} Aggregate Root
+ *
+ * Represents a {{camelCase context}} in the domain with unique identity and business behavior.
+ * This aggregate root encapsulates all business rules, consistency boundaries,
+ * and domain events related to {{camelCase context}} operations.
+ */
+export class {{pascalCase context}} {
+	private readonly _domainEvents: {{pascalCase context}}Event[] = []
+
+	private constructor(private readonly data: {{pascalCase context}}Props) {}
+
+	/**
+	 * Factory method to create a {{pascalCase context}} aggregate
+	 * @param data - Either entity props or DTO for creation
+	 * @returns New {{pascalCase context}} instance
+	 */
+	static create(data: {{pascalCase context}}Props | Create{{pascalCase context}}DTO): {{pascalCase context}} {
+		// Handle both entity props and plain DTO
+		if ((data as {{pascalCase context}}Props).id instanceof {{pascalCase context}}Id) {
+			return new {{pascalCase context}}(data as {{pascalCase context}}Props)
+		}
+
+		// Create from DTO
+		const dto = data as Create{{pascalCase context}}DTO
+		const now = new Date()
+
+		// Validate business rules and constraints
+		// Create value objects which will validate themselves
+		const id = {{pascalCase context}}Id.create(randomUUID())
+		const status = dto.status ?? {{pascalCase context}}Status.ACTIVE
+
+		const {{camelCase context}} = new {{pascalCase context}}({
+			id,
+			status,
+			createdAt: now,
+			updatedAt: now,
+			deletedAt: null,
+		})
+
+		// Add domain event for new {{camelCase context}} creation
+		{{camelCase context}}.addDomainEvent(create{{pascalCase context}}CreatedEvent(id.value, { {{camelCase context}}Id: id.value }))
+
+		return {{camelCase context}}
+	}
+
+	/**
+	 * Get the entity data
+	 * @returns Readonly copy of entity properties
+	 */
+	get value(): {{pascalCase context}}Props {
+		return this.data
+	}
+
+	/**
+	 * Get the entity's unique identifier
+	 * @returns Entity ID
+	 */
+	get id(): {{pascalCase context}}Id {
+		return this.data.id
+	}
+
+	/**
+	 * Get the {{camelCase context}}'s status
+	 * @returns {{pascalCase context}}Status enum value
+	 */
+	get status(): {{pascalCase context}}Status {
+		return this.data.status
+	}
+
+	/**
+	 * Get the creation timestamp
+	 * @returns Date when the {{camelCase context}} was created
+	 */
+	get createdAt(): Date {
+		return this.data.createdAt
+	}
+
+	/**
+	 * Get the last update timestamp
+	 * @returns Date when the {{camelCase context}} was last updated
+	 */
+	get updatedAt(): Date {
+		return this.data.updatedAt
+	}
+
+	/**
+	 * Get the deletion timestamp (for soft delete)
+	 * @returns Date when the {{camelCase context}} was deleted, or null if not deleted
+	 */
+	get deletedAt(): Date | null {
+		return this.data.deletedAt
+	}
+
+	/**
+	 * Check if the {{camelCase context}} has been soft deleted
+	 * @returns True if the {{camelCase context}} is deleted
+	 */
+	get isDeleted(): boolean {
+		return this.data.deletedAt !== null
+	}
+
+	/**
+	 * Get all domain events that occurred on this aggregate
+	 * @returns Readonly array of domain events
+	 */
+	get domainEvents(): readonly {{pascalCase context}}Event[] {
+		return [...this._domainEvents]
+	}
+
+	/**
+	 * Add a domain event to the aggregate
+	 * @param event - The domain event to add
+	 */
+	addDomainEvent(event: {{pascalCase context}}Event): void {
+		this._domainEvents.push(event)
+	}
+
+	/**
+	 * Clear all domain events (typically called after events are published)
+	 */
+	clearDomainEvents(): void {
+		this._domainEvents.length = 0
+	}
+
+	/**
+	 * Check if this entity equals another entity
+	 * Entities are equal if they have the same ID
+	 * @param other - Another {{pascalCase context}} entity
+	 * @returns True if entities have same ID
+	 */
+	equals(other: {{pascalCase context}}): boolean {
+		return this.data.id.equals(other.data.id)
+	}
+
+	/**
+	 * Update the {{camelCase context}}'s status
+	 * @param newStatus - The new status
+	 * @returns New {{pascalCase context}} instance with updated status
+	 */
+	updateStatus(newStatus: {{pascalCase context}}Status): {{pascalCase context}} {
+		const now = new Date()
+
+		const updated{{pascalCase context}} = new {{pascalCase context}}({
+			...this.data,
+			status: newStatus,
+			updatedAt: now,
+		})
+
+		updated{{pascalCase context}}.addDomainEvent(
+			create{{pascalCase context}}UpdatedEvent(this.data.id.value, {
+				{{camelCase context}}Id: this.data.id.value,
+				changes: {
+					status: { from: this.data.status, to: newStatus },
+				},
+			}),
+		)
+
+		return updated{{pascalCase context}}
+	}
+
+	/**
+	 * Soft delete the {{camelCase context}}
+	 * @returns New {{pascalCase context}} instance marked as deleted
+	 */
+	delete(): {{pascalCase context}} {
+		const now = new Date()
+
+		const deleted{{pascalCase context}} = new {{pascalCase context}}({
+			...this.data,
+			deletedAt: now,
+			updatedAt: now,
+		})
+
+		return deleted{{pascalCase context}}
+	}
+
+	/**
+	 * Restore a soft-deleted {{camelCase context}}
+	 * @returns New {{pascalCase context}} instance with deletedAt cleared
+	 */
+	restore(): {{pascalCase context}} {
+		const now = new Date()
+
+		const restored{{pascalCase context}} = new {{pascalCase context}}({
+			...this.data,
+			deletedAt: null,
+			updatedAt: now,
+		})
+
+		return restored{{pascalCase context}}
+	}
+}

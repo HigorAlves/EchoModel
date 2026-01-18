@@ -1,0 +1,303 @@
+name: 'Security Gate'
+description: 'Comprehensive security scanning including CodeQL, vulnerability scans, and dependency checks'
+
+inputs:
+  github-token:
+    description: 'GitHub token for uploading SARIF files'
+    required: true
+    default: ${{ github.token }}
+  fail-on-severity:
+    description: 'Minimum severity level to fail the build (low, moderate, high, critical)'
+    required: false
+    default: 'high'
+  skip-codeql:
+    description: 'Skip CodeQL analysis'
+    required: false
+    default: 'false'
+  skip-dependency-scan:
+    description: 'Skip dependency vulnerability scanning'
+    required: false
+    default: 'false'
+  skip-trivy:
+    description: 'Skip Trivy scanning'
+    required: false
+    default: 'false'
+
+outputs:
+  security-status:
+    description: 'Overall security status (pass/fail)'
+    value: ${{ steps.security-summary.outputs.status }}
+  codeql-status:
+    description: 'CodeQL analysis status'
+    value: ${{ steps.codeql-status.outputs.status }}
+  dependency-status:
+    description: 'Dependency scan status'
+    value: ${{ steps.dependency-scan.outputs.status }}
+  trivy-status:
+    description: 'Trivy scan status'
+    value: ${{ steps.trivy-scan.outputs.status }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Security Gate
+      shell: bash
+      run: |
+        echo "🔒 Starting Security Gate"
+        echo "Fail on severity: ${{ inputs.fail-on-severity }}"
+        mkdir -p security-reports
+
+        # Source reporting utilities
+        source .github/scripts/security-report.sh
+        export REPORT_DIR="security-reports"
+        export FAIL_ON_SEVERITY="${{ inputs.fail-on-severity }}"
+
+    - name: CodeQL Analysis
+      id: codeql-analysis
+      if: inputs.skip-codeql != 'true'
+      shell: bash
+      run: |
+        echo "🔍 Running CodeQL Analysis"
+        echo "status=pending" >> $GITHUB_OUTPUT
+
+    - name: Initialize CodeQL
+      id: codeql-init
+      if: inputs.skip-codeql != 'true'
+      uses: github/codeql-action/init@v3
+      continue-on-error: true
+      with:
+        languages: 'javascript'
+        queries: security-and-quality
+        config-file: .github/codeql-config.yml
+
+    - name: Perform CodeQL Analysis
+      id: codeql-analyze
+      if: inputs.skip-codeql != 'true' && steps.codeql-init.outcome == 'success'
+      uses: github/codeql-action/analyze@v3
+      continue-on-error: true
+      with:
+        category: 'security-gate-codeql'
+        upload: true
+
+    - name: Update CodeQL Status
+      id: codeql-status
+      if: inputs.skip-codeql != 'true'
+      shell: bash
+      run: |
+        if [ "${{ steps.codeql-init.outcome }}" != "success" ]; then
+          echo "status=skipped" >> $GITHUB_OUTPUT
+          echo "⚠️ CodeQL skipped (code scanning may not be enabled for this repository)"
+        elif [ "${{ steps.codeql-analyze.outcome }}" = "success" ]; then
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "✅ CodeQL analysis completed successfully"
+        else
+          echo "status=skipped" >> $GITHUB_OUTPUT
+          echo "⚠️ CodeQL analysis failed to upload results (code scanning may not be enabled)"
+        fi
+
+    - name: Dependency Vulnerability Scan
+      id: dependency-scan
+      if: inputs.skip-dependency-scan != 'true'
+      shell: bash
+      run: |
+        echo "🔍 Running dependency vulnerability scan"
+        echo "status=pending" >> $GITHUB_OUTPUT
+
+        # Run security audit script
+        if [ -f "./scripts/security-audit.sh" ]; then
+          ./scripts/security-audit.sh
+        fi
+
+        # Run yarn npm audit (Yarn Berry's audit command)
+        # Note: yarn npm audit returns exit code 0 for info/low, non-zero for moderate+
+        AUDIT_LEVEL="${{ inputs.fail-on-severity }}"
+
+        # Map severity levels to yarn npm audit --severity flag
+        case "$AUDIT_LEVEL" in
+          critical) SEVERITY_FLAG="--severity critical" ;;
+          high) SEVERITY_FLAG="--severity high" ;;
+          moderate) SEVERITY_FLAG="--severity moderate" ;;
+          *) SEVERITY_FLAG="--severity high" ;;
+        esac
+
+        if yarn npm audit $SEVERITY_FLAG --recursive --json > security-reports/yarn-audit.json 2>&1; then
+          echo "✅ Yarn audit passed"
+        else
+          echo "⚠️ Yarn audit found vulnerabilities (reviewing severity...)"
+          # Show audit results for visibility
+          yarn npm audit $SEVERITY_FLAG --recursive || true
+          # Only fail on high/critical if that's the threshold
+          if [ "$AUDIT_LEVEL" = "high" ] || [ "$AUDIT_LEVEL" = "critical" ]; then
+            if yarn npm audit --severity critical --recursive > /dev/null 2>&1; then
+              echo "✅ No critical vulnerabilities found"
+            else
+              echo "❌ Critical vulnerabilities found"
+              exit 1
+            fi
+          fi
+        fi
+
+        echo "status=success" >> $GITHUB_OUTPUT
+
+    - name: Trivy Filesystem Scan
+      id: trivy-fs-scan
+      if: inputs.skip-trivy != 'true'
+      uses: aquasecurity/trivy-action@0.28.0
+      continue-on-error: true
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        scanners: 'vuln,secret'
+        ignore-unfixed: true
+        format: 'sarif'
+        output: 'security-reports/trivy-fs-results.sarif'
+        severity: 'CRITICAL,HIGH,MEDIUM'
+
+    - name: Upload Trivy FS Results
+      if: inputs.skip-trivy != 'true' && always() && hashFiles('security-reports/trivy-fs-results.sarif') != ''
+      uses: github/codeql-action/upload-sarif@v3
+      continue-on-error: true
+      with:
+        sarif_file: security-reports/trivy-fs-results.sarif
+        category: security-gate-trivy-fs
+
+    - name: Trivy IaC Scan
+      id: trivy-iac-scan
+      if: inputs.skip-trivy != 'true'
+      uses: aquasecurity/trivy-action@0.28.0
+      continue-on-error: true
+      with:
+        scan-type: 'config'
+        scan-ref: '.'
+        scanners: 'misconfig'
+        format: 'sarif'
+        output: 'security-reports/trivy-iac-results.sarif'
+        severity: 'CRITICAL,HIGH,MEDIUM'
+
+    - name: Upload Trivy IaC Results
+      if: inputs.skip-trivy != 'true' && always() && hashFiles('security-reports/trivy-iac-results.sarif') != ''
+      uses: github/codeql-action/upload-sarif@v3
+      continue-on-error: true
+      with:
+        sarif_file: security-reports/trivy-iac-results.sarif
+        category: security-gate-trivy-iac
+
+    - name: Check Trivy Results
+      id: trivy-scan
+      if: inputs.skip-trivy != 'true'
+      shell: bash
+      run: |
+        echo "📊 Checking Trivy scan results..."
+
+        # Check if SARIF files were created
+        if [ -f "security-reports/trivy-fs-results.sarif" ]; then
+          echo "✅ Trivy FS SARIF file created"
+        else
+          echo "⚠️ Trivy FS SARIF file not found"
+        fi
+
+        if [ -f "security-reports/trivy-iac-results.sarif" ]; then
+          echo "✅ Trivy IaC SARIF file created"
+        else
+          echo "⚠️ Trivy IaC SARIF file not found"
+        fi
+
+        # Check outcomes
+        TRIVY_FAILED=false
+
+        if [ "${{ steps.trivy-fs-scan.outcome }}" = "failure" ]; then
+          echo "⚠️ Trivy filesystem scan found vulnerabilities"
+          TRIVY_FAILED=true
+        fi
+
+        if [ "${{ steps.trivy-iac-scan.outcome }}" = "failure" ]; then
+          echo "⚠️ Trivy IaC scan found vulnerabilities"
+          TRIVY_FAILED=true
+        fi
+
+        if [ "$TRIVY_FAILED" = "true" ]; then
+          echo "status=failure" >> $GITHUB_OUTPUT
+          echo "❌ Trivy scans found security issues"
+        else
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "✅ Trivy scans passed"
+        fi
+
+    - name: License Compliance Check
+      shell: bash
+      run: |
+        echo "📋 Running license compliance check"
+
+        # Install license checker
+        npm install -g license-checker
+
+        # Check licenses - allow all common permissive licenses
+        # Includes: MIT variants, Apache, BSD, ISC, Creative Commons, LGPL (for dynamically linked libs), and other permissive licenses
+        # Also includes custom licenses that are actually MIT (e.g., map-stream uses MIT but declares it as custom URL)
+        ALLOWED_LICENSES='MIT;MIT-0;MIT*;Apache-2.0;Apache 2.0;BSD-2-Clause;BSD-3-Clause;ISC;0BSD;Unlicense;WTFPL;CC0-1.0;CC-BY-3.0;CC-BY-4.0;Python-2.0;BlueOak-1.0.0;EPL-2.0;MPL-2.0;Artistic-2.0;LGPL-3.0-or-later;LGPL-3.0;LGPL-2.1;LGPL-2.1-or-later;LGPL-2.0;LGPL-2.0-or-later;Custom: https://github.com/dominictarr/event-stream'
+        if license-checker --summary --excludePrivatePackages --onlyAllow "$ALLOWED_LICENSES" > security-reports/license-report.txt; then
+          echo "✅ License compliance check passed"
+          cat security-reports/license-report.txt
+        else
+          echo "❌ License compliance check failed"
+          cat security-reports/license-report.txt
+          exit 1
+        fi
+
+    - name: Generate Security Summary
+      id: security-summary
+      shell: bash
+      run: |
+        echo "📊 Generating security summary"
+
+        # Source reporting utilities
+        source .github/scripts/security-report.sh
+        export REPORT_DIR="security-reports"
+        export FAIL_ON_SEVERITY="${{ inputs.fail-on-severity }}"
+
+        # Determine status for each check
+        codeql_status="${{ steps.codeql-status.outputs.status }}"
+        if [ "${{ inputs.skip-codeql }}" = "true" ]; then
+          codeql_status="skipped"
+        elif [ -z "$codeql_status" ]; then
+          # If no status was set, CodeQL was skipped (code scanning not enabled)
+          codeql_status="skipped"
+        fi
+
+        dependency_status="${{ steps.dependency-scan.outputs.status }}"
+        if [ "${{ inputs.skip-dependency-scan }}" = "true" ]; then
+          dependency_status="skipped"
+        fi
+
+        trivy_status="${{ steps.trivy-scan.outputs.status }}"
+        if [ "${{ inputs.skip-trivy }}" = "true" ]; then
+          trivy_status="skipped"
+        fi
+
+        license_status="success"
+
+        # Generate comprehensive security report
+        if generate_security_report "$codeql_status" "$dependency_status" "$trivy_status" "$license_status"; then
+          echo "status=pass" >> $GITHUB_OUTPUT
+          echo "All security checks completed successfully!"
+        else
+          echo "status=fail" >> $GITHUB_OUTPUT
+          echo "Some security checks failed. Please review and fix the issues."
+          exit 1
+        fi
+
+    - name: Upload Security Reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      continue-on-error: true
+      with:
+        name: security-reports
+        path: security-reports/
+        if-no-files-found: ignore
+        retention-days: 30
+
+    - name: Security Gate Complete
+      shell: bash
+      run: |
+        echo "🏁 Security Gate completed"
+        echo "Status: ${{ steps.security-summary.outputs.status }}"

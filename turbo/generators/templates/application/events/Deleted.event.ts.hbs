@@ -1,0 +1,20 @@
+/**
+ * @fileoverview {{pascalCase context}} Deleted Application Event Handler
+ */
+
+import { createLogger } from '@foundry/logger'
+import type { IEventHandler } from '@/shared'
+import type { {{pascalCase context}}DeletedEvent } from '@foundry/domain'
+
+const logger = createLogger('{{pascalCase context}}DeletedEventHandler')
+
+export class {{pascalCase context}}DeletedEventHandler implements IEventHandler<{{pascalCase context}}DeletedEvent> {
+	async handle(event: {{pascalCase context}}DeletedEvent): Promise<void> {
+		// TODO: Implement event handling logic
+		// Examples:
+		// - Clean up related records
+		// - Remove from search index
+		// - Archive data
+		logger.info({ aggregateId: event.aggregateId }, '{{pascalCase context}} deleted')
+	}
+}

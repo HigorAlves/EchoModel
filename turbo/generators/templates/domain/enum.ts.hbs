@@ -1,0 +1,102 @@
+/**
+ * @fileoverview {{pascalCase context}} Status Enumeration
+ *
+ * Enums in the domain layer represent a set of named constants that have business meaning.
+ * They should:
+ * - Use business language that stakeholders understand
+ * - Be immutable and well-defined
+ * - Include all valid states for the concept
+ * - Use string values for better serialization and debugging
+ *
+ * Domain enums help:
+ * - Prevent invalid state assignments
+ * - Make code more readable and self-documenting
+ * - Centralize valid values for business concepts
+ * - Enable type checking at compile time
+ */
+
+/**
+ * {{pascalCase context}} Status Enumeration
+ *
+ * Represents the valid states that a {{camelCase context}} can be in throughout its lifecycle.
+ * Each status has specific business rules and allowed transitions.
+ */
+export enum {{pascalCase context}}Status {
+	/** {{pascalCase context}} is active and can be used */
+	ACTIVE = 'ACTIVE',
+
+	/** {{pascalCase context}} is inactive but can be reactivated */
+	INACTIVE = 'INACTIVE',
+
+	/** {{pascalCase context}} has been suspended */
+	SUSPENDED = 'SUSPENDED',
+}
+
+/**
+ * Utility functions for {{pascalCase context}}Status enum
+ */
+
+/**
+ * Get all possible status values
+ * @returns Array of all status values
+ */
+export function getAll{{pascalCase context}}Statuses(): {{pascalCase context}}Status[] {
+	return Object.values({{pascalCase context}}Status)
+}
+
+/**
+ * Check if a status is valid
+ * @param status - Status to validate
+ * @returns True if status is valid
+ */
+export function isValid{{pascalCase context}}Status(status: string): status is {{pascalCase context}}Status {
+	return Object.values({{pascalCase context}}Status).includes(status as {{pascalCase context}}Status)
+}
+
+/**
+ * Get statuses that can transition to the given status
+ * @param targetStatus - The target status
+ * @returns Array of statuses that can transition to target
+ */
+export function getValidTransitionsTo(targetStatus: {{pascalCase context}}Status): {{pascalCase context}}Status[] {
+	// Define business rules for status transitions
+	switch (targetStatus) {
+		case {{pascalCase context}}Status.ACTIVE:
+			return [{{pascalCase context}}Status.INACTIVE, {{pascalCase context}}Status.SUSPENDED]
+		case {{pascalCase context}}Status.INACTIVE:
+			return [{{pascalCase context}}Status.ACTIVE]
+		case {{pascalCase context}}Status.SUSPENDED:
+			return [{{pascalCase context}}Status.ACTIVE]
+		default:
+			return []
+	}
+}
+
+/**
+ * Check if a status transition is valid
+ * @param fromStatus - Current status
+ * @param toStatus - Desired status
+ * @returns True if transition is allowed
+ */
+export function isValidTransition(fromStatus: {{pascalCase context}}Status, toStatus: {{pascalCase context}}Status): boolean {
+	const validTransitions = getValidTransitionsTo(toStatus)
+	return validTransitions.includes(fromStatus)
+}
+
+/**
+ * Get human-readable label for status
+ * @param status - Status to get label for
+ * @returns Human-readable label
+ */
+export function get{{pascalCase context}}StatusLabel(status: {{pascalCase context}}Status): string {
+	switch (status) {
+		case {{pascalCase context}}Status.ACTIVE:
+			return 'Active'
+		case {{pascalCase context}}Status.INACTIVE:
+			return 'Inactive'
+		case {{pascalCase context}}Status.SUSPENDED:
+			return 'Suspended'
+		default:
+			return 'Unknown'
+	}
+}

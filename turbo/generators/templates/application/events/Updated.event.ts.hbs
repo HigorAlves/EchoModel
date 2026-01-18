@@ -1,0 +1,20 @@
+/**
+ * @fileoverview {{pascalCase context}} Updated Application Event Handler
+ */
+
+import { createLogger } from '@foundry/logger'
+import type { IEventHandler } from '@/shared'
+import type { {{pascalCase context}}UpdatedEvent } from '@foundry/domain'
+
+const logger = createLogger('{{pascalCase context}}UpdatedEventHandler')
+
+export class {{pascalCase context}}UpdatedEventHandler implements IEventHandler<{{pascalCase context}}UpdatedEvent> {
+	async handle(event: {{pascalCase context}}UpdatedEvent): Promise<void> {
+		// TODO: Implement event handling logic
+		// Examples:
+		// - Update search index
+		// - Sync with external systems
+		// - Invalidate caches
+		logger.info({ aggregateId: event.aggregateId }, '{{pascalCase context}} updated')
+	}
+}

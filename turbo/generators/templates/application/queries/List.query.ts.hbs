@@ -1,0 +1,42 @@
+/**
+ * @fileoverview List {{pascalCase context}}s Query Handler
+ */
+
+import type { I{{pascalCase context}}Repository, {{pascalCase context}}QueryFilters, {{pascalCase context}}Status } from '@foundry/domain'
+import type { PaginatedResult } from '@/shared'
+import type { List{{pascalCase context}}sInput, {{pascalCase context}}Output } from '@/{{pascalCase context}}'
+import { List{{pascalCase context}}sSchema } from '@/{{pascalCase context}}'
+import { to{{pascalCase context}}ResponseList } from '../mappers'
+
+export class List{{pascalCase context}}sQuery {
+	constructor(private readonly {{camelCase context}}Repository: I{{pascalCase context}}Repository) {}
+
+	async execute(input: List{{pascalCase context}}sInput): Promise<PaginatedResult<{{pascalCase context}}Output>> {
+		const { page, limit, sortBy, sortOrder, status, search } = List{{pascalCase context}}sSchema.parse(input)
+		const offset = (page - 1) * limit
+
+		const filters: {{pascalCase context}}QueryFilters = {
+			limit,
+			offset,
+			sortBy: sortBy ?? 'createdAt',
+			sortOrder: sortOrder ?? 'desc',
+			status: status as {{pascalCase context}}Status | undefined,
+			// TODO: Add search field mapping
+		}
+
+		const [{{camelCase context}}s, total] = await Promise.all([
+			this.{{camelCase context}}Repository.findMany(filters),
+			this.{{camelCase context}}Repository.count(filters),
+		])
+
+		return {
+			items: to{{pascalCase context}}ResponseList({{camelCase context}}s),
+			total,
+			page,
+			limit,
+			totalPages: Math.ceil(total / limit),
+			hasNextPage: page * limit < total,
+			hasPreviousPage: page > 1,
+		}
+	}
+}

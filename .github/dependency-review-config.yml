@@ -1,0 +1,83 @@
+# Dependency Review Configuration
+# This file configures the dependency review action behavior
+
+# License configuration
+license_check: true
+deny_licenses:
+  - GPL-2.0
+  - GPL-3.0
+  - AGPL-1.0
+  - AGPL-3.0
+  - LGPL-2.0
+  - LGPL-2.1
+  - LGPL-3.0
+
+
+# Vulnerability thresholds
+fail_on_severity: moderate
+fail_on_scopes:
+  - runtime
+  - development
+
+# Package configuration
+allow_dependencies_licenses: true
+
+# Enterprise-specific rules
+enterprise_rules:
+  # Deny packages with low download counts (potential supply chain risk)
+  min_monthly_downloads: 1000
+
+  # Deny packages published very recently (potential typosquatting)
+  min_package_age_days: 30
+
+  # Require packages to have certain metadata
+  require_description: true
+  require_repository: true
+  require_homepage: false
+
+# Custom vulnerability database
+vulnerability_database:
+  # Additional sources beyond GitHub Advisory Database
+  sources:
+    - name: "npm-audit"
+      enabled: true
+    - name: "yarn-audit"
+      enabled: true
+
+# Exemptions for known false positives or accepted risks
+exemptions:
+  # Example exemption format:
+  # - advisory-id: "GHSA-xxxx-xxxx-xxxx"
+  #   reason: "False positive - not applicable to our usage"
+  #   expiry: "2024-12-31"
+
+# Comment configuration
+comment_summary_in_pr: true
+comment_format: |
+  ## 🔒 Dependency Review Summary
+
+  {% if vulnerabilities_found %}
+  ❌ **Security Issues Found**: {{ vulnerabilities_count }} vulnerabilities detected
+  {% else %}
+  ✅ **No Security Issues**: All dependencies passed security review
+  {% endif %}
+
+  {% if license_issues_found %}
+  ⚠️ **License Issues**: {{ license_issues_count }} license compatibility issues
+  {% else %}
+  ✅ **License Check**: All licenses are compatible
+  {% endif %}
+
+  {% if supply_chain_issues_found %}
+  🚨 **Supply Chain Risks**: {{ supply_chain_issues_count }} potential risks detected
+  {% else %}
+  ✅ **Supply Chain**: No suspicious packages detected
+  {% endif %}
+
+  For detailed information, check the workflow run artifacts.
+
+# Notification settings
+notifications:
+  security_team: true
+  pr_author: true
+  reviewers: true

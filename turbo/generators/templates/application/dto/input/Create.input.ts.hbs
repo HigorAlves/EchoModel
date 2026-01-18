@@ -1,0 +1,13 @@
+/**
+ * @fileoverview Create {{pascalCase context}} Input DTO
+ */
+
+import { z } from 'zod'
+
+export const Create{{pascalCase context}}Schema = z.object({
+	// TODO: Add {{camelCase context}}-specific input fields
+	// Example:
+	// name: z.string().min(2).max(100),
+})
+
+export type Create{{pascalCase context}}Input = z.infer<typeof Create{{pascalCase context}}Schema>

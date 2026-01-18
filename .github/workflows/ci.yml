@@ -1,0 +1,430 @@
+name: 🚀 Continuous Integration Pipeline
+
+on:
+  pull_request:
+    branches: ["*"]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: development
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      skip-tests:
+        description: "Skip test execution"
+        required: false
+        default: false
+        type: boolean
+      skip-security:
+        description: "Skip security scans"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  checks: write
+  contents: write
+  pull-requests: write
+  security-events: write
+  actions: read
+
+# Prevent concurrent runs for the same PR
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  # Use TARGET_ENV instead of NODE_ENV to avoid conflicts with Next.js build
+  # Next.js manages NODE_ENV internally (sets to 'production' during build)
+  TARGET_ENV: ${{ github.event.inputs.environment || 'development' }}
+
+jobs:
+  # 🚀 Stage 1: Fast Fail Checks (Parallel)
+  fast-checks:
+    name: "⚡ Fast Checks"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: true
+      matrix:
+        check: [pr-validation, dependency-review, license-check]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup
+
+      - name: PR Validation
+        if: matrix.check == 'pr-validation'
+        uses: ./.github/actions/pr-validation
+
+  # 🏗️ Stage 2: Quality Gate (Depends on fast-checks)
+  quality-gate:
+    name: "🏗️ Quality Gate"
+    runs-on: ubuntu-latest
+    needs: fast-checks
+    timeout-minutes: 15
+    outputs:
+      quality-status: ${{ steps.quality.outputs.quality-status }}
+      build-artifacts: ${{ steps.quality.outputs.build-status }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup
+
+      - name: Run Quality Gate
+        id: quality
+        uses: ./.github/actions/code-quality-gate
+        with:
+          environment: ${{ env.TARGET_ENV }}
+          fail-fast: true
+
+      - name: Cache Build Artifacts
+        if: steps.quality.outputs.build-status == 'success'
+        uses: actions/cache@v4
+        with:
+          path: |
+            dist/
+            .next/
+            apps/*/dist/
+            apps/dashboard/.next/
+            packages/*/dist/
+            infra/*/dist/
+          key: build-${{ github.sha }}-${{ env.TARGET_ENV }}
+          restore-keys: |
+            build-${{ github.sha }}-
+
+  # 🔒 Stage 3: Security Scans (Depends on quality-gate)
+  security-scans:
+    name: "🔒 Security Scans"
+    runs-on: ubuntu-latest
+    needs: quality-gate
+    timeout-minutes: 20
+    if: inputs.skip-security != true
+    outputs:
+      security-status: ${{ steps.security.outputs.security-status }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup
+
+      - name: Restore Build Artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            dist/
+            .next/
+            apps/*/dist/
+            apps/dashboard/.next/
+            packages/*/dist/
+            infra/*/dist/
+          key: build-${{ github.sha }}-${{ env.TARGET_ENV }}
+
+      - name: Run Security Gate
+        id: security
+        uses: ./.github/actions/security-gate
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          fail-on-severity: high
+
+  # 🧪 Stage 4: Test Suite (Depends on security-scans)
+  test-suite:
+    name: "🧪 Test Suite"
+    runs-on: ubuntu-latest
+    needs: [quality-gate, security-scans]
+    if: |
+      needs.quality-gate.result == 'success' &&
+      (needs.security-scans.result == 'success' || needs.security-scans.result == 'skipped') &&
+      inputs.skip-tests != true
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        test-type: [unit, integration, e2e]
+        include:
+          - test-type: unit
+            command: "test:unit"
+            coverage-path: "coverage/unit/**"
+          - test-type: integration
+            command: "test:integration"
+            coverage-path: "coverage/integration/**"
+          - test-type: e2e
+            command: "test:e2e"
+            coverage-path: "coverage/e2e/**"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup
+
+      - name: Restore Build Artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            dist/
+            .next/
+            apps/*/dist/
+            apps/dashboard/.next/
+            packages/*/dist/
+            infra/*/dist/
+          key: build-${{ github.sha }}-${{ env.TARGET_ENV }}
+
+      - name: Run ${{ matrix.test-type }} Tests
+        uses: nick-invision/retry@v3
+        with:
+          timeout_minutes: 15
+          max_attempts: 2
+          retry_on: error
+          command: npx turbo run ${{ matrix.command }}
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.test-type }}
+          path: |
+            ${{ matrix.coverage-path }}
+            test-results/**
+            junit.xml
+          retention-days: 7
+
+  # ⚡ Special: Lambda Tests (Conditional on changes)
+  lambda-tests:
+    name: "⚡ Lambda Tests"
+    runs-on: ubuntu-latest
+    needs: quality-gate
+    if: always() && needs.quality-gate.result == 'success' && inputs.skip-tests != true
+    timeout-minutes: 15
+
+    # Check if lambda-related files have changed
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for Lambda Changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            lambdas:
+              - 'apps/lambdas/**'
+              - 'packages/lambda/**'
+              - 'infra/cdk/**'
+
+      - name: Setup Environment
+        if: steps.changes.outputs.lambdas == 'true'
+        uses: ./.github/actions/setup
+
+      - name: Setup Docker Network and PostgreSQL
+        if: steps.changes.outputs.lambdas == 'true'
+        run: |
+          # Create a shared Docker network for LocalStack and PostgreSQL
+          docker network create localstack-network
+
+          # Start PostgreSQL on the shared network
+          docker run -d \
+            --name postgres-localstack \
+            --network localstack-network \
+            -e POSTGRES_USER=dev_local \
+            -e POSTGRES_PASSWORD=dev_local \
+            -e POSTGRES_DB=dev_local \
+            -p 5432:5432 \
+            postgres:15-alpine
+
+          # Wait for PostgreSQL to be ready
+          echo "Waiting for PostgreSQL to be ready..."
+          for i in {1..30}; do
+            if docker exec postgres-localstack pg_isready -U dev_local > /dev/null 2>&1; then
+              echo "PostgreSQL is ready!"
+              break
+            fi
+            echo "Waiting for PostgreSQL... ($i/30)"
+            sleep 1
+          done
+
+      - name: Setup LocalStack
+        if: steps.changes.outputs.lambdas == 'true'
+        run: |
+          # Start LocalStack on the same network as PostgreSQL
+          docker run -d \
+            --name localstack \
+            --network localstack-network \
+            -p 4566:4566 \
+            -e SERVICES=lambda,apigateway,cloudformation,iam,sts,ssm,s3,logs,secretsmanager \
+            -e LAMBDA_EXECUTOR=local \
+            -e DEBUG=1 \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            localstack/localstack:latest
+
+          # Install awslocal CLI
+          pip install awscli-local
+
+          # Wait for LocalStack to be ready
+          echo "Waiting for LocalStack to be ready..."
+          for i in {1..60}; do
+            if curl -sf http://localhost:4566/_localstack/health > /dev/null 2>&1; then
+              echo "LocalStack is ready!"
+              break
+            fi
+            echo "Waiting for LocalStack... ($i/60)"
+            sleep 2
+          done
+
+      - name: Verify LocalStack Health
+        if: steps.changes.outputs.lambdas == 'true'
+        run: |
+          echo "Verifying LocalStack is ready..."
+          curl -s http://localhost:4566/_localstack/health | jq .
+          echo "LocalStack is ready!"
+
+      - name: Run Lambda Tests
+        if: steps.changes.outputs.lambdas == 'true'
+        run: npx turbo run build test --filter='./apps/lambdas/*'
+
+      - name: Build CDK Package
+        if: steps.changes.outputs.lambdas == 'true'
+        run: yarn workspace @foundry/cdk run build
+
+      - name: Deploy to LocalStack
+        if: steps.changes.outputs.lambdas == 'true'
+        run: |
+          yarn workspace @foundry/cdk run bootstrap:local
+          yarn workspace @foundry/cdk run deploy:local
+        env:
+          CDK_DISABLE_LEGACY_EXPORT_WARNING: 1
+          AWS_ENDPOINT_URL: http://localhost:4566
+          AWS_ENDPOINT_URL_S3: http://s3.localhost.localstack.cloud:4566
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
+          AWS_DEFAULT_REGION: us-east-1
+          # PostgreSQL is accessible via container name on the shared Docker network
+          LOCALSTACK_DB_HOST: postgres-localstack
+          LOCALSTACK_DB_PORT: "5432"
+          LOCALSTACK_DB_USERNAME: dev_local
+          LOCALSTACK_DB_PASSWORD: dev_local
+          LOCALSTACK_DB_DATABASE: dev_local
+
+      - name: Test Lambda Functions
+        if: steps.changes.outputs.lambdas == 'true'
+        run: ./scripts/invoke-lambda-local.sh
+        env:
+          AWS_ENDPOINT_URL: http://localhost:4566
+
+      - name: Cleanup Docker Resources
+        if: always() && steps.changes.outputs.lambdas == 'true'
+        run: |
+          docker stop localstack postgres-localstack 2>/dev/null || true
+          docker rm localstack postgres-localstack 2>/dev/null || true
+          docker network rm localstack-network 2>/dev/null || true
+
+  # 📊 Stage 5: CI Summary and Reporting
+  ci-summary:
+    name: "📊 CI Summary"
+    runs-on: ubuntu-latest
+    needs: [fast-checks, quality-gate, security-scans, test-suite, lambda-tests]
+    if: always()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup CI Reporting
+        run: |
+          mkdir -p ci-reports
+          chmod +x .github/scripts/*.sh
+
+      - name: Generate CI Summary
+        id: summary
+        run: |
+          # Source reporting utilities
+          source .github/scripts/ci-report.sh
+          export REPORT_DIR="ci-reports"
+
+          # Generate comprehensive CI report
+          if generate_ci_report \
+            "${{ needs.fast-checks.result }}" \
+            "${{ needs.quality-gate.result }}" \
+            "${{ needs.security-scans.result || 'skipped' }}" \
+            "${{ needs.test-suite.result || 'skipped' }}" \
+            "${{ needs.lambda-tests.result || 'skipped' }}"; then
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+          fi
+
+          # Generate PR comment summary
+          generate_pr_comment_summary \
+            "${{ needs.fast-checks.result }}" \
+            "${{ needs.quality-gate.result }}" \
+            "${{ needs.security-scans.result || 'skipped' }}" \
+            "${{ needs.test-suite.result || 'skipped' }}" \
+            "${{ needs.lambda-tests.result || 'skipped' }}" > ci-summary.md
+
+      - name: Upload CI Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-reports
+          path: ci-reports/
+          retention-days: 30
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('ci-summary.md', 'utf8');
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            const existingComment = comments.find(comment =>
+              comment.body.includes('🚀 CI Pipeline Summary')
+            );
+
+            if (existingComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: summary
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: summary
+              });
+            }
+
+      - name: Final Status Check
+        run: |
+          if [ "${{ steps.summary.outputs.status }}" = "failure" ]; then
+            echo "❌ CI Pipeline failed"
+            exit 1
+          else
+            echo "✅ CI Pipeline succeeded"
+          fi

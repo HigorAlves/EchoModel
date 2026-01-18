@@ -1,0 +1,59 @@
+{
+	"name": "@foundry/testing",
+	"version": "1.0.0",
+	"description": "Testing utilities, in-memory repositories, and test factories for Foundry",
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"license": "ISC",
+	"type": "module",
+	"exports": {
+		".": {
+			"import": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"require": {
+				"types": "./dist/index.d.cts",
+				"default": "./dist/index.cjs"
+			}
+		}
+	},
+	"scripts": {
+		"build": "tsdown",
+		"check-types": "tsc --noEmit"
+	},
+	"author": {
+		"email": "me@higoralves.dev",
+		"name": "Higor Alves",
+		"url": "https://higoralves.dev"
+	},
+	"dependencies": {
+		"@foundry/domain": "*",
+		"@foundry/logger": "*",
+		"@testcontainers/postgresql": "^10.28.0"
+	},
+	"devDependencies": {
+		"@foundry/typescript-config": "*",
+		"@foundry/vitest-config": "*",
+		"tsdown": "^0.14.1",
+		"typescript": "^5.8.3",
+		"vitest": "^3.2.4"
+	},
+	"peerDependencies": {
+		"hono": "^4.0.0",
+		"typeorm": "^0.3.0",
+		"vitest": "^3.0.0"
+	},
+	"peerDependenciesMeta": {
+		"hono": {
+			"optional": true
+		},
+		"typeorm": {
+			"optional": true
+		},
+		"vitest": {
+			"optional": true
+		}
+	}
+}

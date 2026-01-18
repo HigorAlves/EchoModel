@@ -1,0 +1,31 @@
+name: Setup Node and Yarn
+description: Checkout repo, setup Node, install dependencies
+inputs:
+  node-version:
+    default: "22"
+    description: Node.js version
+  skip-checkout:
+    default: "false"
+    description: Skip checkout step (use when workflow already checked out)
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      if: inputs.skip-checkout != 'true'
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Ensure Yarn is available via Corepack
+      shell: bash
+      run: |
+        corepack enable
+        # Use packageManager version from package.json automatically
+        corepack prepare --activate
+
+    - name: Install dependencies
+      shell: bash
+      run: yarn install --immutable

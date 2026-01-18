@@ -1,0 +1,43 @@
+{
+	"name": "@foundry/vitest-config",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "tsc",
+		"collect-json-reports": "node dist/scripts/collect-json-outputs.js",
+		"merge-json-reports": "nyc merge coverage/raw coverage/merged/merged-coverage.json",
+		"report": "nyc report -t coverage/merged --report-dir coverage/report --reporter=html --exclude-after-remap false",
+		"view-report": "open coverage/report/index.html"
+	},
+	"exports": {
+		"./base": {
+			"types": "./dist/configs/base-config.d.ts",
+			"default": "./dist/configs/base-config.js"
+		},
+		"./ui": {
+			"types": "./dist/configs/ui-config.d.ts",
+			"default": "./dist/configs/ui-config.js"
+		}
+	},
+	"author": {
+		"email": "me@higoralves.dev",
+		"name": "Higor Alves",
+		"url": "https://higoralves.dev"
+	},
+	"dependencies": {
+		"glob": "^11.1.0",
+		"jsdom": "^26.1.0",
+		"vite-tsconfig-paths": "^5.1.4"
+	},
+	"devDependencies": {
+		"@foundry/typescript-config": "*",
+		"@types/node": "^24.0.6",
+		"@vitest/coverage-istanbul": "^3.2.4",
+		"@vitest/ui": "3.2.4",
+		"nyc": "^17.1.0",
+		"prettier": "^3.6.2",
+		"typescript": "^5.8.3",
+		"vitest": "^3.2.4"
+	}
+}

@@ -1,0 +1,27 @@
+/**
+ * @fileoverview {{pascalCase context}} Response DTO
+ */
+
+export interface {{pascalCase context}}Output {
+	readonly id: string
+	// TODO: Add {{camelCase context}}-specific output fields
+	// Example:
+	// readonly name: string
+	readonly status: string
+	readonly createdAt: Date
+	readonly updatedAt: Date
+}
+
+export interface Create{{pascalCase context}}Response {
+	readonly {{camelCase context}}Id: string
+}
+
+export interface Update{{pascalCase context}}Response {
+	readonly {{camelCase context}}Id: string
+	readonly updated: boolean
+}
+
+export interface Delete{{pascalCase context}}Response {
+	readonly {{camelCase context}}Id: string
+	readonly deleted: boolean
+}

@@ -1,0 +1,211 @@
+{
+	"$schema": "https://turbo.build/schema.json",
+	"ui": "tui",
+	"globalEnv": [
+		"NODE_ENV",
+		"LOG_LEVEL",
+		"CI",
+		"ANALYZE",
+		"GRAFANA_LOKI_HOST",
+		"PEPPER",
+		"NEXT_RUNTIME",
+		"NEXT_PUBLIC_FIREBASE_API_KEY",
+		"NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
+		"NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+		"NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
+		"NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID",
+		"NEXT_PUBLIC_FIREBASE_APP_ID",
+		"NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID"
+	],
+	"globalDependencies": [
+		"yarn.lock",
+		"turbo.json",
+		"biome.json",
+		"vitest.config.ts",
+		"vitest.workspace.ts",
+		"tsconfig.json",
+		"tsconfig.*.json",
+		"vite.config.*",
+		"next.config.*",
+		"tailwind.config.*",
+		"postcss.config.*"
+	],
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build", "check-types"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"tsconfig*.json",
+				"next.config.*",
+				"vite.config.*",
+				"vitest.config.*",
+				"tailwind.config.*",
+				"postcss.config.*",
+				".env*",
+				"public/**"
+			],
+			"outputs": [".next/**", "!.next/cache/**", "dist/**", "build/**", "storybook-static/**"],
+			"cache": true
+		},
+		"build:analyze": {
+			"dependsOn": ["build"],
+			"env": ["ANALYZE=true"],
+			"cache": false
+		},
+		"check-types": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", "tsconfig*.json"],
+			"outputs": [],
+			"cache": true
+		},
+		"lint": {
+			"inputs": ["$TURBO_DEFAULT$", "biome.json", ".eslintrc*", "eslint.config.*"],
+			"outputs": [],
+			"cache": true
+		},
+		"lint:fix": {
+			"inputs": ["$TURBO_DEFAULT$", "biome.json", ".eslintrc*", "eslint.config.*"],
+			"outputs": [],
+			"cache": false
+		},
+		"format": {
+			"inputs": ["$TURBO_DEFAULT$", "biome.json", ".prettierrc*", "prettier.config.*"],
+			"outputs": [],
+			"cache": false
+		},
+		"test": {
+			"dependsOn": ["^build", "@foundry/vitest-config#build"],
+			"inputs": ["$TURBO_DEFAULT$", "vitest.config.*", "vitest.workspace.*"],
+			"outputs": ["coverage/**", "coverage.json", "test-results/**", "junit.xml"],
+			"cache": true
+		},
+		"test:unit": {
+			"dependsOn": ["^build", "@foundry/vitest-config#build"],
+			"inputs": ["$TURBO_DEFAULT$", "vitest.config.*", "vitest.workspace.*"],
+			"outputs": ["coverage/unit/**", "coverage-unit.json"],
+			"cache": true
+		},
+		"test:integration": {
+			"dependsOn": ["^build", "@foundry/vitest-config#build"],
+			"inputs": ["$TURBO_DEFAULT$", "vitest.config.*", "vitest.workspace.*"],
+			"outputs": ["coverage/integration/**", "coverage-integration.json"],
+			"cache": true
+		},
+		"test:e2e": {
+			"dependsOn": ["^build", "@foundry/vitest-config#build", "build"],
+			"inputs": ["$TURBO_DEFAULT$", "cypress.config.*", "playwright.config.*", "e2e/**", "cypress/**"],
+			"outputs": ["coverage/e2e/**", "coverage-e2e.json", "test-results/**", "screenshots/**", "videos/**"],
+			"cache": true
+		},
+		"test:watch": {
+			"cache": false,
+			"persistent": true
+		},
+		"test:coverage": {
+			"dependsOn": ["test:unit", "test:integration"],
+			"outputs": ["coverage/**", "coverage.json", "coverage.html"],
+			"cache": true
+		},
+		"dev": {
+			"dependsOn": ["^dev"],
+			"cache": false,
+			"persistent": true
+		},
+		"start": {
+			"dependsOn": ["build"],
+			"cache": false,
+			"persistent": true
+		},
+		"preview": {
+			"dependsOn": ["build"],
+			"cache": false,
+			"persistent": true
+		},
+		"typeorm": {
+			"dependsOn": ["build"],
+			"cache": false,
+			"outputs": []
+		},
+		"db:migrate": {
+			"dependsOn": ["build"],
+			"cache": false,
+			"outputs": []
+		},
+		"db:generate": {
+			"dependsOn": ["build"],
+			"cache": false,
+			"outputs": []
+		},
+		"db:rollback": {
+			"dependsOn": ["build"],
+			"cache": false,
+			"outputs": []
+		},
+		"db:reset": {
+			"dependsOn": ["build"],
+			"cache": false,
+			"outputs": []
+		},
+		"storybook": {
+			"dependsOn": ["^build"],
+			"cache": false,
+			"persistent": true
+		},
+		"build-storybook": {
+			"dependsOn": ["build", "^build"],
+			"inputs": ["$TURBO_DEFAULT$", ".storybook/**", "stories/**"],
+			"outputs": ["storybook-static/**"],
+			"cache": true
+		},
+		"docs:build": {
+			"dependsOn": ["build"],
+			"outputs": ["docs/dist/**", ".vitepress/dist/**"],
+			"cache": true
+		},
+		"docs:dev": {
+			"cache": false,
+			"persistent": true
+		},
+		"clean": {
+			"cache": false,
+			"outputs": []
+		},
+		"emulators": {
+			"cache": false,
+			"persistent": true
+		},
+		"collect-json-reports": {
+			"cache": false,
+			"outputs": ["coverage/raw/**"]
+		},
+		"merge-json-reports": {
+			"dependsOn": ["collect-json-reports"],
+			"cache": false,
+			"outputs": ["coverage/merged/merged-coverage.json"]
+		},
+		"view-report": {
+			"dependsOn": ["merge-json-reports"],
+			"cache": false
+		},
+		"ci:build": {
+			"dependsOn": ["lint", "check-types", "build", "test:unit"],
+			"cache": true
+		},
+		"ci:test": {
+			"dependsOn": ["test:unit", "test:integration"],
+			"cache": true
+		},
+		"ci:e2e": {
+			"dependsOn": ["build", "test:e2e"],
+			"cache": true
+		},
+		"ci:quality": {
+			"dependsOn": ["lint", "check-types", "test:coverage"],
+			"cache": true
+		},
+		"ci:quality-fast": {
+			"dependsOn": ["lint", "check-types"],
+			"cache": true
+		}
+	}
+}

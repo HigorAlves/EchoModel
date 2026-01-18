@@ -1,0 +1,10 @@
+{
+	"extends": ["@foundry/typescript-config/base.json"],
+	"compilerOptions": {
+		"outDir": "dist"
+	},
+	"declaration": true,
+	"declarationMap": true,
+	"include": ["configs", "scripts"],
+	"exclude": ["node_modules", "dist"]
+}
