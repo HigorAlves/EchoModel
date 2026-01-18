@@ -508,3 +508,15 @@ Temporary Items
 
 # env files (can opt-in for committing if needed)
 .env*
+
+# Logs
+firebase-debug.log*
+firebase-debug.*.log*
+
+# Firebase cache
+.firebase/
+
+# Firebase config
+
+# dataconnect generated files
+.dataconnect

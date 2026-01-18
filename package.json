@@ -42,7 +42,11 @@
 		"commit": "cz",
 		"release": "semantic-release",
 		"release:dry-run": "semantic-release --dry-run",
-		"release:local": "bash scripts/release.sh"
+		"release:local": "bash scripts/release.sh",
+		"firebase:emulators": "yarn workspace @foundry/firebase emulators",
+		"firebase:deploy": "yarn workspace @foundry/firebase deploy",
+		"firebase:deploy:functions": "yarn workspace @foundry/firebase deploy:functions",
+		"firebase:build": "yarn workspace @foundry/functions build"
 	},
 	"engines": {
 		"node": ">=22"

@@ -1,0 +1,23 @@
+{
+	"name": "@foundry/firebase",
+	"version": "0.1.0",
+	"private": true,
+	"description": "Firebase configuration and infrastructure for Foundry",
+	"scripts": {
+		"emulators": "firebase emulators:start",
+		"emulators:export": "firebase emulators:export ./emulator-data",
+		"deploy": "firebase deploy",
+		"deploy:functions": "firebase deploy --only functions",
+		"deploy:firestore": "firebase deploy --only firestore",
+		"deploy:storage": "firebase deploy --only storage"
+	},
+	"keywords": [],
+	"author": {
+		"email": "me@higoralves.dev",
+		"name": "Higor Alves",
+		"url": "https://higoralves.dev"
+	},
+	"devDependencies": {
+		"firebase-tools": "^14.4.0"
+	}
+}
