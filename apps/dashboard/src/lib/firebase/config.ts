@@ -19,22 +19,26 @@ function shouldUseEmulator(): boolean {
 	return useEmulatorEnv || isLocalhost
 }
 
-let app: FirebaseApp | undefined
+let _app: FirebaseApp | undefined
 let auth: Auth | undefined
 let emulatorConnected = false
 
 export function getFirebaseApp(): FirebaseApp {
-	if (app) return app
+	if (_app) return _app
 
 	const existingApps = getApps()
-	if (existingApps.length > 0) {
-		app = existingApps[0]
-		return app
+	const existingApp = existingApps[0]
+	if (existingApp) {
+		_app = existingApp
+		return _app
 	}
 
-	app = initializeApp(firebaseConfig)
-	return app
+	_app = initializeApp(firebaseConfig)
+	return _app
 }
+
+// Export initialized app for direct use
+export const app = getFirebaseApp()
 
 export function getFirebaseAuth(): Auth {
 	if (auth) return auth

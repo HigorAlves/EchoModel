@@ -1,25 +1,55 @@
-import { setGlobalOptions } from 'firebase-functions'
-import * as logger from 'firebase-functions/logger'
-
 /**
- * Firebase Cloud Functions for Foundry Dashboard
+ * @fileoverview Firebase Cloud Functions for EchoModel
  *
- * This module follows the monorepo patterns and can import shared packages
- * from @foundry/* when available.
+ * This module exports all Cloud Functions for the EchoModel platform.
+ * Functions are organized by bounded context:
+ * - Models: AI influencer creation and calibration
+ * - Generations: Image generation requests
+ * - Assets: File upload and management
+ * - Stores: Multi-tenant store management
  *
  * @see https://firebase.google.com/docs/functions
  */
+
+import { setGlobalOptions } from 'firebase-functions'
 
 // Set global options for all functions
 // maxInstances helps control costs by limiting concurrent function executions
 setGlobalOptions({ maxInstances: 10 })
 
-// Export functions below
-// Example:
-// export const helloWorld = onRequest((request, response) => {
-//   logger.info('Hello logs!', { structuredData: true })
-//   response.send('Hello from Firebase!')
-// })
+// ==================== Model Functions ====================
+// Handle AI influencer creation and calibration workflow
+export {
+	createModel,
+	startCalibration,
+	approveCalibration,
+	rejectCalibration,
+} from './handlers/models'
 
-// Placeholder export to ensure the module is valid
-export { logger }
+// ==================== Generation Functions ====================
+// Handle image generation requests and processing
+export {
+	createGeneration,
+	processGeneration,
+	handleGenerationCallback,
+	processGenerationPubSub,
+} from './handlers/generations'
+
+// ==================== Asset Functions ====================
+// Handle file uploads and asset management
+export {
+	requestUploadUrl,
+	confirmUpload,
+	getDownloadUrl,
+	deleteAsset,
+	onAssetUploaded,
+} from './handlers/assets'
+
+// ==================== Store Functions ====================
+// Handle multi-tenant store management
+export {
+	createStore,
+	getMyStores,
+	getStore,
+	updateStoreSettings,
+} from './handlers/stores'
