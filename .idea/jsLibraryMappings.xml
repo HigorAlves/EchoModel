@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="JavaScriptLibraryMappings">
-    <file url="file://$PROJECT_DIR$/apps/lambdas/user" libraries="{EchoModel/apps/lambdas/user/node_modules}" />
     <excludedPredefinedLibrary name="EchoModel/infra/database/node_modules" />
   </component>
 </project>
