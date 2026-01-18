@@ -1,49 +1,39 @@
 'use client'
 
 import {
-	ArrowLeftRight,
-	AudioWaveform,
-	BarChart3,
-	Command,
-	Flag,
-	GalleryVerticalEnd,
+	Cog,
+	FolderOpen,
+	ImagePlus,
 	LayoutDashboard,
-	Receipt,
-	Settings,
-	Target,
-	TrendingUp,
-	Wallet,
+	Sparkles,
+	Users,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import type * as React from 'react'
 
 import { NavMain } from '@/components/layout/dashboard/nav-main'
 import { NavUser } from '@/components/layout/dashboard/nav-user'
-import { TeamSwitcher } from '@/components/layout/dashboard/team-switcher'
+import { StoreSwitcher, type StoreData } from '@/components/layout/dashboard/store-switcher'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar'
 
-// This is sample data.
+// Sample user data - will be replaced with real auth data
 const userData = {
-	name: 'shadcn',
-	email: 'm@example.com',
-	avatar: '/avatars/shadcn.jpg',
+	name: 'Store Owner',
+	email: 'owner@example.com',
+	avatar: '/avatars/default.jpg',
 }
 
-const teamsData = [
+// Sample stores data - will be replaced with real store data
+const storesData: StoreData[] = [
 	{
-		name: 'Acme Inc',
-		logo: GalleryVerticalEnd,
-		plan: 'Enterprise',
+		id: 'store-1',
+		name: 'Fashion Forward',
+		plan: 'pro',
 	},
 	{
-		name: 'Acme Corp.',
-		logo: AudioWaveform,
-		plan: 'Startup',
-	},
-	{
-		name: 'Evil Corp.',
-		logo: Command,
-		plan: 'Free',
+		id: 'store-2',
+		name: 'Urban Style Co.',
+		plan: 'free',
 	},
 ]
 
@@ -53,105 +43,54 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const navMain = [
 		{
 			title: t('dashboard'),
-			url: '#',
+			url: '/dashboard',
 			icon: LayoutDashboard,
 			isActive: true,
 			items: [
-				{ title: t('overview'), url: '#' },
-				{ title: t('netWorth'), url: '#' },
-				{ title: t('monthlySummary'), url: '#' },
+				{ title: t('overview'), url: '/dashboard' },
+				{ title: t('analytics'), url: '/dashboard/analytics' },
 			],
 		},
 		{
-			title: t('accounts'),
-			url: '/dashboard/accounts',
-			icon: Wallet,
+			title: t('models'),
+			url: '/dashboard/models',
+			icon: Users,
 			items: [
-				{ title: t('bankAccounts'), url: '/dashboard/accounts/bank' },
-				{ title: t('creditCards'), url: '/dashboard/accounts/credit-cards' },
-				{ title: t('cashWallets'), url: '/dashboard/accounts/cash-wallets' },
+				{ title: t('allModels'), url: '/dashboard/models' },
+				{ title: t('createModel'), url: '/dashboard/models/create' },
+				{ title: t('calibration'), url: '/dashboard/models/calibration' },
 			],
 		},
 		{
-			title: t('transactions'),
-			url: '#',
-			icon: ArrowLeftRight,
+			title: t('generations'),
+			url: '/dashboard/generations',
+			icon: Sparkles,
 			items: [
-				{ title: t('allTransactions'), url: '#' },
-				{ title: t('income'), url: '#' },
-				{ title: t('expenses'), url: '#' },
-				{ title: t('transfers'), url: '#' },
-				{ title: t('import'), url: '#' },
+				{ title: t('allGenerations'), url: '/dashboard/generations' },
+				{ title: t('newGeneration'), url: '/dashboard/generations/new' },
+				{ title: t('history'), url: '/dashboard/generations/history' },
 			],
 		},
 		{
-			title: t('budget'),
-			url: '#',
-			icon: Target,
+			title: t('assets'),
+			url: '/dashboard/assets',
+			icon: FolderOpen,
 			items: [
-				{ title: t('overview'), url: '#' },
-				{ title: t('categories'), url: '#' },
-				{ title: t('planning'), url: '#' },
-				{ title: t('alerts'), url: '#' },
-			],
-		},
-		{
-			title: t('investments'),
-			url: '#',
-			icon: TrendingUp,
-			items: [
-				{ title: t('portfolio'), url: '#' },
-				{ title: t('stocksEtfs'), url: '#' },
-				{ title: t('crypto'), url: '#' },
-				{ title: t('fixedIncome'), url: '#' },
-				{ title: t('realEstate'), url: '#' },
-				{ title: t('funds'), url: '#' },
-			],
-		},
-		{
-			title: t('goals'),
-			url: '#',
-			icon: Flag,
-			items: [
-				{ title: t('allGoals'), url: '#' },
-				{ title: t('emergencyFund'), url: '#' },
-				{ title: t('savings'), url: '#' },
-				{ title: t('milestones'), url: '#' },
-			],
-		},
-		{
-			title: t('bills'),
-			url: '#',
-			icon: Receipt,
-			items: [
-				{ title: t('upcoming'), url: '#' },
-				{ title: t('subscriptions'), url: '#' },
-				{ title: t('recurring'), url: '#' },
-				{ title: t('history'), url: '#' },
-			],
-		},
-		{
-			title: t('reports'),
-			url: '#',
-			icon: BarChart3,
-			items: [
-				{ title: t('overview'), url: '#' },
-				{ title: t('cashFlow'), url: '#' },
-				{ title: t('byCategory'), url: '#' },
-				{ title: t('investments'), url: '#' },
-				{ title: t('taxReport'), url: '#' },
+				{ title: t('allAssets'), url: '/dashboard/assets' },
+				{ title: t('garments'), url: '/dashboard/assets/garments' },
+				{ title: t('generated'), url: '/dashboard/assets/generated' },
+				{ title: t('references'), url: '/dashboard/assets/references' },
 			],
 		},
 		{
 			title: t('settings'),
-			url: '#',
-			icon: Settings,
+			url: '/dashboard/settings',
+			icon: Cog,
 			items: [
-				{ title: t('general'), url: '#' },
-				{ title: t('currencies'), url: '#' },
-				{ title: t('categories'), url: '#' },
-				{ title: t('importExport'), url: '#' },
-				{ title: t('notifications'), url: '#' },
+				{ title: t('storeSettings'), url: '/dashboard/settings' },
+				{ title: t('branding'), url: '/dashboard/settings/branding' },
+				{ title: t('billing'), url: '/dashboard/settings/billing' },
+				{ title: t('team'), url: '/dashboard/settings/team' },
 			],
 		},
 	]
@@ -159,7 +98,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
 		<Sidebar collapsible='icon' {...props}>
 			<SidebarHeader>
-				<TeamSwitcher teams={teamsData} />
+				<StoreSwitcher stores={storesData} />
 			</SidebarHeader>
 			<SidebarContent>
 				<NavMain items={navMain} />

@@ -11,7 +11,7 @@ export * from './user.error'
 export * from './user.event'
 
 // Mapper
-export * from './user.mapper'
+export { UserMapper } from './user.mapper'
 
 // Repository
 export * from './user.repository'

@@ -1,7 +1,7 @@
 {
 	"metadata": {
-		"title": "Foundry Dashboard",
-		"description": "Foundry Dashboard Application"
+		"title": "EchoModel - AI Influencer Platform",
+		"description": "Create AI influencers and generate social-media-ready photos for your clothing store"
 	},
 	"common": {
 		"login": "Login",
@@ -20,7 +20,18 @@
 		"error": "Error",
 		"success": "Success",
 		"termsOfService": "Terms of Service",
-		"privacyPolicy": "Privacy Policy"
+		"privacyPolicy": "Privacy Policy",
+		"create": "Create",
+		"view": "View",
+		"download": "Download",
+		"upload": "Upload",
+		"search": "Search",
+		"filter": "Filter",
+		"sort": "Sort",
+		"refresh": "Refresh",
+		"back": "Back",
+		"next": "Next",
+		"previous": "Previous"
 	},
 	"home": {
 		"getStarted": "To get started, edit the page.tsx file.",
@@ -35,7 +46,7 @@
 	"auth": {
 		"login": {
 			"title": "Welcome back",
-			"subtitle": "Login to your Acme Inc account",
+			"subtitle": "Login to your EchoModel account",
 			"forgotPassword": "Forgot your password?",
 			"loggingIn": "Logging in...",
 			"loginButton": "Login",
@@ -50,7 +61,7 @@
 		},
 		"signup": {
 			"title": "Create your account",
-			"subtitle": "Enter your email below to create your account",
+			"subtitle": "Start creating AI influencers for your store",
 			"emailDescription": "We'll use this to contact you. We will not share your email with anyone else.",
 			"passwordMinLength": "Must be at least 8 characters long.",
 			"creatingAccount": "Creating Account...",
@@ -82,68 +93,42 @@
 		"veryStrong": "Very strong"
 	},
 	"navigation": {
-		"finance": "Finance",
-		"management": "Management",
 		"platform": "Platform",
-		"projects": "Projects",
-		"teams": "Teams",
-		"addTeam": "Add team"
+		"aiStudio": "AI Studio",
+		"content": "Content",
+		"management": "Management"
+	},
+	"stores": {
+		"yourStores": "Your Stores",
+		"addStore": "Add Store",
+		"plans": {
+			"free": "Free",
+			"pro": "Pro",
+			"enterprise": "Enterprise"
+		}
 	},
 	"sidebar": {
 		"dashboard": "Dashboard",
 		"overview": "Overview",
-		"netWorth": "Net Worth",
-		"monthlySummary": "Monthly Summary",
-		"accounts": "Accounts",
-		"allAccounts": "All Accounts",
-		"bankAccounts": "Bank Accounts",
-		"creditCards": "Credit Cards",
-		"cashWallets": "Cash & Wallets",
-		"addAccount": "Add Account",
-		"transactions": "Transactions",
-		"allTransactions": "All Transactions",
-		"income": "Income",
-		"expenses": "Expenses",
-		"transfers": "Transfers",
-		"import": "Import",
-		"budget": "Budget",
-		"categories": "Categories",
-		"planning": "Planning",
-		"alerts": "Alerts",
-		"investments": "Investments",
-		"portfolio": "Portfolio",
-		"stocksEtfs": "Stocks & ETFs",
-		"crypto": "Crypto",
-		"fixedIncome": "Fixed Income",
-		"realEstate": "Real Estate",
-		"funds": "Funds",
-		"goals": "Goals",
-		"allGoals": "All Goals",
-		"emergencyFund": "Emergency Fund",
-		"savings": "Savings",
-		"milestones": "Milestones",
-		"bills": "Bills",
-		"upcoming": "Upcoming",
-		"subscriptions": "Subscriptions",
-		"recurring": "Recurring",
+		"analytics": "Analytics",
+		"models": "AI Models",
+		"allModels": "All Models",
+		"createModel": "Create Model",
+		"calibration": "Calibration",
+		"generations": "Generations",
+		"allGenerations": "All Generations",
+		"newGeneration": "New Generation",
 		"history": "History",
-		"reports": "Reports",
-		"cashFlow": "Cash Flow",
-		"byCategory": "By Category",
-		"taxReport": "Tax Report",
+		"assets": "Assets",
+		"allAssets": "All Assets",
+		"garments": "Garments",
+		"generated": "Generated Images",
+		"references": "Reference Images",
 		"settings": "Settings",
-		"general": "General",
-		"currencies": "Currencies",
-		"importExport": "Import/Export",
-		"notifications": "Notifications"
-	},
-	"projects": {
-		"designEngineering": "Design Engineering",
-		"salesMarketing": "Sales & Marketing",
-		"travel": "Travel",
-		"viewProject": "View Project",
-		"shareProject": "Share Project",
-		"deleteProject": "Delete Project"
+		"storeSettings": "Store Settings",
+		"branding": "Branding",
+		"billing": "Billing",
+		"team": "Team"
 	},
 	"user": {
 		"upgradeToPro": "Upgrade to Pro",
@@ -152,148 +137,287 @@
 		"notifications": "Notifications"
 	},
 	"dashboard": {
+		"title": "Dashboard",
+		"welcome": "Welcome back",
+		"welcomeSubtitle": "Here's what's happening with your AI influencers",
 		"breadcrumbs": {
-			"buildingYourApplication": "Building Your Application",
-			"dataFetching": "Data Fetching"
+			"dashboard": "Dashboard",
+			"overview": "Overview",
+			"analytics": "Analytics"
+		},
+		"stats": {
+			"totalModels": "Total Models",
+			"activeModels": "Active Models",
+			"totalGenerations": "Total Generations",
+			"thisMonth": "This Month",
+			"totalAssets": "Total Assets",
+			"storageUsed": "Storage Used"
+		},
+		"recentActivity": {
+			"title": "Recent Activity",
+			"noActivity": "No recent activity",
+			"viewAll": "View all activity"
+		},
+		"quickActions": {
+			"title": "Quick Actions",
+			"createModel": "Create New Model",
+			"generateImage": "Generate Image",
+			"uploadAsset": "Upload Asset"
+		}
+	},
+	"models": {
+		"title": "AI Models",
+		"subtitle": "Create and manage your AI influencers",
+		"breadcrumbs": {
+			"models": "Models",
+			"all": "All Models",
+			"create": "Create Model",
+			"calibration": "Calibration",
+			"details": "Model Details"
+		},
+		"status": {
+			"draft": "Draft",
+			"calibrating": "Calibrating",
+			"active": "Active",
+			"failed": "Failed",
+			"archived": "Archived"
+		},
+		"create": {
+			"title": "Create New Model",
+			"subtitle": "Define the characteristics of your AI influencer",
+			"step1": "Basic Info",
+			"step2": "Appearance",
+			"step3": "References",
+			"step4": "Review"
+		},
+		"form": {
+			"name": "Model Name",
+			"namePlaceholder": "Enter a name for your model",
+			"nameDescription": "Give your AI influencer a memorable name",
+			"description": "Description",
+			"descriptionPlaceholder": "Describe your model's personality and style",
+			"gender": "Gender",
+			"genderOptions": {
+				"male": "Male",
+				"female": "Female",
+				"nonBinary": "Non-Binary"
+			},
+			"ageRange": "Age Range",
+			"ageRangeOptions": {
+				"young": "18-25",
+				"adult": "26-35",
+				"mature": "36-45",
+				"senior": "46+"
+			},
+			"ethnicity": "Ethnicity",
+			"bodyType": "Body Type",
+			"bodyTypeOptions": {
+				"slim": "Slim",
+				"athletic": "Athletic",
+				"average": "Average",
+				"curvy": "Curvy",
+				"plusSize": "Plus Size"
+			},
+			"prompt": "Custom Prompt",
+			"promptPlaceholder": "Add specific details about the model's appearance",
+			"promptDescription": "Optional: Provide additional details for more precise results",
+			"referenceImages": "Reference Images",
+			"referenceImagesDescription": "Upload 3-5 images to help define the model's appearance"
+		},
+		"calibration": {
+			"title": "Model Calibration",
+			"subtitle": "Review and approve calibration images",
+			"inProgress": "Calibration in Progress",
+			"selectImages": "Select the best images that represent your model",
+			"approve": "Approve & Activate",
+			"reject": "Reject & Retry",
+			"generating": "Generating calibration images..."
+		},
+		"card": {
+			"generations": "Generations",
+			"created": "Created",
+			"viewDetails": "View Details",
+			"startCalibration": "Start Calibration",
+			"generateImage": "Generate Image"
+		},
+		"empty": {
+			"title": "No models yet",
+			"description": "Create your first AI influencer to get started",
+			"createButton": "Create Model"
+		},
+		"actions": {
+			"create": "Create Model",
+			"edit": "Edit Model",
+			"archive": "Archive Model",
+			"delete": "Delete Model",
+			"duplicate": "Duplicate Model"
+		}
+	},
+	"generations": {
+		"title": "Generations",
+		"subtitle": "Generate and manage AI-created images",
+		"breadcrumbs": {
+			"generations": "Generations",
+			"all": "All Generations",
+			"new": "New Generation",
+			"history": "History",
+			"details": "Generation Details"
+		},
+		"status": {
+			"pending": "Pending",
+			"processing": "Processing",
+			"completed": "Completed",
+			"failed": "Failed"
+		},
+		"create": {
+			"title": "Create New Generation",
+			"subtitle": "Generate images with your AI influencer",
+			"selectModel": "Select Model",
+			"selectModelPlaceholder": "Choose an AI model",
+			"selectGarment": "Select Garment",
+			"selectGarmentPlaceholder": "Choose a garment image",
+			"scenePrompt": "Scene Description",
+			"scenePromptPlaceholder": "Describe the scene, pose, and setting",
+			"scenePromptDescription": "Be specific about the environment, lighting, and pose",
+			"aspectRatio": "Aspect Ratio",
+			"aspectRatioOptions": {
+				"portrait": "Portrait (4:5)",
+				"story": "Story (9:16)",
+				"square": "Square (1:1)",
+				"landscape": "Landscape (16:9)"
+			},
+			"imageCount": "Number of Images",
+			"imageCountDescription": "Generate 1-4 images per request",
+			"generate": "Generate Images",
+			"generating": "Generating..."
+		},
+		"card": {
+			"model": "Model",
+			"images": "Images",
+			"created": "Created",
+			"viewImages": "View Images",
+			"download": "Download All",
+			"regenerate": "Regenerate"
+		},
+		"empty": {
+			"title": "No generations yet",
+			"description": "Create your first generation to see AI-created images",
+			"createButton": "New Generation"
+		},
+		"detail": {
+			"generatedImages": "Generated Images",
+			"metadata": "Generation Details",
+			"downloadSelected": "Download Selected",
+			"downloadAll": "Download All"
+		}
+	},
+	"assets": {
+		"title": "Assets",
+		"subtitle": "Manage your images and files",
+		"breadcrumbs": {
+			"assets": "Assets",
+			"all": "All Assets",
+			"garments": "Garments",
+			"generated": "Generated",
+			"references": "References",
+			"details": "Asset Details"
+		},
+		"categories": {
+			"all": "All",
+			"garment": "Garments",
+			"generated": "Generated",
+			"modelReference": "Model References",
+			"calibration": "Calibration",
+			"storeLogo": "Store Logo"
+		},
+		"status": {
+			"pendingUpload": "Pending Upload",
+			"uploaded": "Uploaded",
+			"processing": "Processing",
+			"ready": "Ready",
+			"failed": "Failed"
+		},
+		"upload": {
+			"title": "Upload Assets",
+			"dragDrop": "Drag and drop files here",
+			"or": "or",
+			"browse": "Browse files",
+			"supportedFormats": "Supported formats: JPEG, PNG, WebP",
+			"maxSize": "Max file size: 10MB"
+		},
+		"card": {
+			"size": "Size",
+			"uploaded": "Uploaded",
+			"category": "Category",
+			"viewDetails": "View Details",
+			"download": "Download",
+			"delete": "Delete"
+		},
+		"empty": {
+			"title": "No assets yet",
+			"description": "Upload your first asset to get started",
+			"uploadButton": "Upload Asset"
+		},
+		"filters": {
+			"category": "Category",
+			"status": "Status",
+			"dateRange": "Date Range"
+		}
+	},
+	"settings": {
+		"title": "Settings",
+		"subtitle": "Manage your store settings",
+		"breadcrumbs": {
+			"settings": "Settings",
+			"store": "Store Settings",
+			"branding": "Branding",
+			"billing": "Billing",
+			"team": "Team"
+		},
+		"store": {
+			"title": "Store Settings",
+			"subtitle": "Configure your store preferences",
+			"name": "Store Name",
+			"namePlaceholder": "Enter your store name",
+			"description": "Store Description",
+			"descriptionPlaceholder": "Describe your store",
+			"defaultAspectRatio": "Default Aspect Ratio",
+			"defaultImageCount": "Default Image Count",
+			"watermark": "Enable Watermark",
+			"watermarkDescription": "Add a watermark to generated images"
+		},
+		"branding": {
+			"title": "Branding",
+			"subtitle": "Customize your brand appearance",
+			"logo": "Store Logo",
+			"logoDescription": "Upload your store logo",
+			"defaultStyle": "Default Style",
+			"defaultStylePlaceholder": "Describe your brand's visual style"
+		},
+		"billing": {
+			"title": "Billing",
+			"subtitle": "Manage your subscription and payments",
+			"currentPlan": "Current Plan",
+			"usage": "Usage This Month",
+			"generations": "Generations",
+			"storage": "Storage",
+			"upgrade": "Upgrade Plan",
+			"viewInvoices": "View Invoices"
+		},
+		"team": {
+			"title": "Team",
+			"subtitle": "Manage team members and permissions",
+			"members": "Team Members",
+			"invite": "Invite Member",
+			"roles": {
+				"owner": "Owner",
+				"admin": "Admin",
+				"member": "Member"
+			}
 		}
 	},
 	"localeSwitcher": {
 		"label": "Language",
 		"switchTo": "Switch to {locale}"
-	},
-	"accounts": {
-		"breadcrumbs": {
-			"accounts": "Accounts",
-			"all": "All Accounts",
-			"bank": "Bank Accounts",
-			"creditCards": "Credit Cards",
-			"cashWallets": "Cash & Wallets",
-			"details": "Account Details"
-		},
-		"tabs": {
-			"all": "All",
-			"bank": "Bank",
-			"creditCards": "Credit Cards",
-			"cashWallets": "Cash & Wallets"
-		},
-		"summary": {
-			"bankBalance": "Bank Balance",
-			"creditDebt": "Credit Card Debt",
-			"availableCredit": "Available Credit",
-			"cashWallets": "Cash & Wallets",
-			"totalAccounts": "{count} accounts"
-		},
-		"types": {
-			"bank": "Bank Account",
-			"credit_card": "Credit Card",
-			"cash": "Cash",
-			"wallet": "Digital Wallet"
-		},
-		"subtypes": {
-			"checking": "Checking",
-			"savings": "Savings"
-		},
-		"status": {
-			"active": "Active",
-			"inactive": "Inactive",
-			"closed": "Closed"
-		},
-		"cardBrands": {
-			"visa": "Visa",
-			"mastercard": "Mastercard",
-			"amex": "American Express",
-			"discover": "Discover"
-		},
-		"walletTypes": {
-			"digital": "Digital",
-			"physical": "Physical"
-		},
-		"card": {
-			"balance": "Balance",
-			"available": "Available",
-			"creditLimit": "Credit Limit",
-			"creditUsage": "Credit Usage",
-			"minimumPayment": "Min. Payment",
-			"dueDate": "Due Date",
-			"apr": "APR",
-			"accountNumber": "Account",
-			"location": "Location",
-			"provider": "Provider",
-			"dueSoon": "Due Soon",
-			"overdue": "Overdue"
-		},
-		"detail": {
-			"accountInfo": "Account Information",
-			"creditInfo": "Credit Information",
-			"recentTransactions": "Recent Transactions",
-			"noTransactions": "No recent transactions",
-			"viewAllTransactions": "View all transactions",
-			"quickActions": "Quick Actions",
-			"transfer": "Transfer",
-			"makePayment": "Make Payment",
-			"viewStatements": "View Statements"
-		},
-		"dialog": {
-			"addTitle": "Add New Account",
-			"addDescription": "Choose the type of account you want to add",
-			"deleteTitle": "Delete Account",
-			"deleteDescription": "Are you sure you want to delete this account? This action cannot be undone.",
-			"deleteConfirm": "Delete Account",
-			"step1": "Select Type",
-			"step2": "Account Details"
-		},
-		"form": {
-			"name": "Account Name",
-			"namePlaceholder": "Enter account name",
-			"bankName": "Bank Name",
-			"bankNamePlaceholder": "Enter bank name",
-			"accountNumber": "Account Number",
-			"accountNumberPlaceholder": "Enter last 4 digits",
-			"subtype": "Account Type",
-			"balance": "Current Balance",
-			"balancePlaceholder": "0.00",
-			"currency": "Currency",
-			"color": "Color",
-			"cardNumber": "Card Number",
-			"cardNumberPlaceholder": "Enter last 4 digits",
-			"cardHolder": "Card Holder",
-			"expiryDate": "Expiry Date",
-			"cvv": "CVV",
-			"currentBalance": "Current Balance",
-			"cardBrand": "Card Brand",
-			"creditLimit": "Credit Limit",
-			"creditLimitPlaceholder": "0.00",
-			"apr": "Annual Percentage Rate",
-			"aprPlaceholder": "0.00",
-			"dueDate": "Due Date",
-			"location": "Location",
-			"locationPlaceholder": "Where is this cash stored?",
-			"walletType": "Wallet Type",
-			"provider": "Provider",
-			"providerPlaceholder": "e.g. PayPal, Venmo"
-		},
-		"validation": {
-			"nameRequired": "Account name is required",
-			"bankNameRequired": "Bank name is required",
-			"accountNumberRequired": "Account number is required",
-			"balanceRequired": "Balance is required",
-			"currencyRequired": "Currency is required",
-			"cardNumberRequired": "Card number is required",
-			"cardBrandRequired": "Card brand is required",
-			"creditLimitRequired": "Credit limit is required",
-			"aprRequired": "APR is required",
-			"dueDateRequired": "Due date is required",
-			"walletTypeRequired": "Wallet type is required"
-		},
-		"empty": {
-			"title": "No accounts found",
-			"description": "Get started by adding your first account",
-			"addButton": "Add Account"
-		},
-		"actions": {
-			"addAccount": "Add Account",
-			"editAccount": "Edit Account",
-			"deleteAccount": "Delete Account"
-		}
 	}
 }
