@@ -32,22 +32,8 @@
 	},
 	"dependencies": {
 		"@foundry/domain": "*",
-		"@foundry/error": "*",
-		"@foundry/logger": "*",
 		"jose": "^6.1.3",
 		"zod": "^3.25.76"
-	},
-	"peerDependencies": {
-		"@foundry/authorization": "*",
-		"@foundry/database": "*"
-	},
-	"peerDependenciesMeta": {
-		"@foundry/authorization": {
-			"optional": true
-		},
-		"@foundry/database": {
-			"optional": true
-		}
 	},
 	"devDependencies": {
 		"@foundry/typescript-config": "*",

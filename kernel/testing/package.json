@@ -30,7 +30,6 @@
 	},
 	"dependencies": {
 		"@foundry/domain": "*",
-		"@foundry/logger": "*",
 		"@testcontainers/postgresql": "^10.28.0"
 	},
 	"devDependencies": {
