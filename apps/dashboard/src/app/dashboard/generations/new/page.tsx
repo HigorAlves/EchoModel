@@ -1,16 +1,33 @@
 'use client'
 
-import { ArrowLeft, ImageIcon, Sparkles, Upload } from 'lucide-react'
+import { ArrowLeft, ChevronDown, ImageIcon, Sparkles, Upload } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { useBreadcrumbs } from '@/components/layout/dashboard/dashboard-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
+import { PresetCard } from '@/features/generations/components/preset-card'
+import { PresetCategory } from '@/features/generations/components/preset-category'
+import {
+	ANGLE_OPTIONS,
+	generateScenePrompt,
+	getAngleIcon,
+	getLightingIcon,
+	getPoseIcon,
+	getSettingIcon,
+	LIGHTING_OPTIONS,
+	POSE_OPTIONS,
+	type PresetSelection,
+	SETTING_OPTIONS,
+} from '@/features/generations/presets'
+import { cn } from '@/lib/utils'
 
 // Sample models for selection
 const availableModels = [
@@ -26,11 +43,30 @@ export default function NewGenerationPage() {
 	const [formData, setFormData] = useState({
 		modelId: '',
 		garmentAssetId: '',
-		scenePrompt: '',
 		aspectRatio: '4:5',
 		imageCount: '2',
 	})
 	const [isGenerating, setIsGenerating] = useState(false)
+
+	// Preset state with smart defaults
+	const [presets, setPresets] = useState<PresetSelection>({
+		setting: 'studio',
+		lighting: 'studio',
+		pose: 'standing',
+		angle: 'eye',
+		mood: undefined,
+	})
+
+	// Advanced options state
+	const [showAdvanced, setShowAdvanced] = useState(false)
+	const [useCustomPrompt, setUseCustomPrompt] = useState(false)
+	const [customPrompt, setCustomPrompt] = useState('')
+
+	// Auto-generate prompt from presets
+	const generatedPrompt = useMemo(() => generateScenePrompt(presets), [presets])
+
+	// Final prompt for submission
+	const finalScenePrompt = useCustomPrompt && customPrompt ? customPrompt : generatedPrompt
 
 	useEffect(() => {
 		setItems([{ label: t('breadcrumbs.generations'), href: '/dashboard/generations' }, { label: t('breadcrumbs.new') }])
@@ -38,6 +74,9 @@ export default function NewGenerationPage() {
 
 	const handleGenerate = () => {
 		setIsGenerating(true)
+		// Log the final scene prompt that would be used for generation
+		// biome-ignore lint: Development logging for scene prompt
+		console.log('Generating with scene prompt:', finalScenePrompt)
 		// Simulate generation
 		setTimeout(() => {
 			setIsGenerating(false)
@@ -98,20 +137,126 @@ export default function NewGenerationPage() {
 						</CardContent>
 					</Card>
 
-					{/* Scene Prompt */}
+					{/* Preset Selector Card */}
 					<Card>
 						<CardHeader>
-							<CardTitle className='text-lg'>{tCreate('scenePrompt')}</CardTitle>
-							<CardDescription>{tCreate('scenePromptDescription')}</CardDescription>
+							<CardTitle className='text-lg'>{tCreate('presetSelector')}</CardTitle>
+							<CardDescription>{tCreate('presetSelectorDescription')}</CardDescription>
 						</CardHeader>
-						<CardContent className='space-y-4'>
-							<Input
-								placeholder={tCreate('scenePromptPlaceholder')}
-								value={formData.scenePrompt}
-								onChange={(e) => setFormData({ ...formData, scenePrompt: e.target.value })}
-							/>
+						<CardContent className='space-y-6'>
+							{/* Photography Setting */}
+							<PresetCategory title={tCreate('setting')} description={tCreate('settingDescription')}>
+								{Object.entries(SETTING_OPTIONS).map(([key, { label }]) => (
+									<PresetCard
+										key={key}
+										id={key}
+										label={label}
+										icon={getSettingIcon(key)}
+										selected={presets.setting === key}
+										onSelect={() => setPresets({ ...presets, setting: key })}
+									/>
+								))}
+							</PresetCategory>
+
+							{/* Lighting Style */}
+							<PresetCategory title={tCreate('lighting')} description={tCreate('lightingDescription')}>
+								{Object.entries(LIGHTING_OPTIONS).map(([key, { label }]) => (
+									<PresetCard
+										key={key}
+										id={key}
+										label={label}
+										icon={getLightingIcon(key)}
+										selected={presets.lighting === key}
+										onSelect={() => setPresets({ ...presets, lighting: key })}
+									/>
+								))}
+							</PresetCategory>
+
+							{/* Pose & Action */}
+							<PresetCategory title={tCreate('pose')} description={tCreate('poseDescription')}>
+								{Object.entries(POSE_OPTIONS).map(([key, { label }]) => (
+									<PresetCard
+										key={key}
+										id={key}
+										label={label}
+										icon={getPoseIcon(key)}
+										selected={presets.pose === key}
+										onSelect={() => setPresets({ ...presets, pose: key })}
+									/>
+								))}
+							</PresetCategory>
+
+							{/* Camera Angle */}
+							<PresetCategory title={tCreate('angle')} description={tCreate('angleDescription')}>
+								{Object.entries(ANGLE_OPTIONS).map(([key, { label }]) => (
+									<PresetCard
+										key={key}
+										id={key}
+										label={label}
+										icon={getAngleIcon(key)}
+										selected={presets.angle === key}
+										onSelect={() => setPresets({ ...presets, angle: key })}
+									/>
+								))}
+							</PresetCategory>
+
+							{/* Generated Prompt Preview */}
+							<div className='rounded-md bg-muted/50 p-4'>
+								<p className='text-xs text-muted-foreground mb-2'>{tCreate('generatedPrompt')}</p>
+								<p className='text-sm font-mono'>{generatedPrompt || tCreate('noPresetsSelected')}</p>
+							</div>
 						</CardContent>
 					</Card>
+
+					{/* Advanced Options - Collapsible */}
+					<Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
+						<CollapsibleTrigger className='w-full'>
+							<Button variant='ghost' className='w-full'>
+								{showAdvanced ? tCreate('hideAdvanced') : tCreate('showAdvanced')}
+								<ChevronDown className={cn('ml-2 h-4 w-4 transition-transform', showAdvanced && 'rotate-180')} />
+							</Button>
+						</CollapsibleTrigger>
+
+						<CollapsibleContent>
+							<Card>
+								<CardHeader>
+									<CardTitle className='text-lg'>{tCreate('advancedOptions')}</CardTitle>
+									<CardDescription>{tCreate('advancedPromptDescription')}</CardDescription>
+								</CardHeader>
+								<CardContent className='space-y-4'>
+									{/* Custom Prompt Toggle */}
+									<div className='flex items-center space-x-2'>
+										<Switch id='custom-prompt' checked={useCustomPrompt} onCheckedChange={setUseCustomPrompt} />
+										<Label htmlFor='custom-prompt'>{tCreate('useCustomPrompt')}</Label>
+									</div>
+
+									{/* Custom Prompt Input */}
+									{useCustomPrompt && (
+										<div>
+											<Label htmlFor='custom-prompt-input'>{tCreate('customPromptOverride')}</Label>
+											<Textarea
+												id='custom-prompt-input'
+												rows={4}
+												placeholder={tCreate('scenePromptPlaceholder')}
+												value={customPrompt}
+												onChange={(e) => setCustomPrompt(e.target.value)}
+												className='mt-2'
+											/>
+											<p className='text-xs text-muted-foreground mt-2'>{tCreate('customPromptHelp')}</p>
+										</div>
+									)}
+
+									{/* Show Generated Prompt (read-only when not in custom mode) */}
+									{!useCustomPrompt && (
+										<div>
+											<Label>{tCreate('generatedPrompt')}</Label>
+											<Textarea rows={4} value={generatedPrompt} readOnly className='mt-2 bg-muted/50' />
+										</div>
+									)}
+								</CardContent>
+							</Card>
+						</CollapsibleContent>
+					</Collapsible>
 
 					{/* Settings */}
 					<Card>

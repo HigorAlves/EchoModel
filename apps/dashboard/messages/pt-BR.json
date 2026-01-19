@@ -295,5 +295,84 @@
 			"editAccount": "Editar Conta",
 			"deleteAccount": "Excluir Conta"
 		}
+	},
+	"generations": {
+		"title": "Geracoes",
+		"subtitle": "Gerar e gerenciar imagens criadas por IA",
+		"breadcrumbs": {
+			"generations": "Geracoes",
+			"all": "Todas as Geracoes",
+			"new": "Nova Geracao",
+			"history": "Historico",
+			"details": "Detalhes da Geracao"
+		},
+		"status": {
+			"pending": "Pendente",
+			"processing": "Processando",
+			"completed": "Concluido",
+			"failed": "Falhou"
+		},
+		"create": {
+			"title": "Criar Nova Geracao",
+			"subtitle": "Gere imagens com seu influenciador de IA",
+			"selectModel": "Selecionar Modelo",
+			"selectModelPlaceholder": "Escolha um modelo de IA",
+			"selectGarment": "Selecionar Roupa",
+			"selectGarmentPlaceholder": "Escolha uma imagem de roupa",
+			"scenePrompt": "Descricao da Cena",
+			"scenePromptPlaceholder": "Descreva a cena, pose e configuracao",
+			"scenePromptDescription": "Seja especifico sobre o ambiente, iluminacao e pose",
+			"presetSelector": "Construtor de Cena",
+			"presetSelectorDescription": "Escolha presets para construir sua cena automaticamente",
+			"setting": "Cenario Fotografico",
+			"settingDescription": "Onde a foto deve ser tirada?",
+			"lighting": "Estilo de Iluminacao",
+			"lightingDescription": "Que tipo de iluminacao funciona melhor?",
+			"pose": "Pose e Acao",
+			"poseDescription": "Como o modelo deve ser posicionado?",
+			"angle": "Angulo da Camera",
+			"angleDescription": "Qual perspectiva da camera deve ser usada?",
+			"mood": "Estilo e Atmosfera (Opcional)",
+			"advancedOptions": "Opcoes Avancadas",
+			"showAdvanced": "Mostrar Opcoes Avancadas",
+			"hideAdvanced": "Ocultar Opcoes Avancadas",
+			"generatedPrompt": "Descricao da Cena Gerada",
+			"advancedPromptDescription": "Este prompt e criado automaticamente a partir de suas selecoes de preset",
+			"customPromptOverride": "Substituicao de Prompt Personalizado",
+			"useCustomPrompt": "Usar prompt personalizado em vez de presets",
+			"customPromptHelp": "Ative isto para escrever sua propria descricao de cena",
+			"noPresetsSelected": "Nenhum preset selecionado ainda. Escolha opcoes acima para comecar.",
+			"presetsSelected": "{count} presets selecionados",
+			"aspectRatio": "Proporcao de Aspecto",
+			"aspectRatioOptions": {
+				"portrait": "Retrato (4:5)",
+				"story": "Historia (9:16)",
+				"square": "Quadrado (1:1)",
+				"landscape": "Paisagem (16:9)"
+			},
+			"imageCount": "Numero de Imagens",
+			"imageCountDescription": "Gere de 1 a 4 imagens por solicitacao",
+			"generate": "Gerar Imagens",
+			"generating": "Gerando..."
+		},
+		"card": {
+			"model": "Modelo",
+			"images": "Imagens",
+			"created": "Criado",
+			"viewImages": "Ver Imagens",
+			"download": "Baixar Tudo",
+			"regenerate": "Regerar"
+		},
+		"empty": {
+			"title": "Nenhuma geracao ainda",
+			"description": "Crie sua primeira geracao para ver imagens criadas por IA",
+			"createButton": "Nova Geracao"
+		},
+		"detail": {
+			"generatedImages": "Imagens Geradas",
+			"metadata": "Detalhes da Geracao",
+			"downloadSelected": "Baixar Selecionados",
+			"downloadAll": "Baixar Tudo"
+		}
 	}
 }
