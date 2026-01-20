@@ -116,7 +116,12 @@ function ModelCard({ model, t }: { model: (typeof sampleModels)[0]; t: ReturnTyp
 			{/* Image Container - Instagram-like */}
 			<div className='relative aspect-[4/5] w-full overflow-hidden bg-muted'>
 				{model.thumbnailUrl ? (
-					<img src={model.thumbnailUrl} alt={model.name} className='h-full w-full object-cover transition-transform duration-300 group-hover:scale-105' />
+					// biome-ignore lint/performance/noImgElement: Dynamic user-generated content from Firebase Storage, not suitable for Next.js Image
+					<img
+						src={model.thumbnailUrl}
+						alt={model.name}
+						className='h-full w-full object-cover transition-transform duration-300 group-hover:scale-105'
+					/>
 				) : (
 					<div className='flex h-full w-full items-center justify-center'>
 						<Users className='h-16 w-16 text-muted-foreground' />
@@ -131,7 +136,14 @@ function ModelCard({ model, t }: { model: (typeof sampleModels)[0]; t: ReturnTyp
 				{/* Actions Menu Overlay */}
 				<div className='absolute right-3 top-12'>
 					<DropdownMenu>
-						<DropdownMenuTrigger render={<Button variant='ghost' size='icon-sm' className='bg-background/80 backdrop-blur-sm hover:bg-background' />}>
+						<DropdownMenuTrigger
+							render={
+								<Button
+									variant='ghost'
+									size='icon-sm'
+									className='bg-background/80 backdrop-blur-sm hover:bg-background'
+								/>
+							}>
 							<MoreHorizontal className='h-4 w-4' />
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align='end'>
@@ -356,8 +368,7 @@ export default function ModelsPage() {
 											checked={selectedStatuses.includes(status)}
 											onCheckedChange={(checked) => {
 												setSelectedStatuses((prev) => (checked ? [...prev, status] : prev.filter((s) => s !== status)))
-											}}
-										>
+											}}>
 											{t(`status.${status}`)}
 										</DropdownMenuCheckboxItem>
 									))}
@@ -387,8 +398,7 @@ export default function ModelsPage() {
 											checked={selectedGenders.includes(gender)}
 											onCheckedChange={(checked) => {
 												setSelectedGenders((prev) => (checked ? [...prev, gender] : prev.filter((g) => g !== gender)))
-											}}
-										>
+											}}>
 											{gender}
 										</DropdownMenuCheckboxItem>
 									))}
@@ -418,8 +428,7 @@ export default function ModelsPage() {
 											checked={selectedAgeRanges.includes(age)}
 											onCheckedChange={(checked) => {
 												setSelectedAgeRanges((prev) => (checked ? [...prev, age] : prev.filter((a) => a !== age)))
-											}}
-										>
+											}}>
 											{age}
 										</DropdownMenuCheckboxItem>
 									))}
@@ -448,9 +457,10 @@ export default function ModelsPage() {
 											key={ethnicity}
 											checked={selectedEthnicities.includes(ethnicity)}
 											onCheckedChange={(checked) => {
-												setSelectedEthnicities((prev) => (checked ? [...prev, ethnicity] : prev.filter((e) => e !== ethnicity)))
-											}}
-										>
+												setSelectedEthnicities((prev) =>
+													checked ? [...prev, ethnicity] : prev.filter((e) => e !== ethnicity),
+												)
+											}}>
 											{ethnicity}
 										</DropdownMenuCheckboxItem>
 									))}
@@ -479,9 +489,10 @@ export default function ModelsPage() {
 											key={bodyType}
 											checked={selectedBodyTypes.includes(bodyType)}
 											onCheckedChange={(checked) => {
-												setSelectedBodyTypes((prev) => (checked ? [...prev, bodyType] : prev.filter((b) => b !== bodyType)))
-											}}
-										>
+												setSelectedBodyTypes((prev) =>
+													checked ? [...prev, bodyType] : prev.filter((b) => b !== bodyType),
+												)
+											}}>
 											{bodyType}
 										</DropdownMenuCheckboxItem>
 									))}
@@ -505,7 +516,10 @@ export default function ModelsPage() {
 							{selectedStatuses.map((status) => (
 								<Badge key={`status-${status}`} variant='secondary' className='gap-1'>
 									{t(`status.${status}`)}
-									<button type='button' onClick={() => removeFilter('status', status)} className='ml-1 hover:text-destructive'>
+									<button
+										type='button'
+										onClick={() => removeFilter('status', status)}
+										className='ml-1 hover:text-destructive'>
 										<X className='h-3 w-3' />
 									</button>
 								</Badge>
@@ -513,7 +527,10 @@ export default function ModelsPage() {
 							{selectedGenders.map((gender) => (
 								<Badge key={`gender-${gender}`} variant='secondary' className='gap-1'>
 									{gender}
-									<button type='button' onClick={() => removeFilter('gender', gender)} className='ml-1 hover:text-destructive'>
+									<button
+										type='button'
+										onClick={() => removeFilter('gender', gender)}
+										className='ml-1 hover:text-destructive'>
 										<X className='h-3 w-3' />
 									</button>
 								</Badge>
@@ -521,7 +538,10 @@ export default function ModelsPage() {
 							{selectedAgeRanges.map((age) => (
 								<Badge key={`age-${age}`} variant='secondary' className='gap-1'>
 									{age}
-									<button type='button' onClick={() => removeFilter('ageRange', age)} className='ml-1 hover:text-destructive'>
+									<button
+										type='button'
+										onClick={() => removeFilter('ageRange', age)}
+										className='ml-1 hover:text-destructive'>
 										<X className='h-3 w-3' />
 									</button>
 								</Badge>
@@ -532,8 +552,7 @@ export default function ModelsPage() {
 									<button
 										type='button'
 										onClick={() => removeFilter('ethnicity', ethnicity)}
-										className='ml-1 hover:text-destructive'
-									>
+										className='ml-1 hover:text-destructive'>
 										<X className='h-3 w-3' />
 									</button>
 								</Badge>
@@ -544,8 +563,7 @@ export default function ModelsPage() {
 									<button
 										type='button'
 										onClick={() => removeFilter('bodyType', bodyType)}
-										className='ml-1 hover:text-destructive'
-									>
+										className='ml-1 hover:text-destructive'>
 										<X className='h-3 w-3' />
 									</button>
 								</Badge>

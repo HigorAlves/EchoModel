@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { AssetCategory, AssetStatus, AssetType, getAssetCategoryFolder } from './asset.enum'
+import { type AssetCategory, AssetStatus, AssetType, getAssetCategoryFolder } from './asset.enum'
 import type { AssetEvent } from './asset.event'
 import {
 	createAssetDeletedEvent,

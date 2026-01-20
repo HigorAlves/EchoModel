@@ -1,8 +1,8 @@
 'use client'
 
+import { AnimatePresence, motion } from 'framer-motion'
+import { AlertCircle, FileImage, Upload, X } from 'lucide-react'
 import { useCallback, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, X, FileImage, AlertCircle } from 'lucide-react'
 
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
@@ -32,42 +32,34 @@ function formatFileSize(bytes: number): string {
 	return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`
 }
 
-export function ImageUploadZone({
-	images,
-	onAddImages,
-	onRemoveImage,
-	maxImages = 5,
-}: ImageUploadZoneProps) {
+export function ImageUploadZone({ images, onAddImages, onRemoveImage, maxImages = 5 }: ImageUploadZoneProps) {
 	const [isDragOver, setIsDragOver] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 
 	const availableSlots = maxImages - images.length
 
-	const validateFiles = useCallback(
-		(files: File[]): { valid: File[]; errors: string[] } => {
-			const valid: File[] = []
-			const errors: string[] = []
+	const validateFiles = useCallback((files: File[]): { valid: File[]; errors: string[] } => {
+		const valid: File[] = []
+		const errors: string[] = []
 
-			for (const file of files) {
-				// Check file type
-				if (!(UPLOAD_CONFIG.acceptedTypes as readonly string[]).includes(file.type)) {
-					errors.push(`${file.name}: Invalid file type. Only JPEG, PNG, and WebP are allowed.`)
-					continue
-				}
-
-				// Check file size
-				if (file.size > UPLOAD_CONFIG.maxFileSize) {
-					errors.push(`${file.name}: File too large. Maximum size is 10MB.`)
-					continue
-				}
-
-				valid.push(file)
+		for (const file of files) {
+			// Check file type
+			if (!(UPLOAD_CONFIG.acceptedTypes as readonly string[]).includes(file.type)) {
+				errors.push(`${file.name}: Invalid file type. Only JPEG, PNG, and WebP are allowed.`)
+				continue
 			}
 
-			return { valid, errors }
-		},
-		[],
-	)
+			// Check file size
+			if (file.size > UPLOAD_CONFIG.maxFileSize) {
+				errors.push(`${file.name}: File too large. Maximum size is 10MB.`)
+				continue
+			}
+
+			valid.push(file)
+		}
+
+		return { valid, errors }
+	}, [])
 
 	const handleFiles = useCallback(
 		(files: FileList | File[]) => {
@@ -194,11 +186,8 @@ export function ImageUploadZone({
 								transition={{ type: 'spring', stiffness: 300, damping: 25 }}
 								className='group relative aspect-square overflow-hidden rounded-lg border bg-muted'>
 								{/* Image Preview */}
-								<img
-									src={image.preview}
-									alt={image.name}
-									className='h-full w-full object-cover'
-								/>
+								{/* biome-ignore lint/performance/noImgElement: Client-side preview from FileReader, not suitable for Next.js Image */}
+								<img src={image.preview} alt={image.name} className='h-full w-full object-cover' />
 
 								{/* Overlay with info */}
 								<div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity group-hover:opacity-100'>

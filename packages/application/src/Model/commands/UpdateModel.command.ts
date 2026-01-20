@@ -3,10 +3,10 @@
  */
 
 import type { IModelRepository, Model } from '@foundry/domain'
-import type { Context, IEventBus } from '@/shared'
-import { ApplicationError } from '@/shared'
 import type { UpdateModelInput, UpdateModelResponse } from '@/Model'
 import { UpdateModelSchema } from '@/Model'
+import type { Context, IEventBus } from '@/shared'
+import { ApplicationError } from '@/shared'
 
 export class UpdateModelCommand {
 	constructor(

@@ -42,8 +42,15 @@ export class Filename {
 	 */
 	get extension(): string {
 		const parts = this.data.split('.')
+		const extension = parts[parts.length - 1]
 		// Safe: create() validates filename has an extension
-		return parts[parts.length - 1]!.toLowerCase()
+		if (!extension) {
+			throw new AssetValidationError(['Invalid filename: missing extension'], {
+				field: 'filename',
+				value: this.data,
+			})
+		}
+		return extension.toLowerCase()
 	}
 
 	/**

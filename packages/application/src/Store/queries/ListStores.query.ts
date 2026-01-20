@@ -3,9 +3,9 @@
  */
 
 import type { IStoreRepository, StoreQueryFilters, StoreStatus } from '@foundry/domain'
-import type { PaginatedResult } from '@/shared'
 import type { ListStoresInput, StoreOutput } from '@/Store'
 import { ListStoresSchema } from '@/Store'
+import type { PaginatedResult } from '@/shared'
 import { toStoreResponseList } from '../mappers'
 
 export class ListStoresQuery {

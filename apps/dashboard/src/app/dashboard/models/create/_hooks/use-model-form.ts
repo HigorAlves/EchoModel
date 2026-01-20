@@ -187,9 +187,7 @@ export function useModelForm(options: UseModelFormOptions = {}) {
 			const currentImages = form.state.values.referenceImages
 			form.setFieldValue(
 				'referenceImages',
-				currentImages.map((img) =>
-					img.id === imageId ? { ...img, assetId, uploadProgress: 100 } : img,
-				),
+				currentImages.map((img) => (img.id === imageId ? { ...img, assetId, uploadProgress: 100 } : img)),
 			)
 		},
 		[form],

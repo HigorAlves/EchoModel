@@ -1,5 +1,4 @@
 import { Model } from './Model.entity'
-import { LightingPreset, CameraFraming } from './model.enum'
 import type { PersistenceModel } from './model.repository'
 import {
 	ModelCameraConfig,

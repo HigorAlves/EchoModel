@@ -1,5 +1,5 @@
-export * from './RequestUploadUrl.input'
 export * from './ConfirmUpload.input'
+export * from './DeleteAsset.input'
 export * from './GetAssetById.input'
 export * from './ListAssets.input'
-export * from './DeleteAsset.input'
+export * from './RequestUploadUrl.input'

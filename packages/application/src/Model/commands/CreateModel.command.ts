@@ -3,9 +3,9 @@
  */
 
 import type { IModelRepository, Model } from '@foundry/domain'
-import type { Context, IEventBus } from '@/shared'
 import type { CreateModelInput, CreateModelResponse } from '@/Model'
 import { CreateModelSchema } from '@/Model'
+import type { Context, IEventBus } from '@/shared'
 
 export class CreateModelCommand {
 	constructor(

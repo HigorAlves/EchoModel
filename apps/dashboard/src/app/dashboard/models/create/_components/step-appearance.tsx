@@ -1,14 +1,13 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Palette, User, Calendar, Globe, Activity } from 'lucide-react'
+import { Activity, Calendar, Globe, Palette, User } from 'lucide-react'
 
 import { Field, FieldDescription, FieldError, FieldLabel, FieldSeparator } from '@/components/ui/field'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-
+import { AGE_RANGE_OPTIONS, BODY_TYPE_OPTIONS, ETHNICITY_OPTIONS, GENDER_OPTIONS } from '../_constants'
 import type { UseModelFormReturn } from '../_hooks'
-import { GENDER_OPTIONS, AGE_RANGE_OPTIONS, BODY_TYPE_OPTIONS, ETHNICITY_OPTIONS } from '../_constants'
 
 interface StepAppearanceProps {
 	form: UseModelFormReturn['form']
@@ -46,9 +45,7 @@ export function StepAppearance({ form }: StepAppearanceProps) {
 								</FieldLabel>
 								<Select
 									value={field.state.value}
-									onValueChange={(value) =>
-										field.handleChange(value as (typeof GENDER_OPTIONS)[number]['value'])
-									}>
+									onValueChange={(value) => field.handleChange(value as (typeof GENDER_OPTIONS)[number]['value'])}>
 									<SelectTrigger>
 										<SelectValue placeholder='Select gender' />
 									</SelectTrigger>
@@ -77,9 +74,7 @@ export function StepAppearance({ form }: StepAppearanceProps) {
 								</FieldLabel>
 								<Select
 									value={field.state.value}
-									onValueChange={(value) =>
-										field.handleChange(value as (typeof AGE_RANGE_OPTIONS)[number]['value'])
-									}>
+									onValueChange={(value) => field.handleChange(value as (typeof AGE_RANGE_OPTIONS)[number]['value'])}>
 									<SelectTrigger>
 										<SelectValue placeholder='Select age range' />
 									</SelectTrigger>
@@ -108,9 +103,7 @@ export function StepAppearance({ form }: StepAppearanceProps) {
 								</FieldLabel>
 								<Select
 									value={field.state.value}
-									onValueChange={(value) =>
-										field.handleChange(value as (typeof BODY_TYPE_OPTIONS)[number]['value'])
-									}>
+									onValueChange={(value) => field.handleChange(value as (typeof BODY_TYPE_OPTIONS)[number]['value'])}>
 									<SelectTrigger>
 										<SelectValue placeholder='Select body type' />
 									</SelectTrigger>
@@ -139,9 +132,7 @@ export function StepAppearance({ form }: StepAppearanceProps) {
 								</FieldLabel>
 								<Select
 									value={field.state.value}
-									onValueChange={(value) =>
-										field.handleChange(value as (typeof ETHNICITY_OPTIONS)[number]['value'])
-									}>
+									onValueChange={(value) => field.handleChange(value as (typeof ETHNICITY_OPTIONS)[number]['value'])}>
 									<SelectTrigger>
 										<SelectValue placeholder='Select ethnicity' />
 									</SelectTrigger>
@@ -178,8 +169,8 @@ export function StepAppearance({ form }: StepAppearanceProps) {
 								aria-invalid={field.state.meta.errors.length > 0}
 							/>
 							<FieldDescription>
-								Optional: Provide additional details for more precise results (
-								{(field.state.value ?? '').length}/1000 characters)
+								Optional: Provide additional details for more precise results ({(field.state.value ?? '').length}/1000
+								characters)
 							</FieldDescription>
 							{field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
 								<FieldError>{field.state.meta.errors[0]}</FieldError>

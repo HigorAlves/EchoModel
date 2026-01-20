@@ -22,15 +22,8 @@ function Switch({ className, checked, onCheckedChange, onChange, ...props }: Swi
 				checked ? 'bg-primary' : 'bg-input',
 				props.disabled && 'cursor-not-allowed opacity-50',
 				className,
-			)}
-		>
-			<input
-				type='checkbox'
-				className='sr-only'
-				checked={checked}
-				onChange={handleChange}
-				{...props}
-			/>
+			)}>
+			<input type='checkbox' className='sr-only' checked={checked} onChange={handleChange} {...props} />
 			<span
 				className={cn(
 					'inline-block h-5 w-5 transform rounded-full bg-background shadow-lg transition-transform',

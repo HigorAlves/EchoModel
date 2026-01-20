@@ -75,7 +75,6 @@ export default function NewGenerationPage() {
 	const handleGenerate = () => {
 		setIsGenerating(true)
 		// Log the final scene prompt that would be used for generation
-		// biome-ignore lint: Development logging for scene prompt
 		console.log('Generating with scene prompt:', finalScenePrompt)
 		// Simulate generation
 		setTimeout(() => {

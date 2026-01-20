@@ -4,8 +4,6 @@
  * Domain Events for the Model (AI Influencer) bounded context.
  */
 
-import type { ModelStatus } from './model.enum'
-
 /**
  * Base interface for all Model domain events
  */

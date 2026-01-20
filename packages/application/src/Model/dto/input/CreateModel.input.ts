@@ -2,8 +2,8 @@
  * @fileoverview Create Model Input DTO
  */
 
-import { z } from 'zod'
 import { AgeRange, BodyType, CameraFraming, Ethnicity, Gender, LightingPreset, ProductCategory } from '@foundry/domain'
+import { z } from 'zod'
 
 /**
  * Custom lighting settings schema for CUSTOM preset
@@ -22,10 +22,7 @@ export type CustomLightingSettingsInput = z.infer<typeof CustomLightingSettingsS
 export const CustomCameraSettingsSchema = z.object({
 	focalLength: z.number().min(24, 'Focal length must be at least 24mm').max(200, 'Focal length cannot exceed 200mm'),
 	cropRatio: z.string().regex(/^\d+:\d+$/, 'Crop ratio must be in format "X:Y" (e.g., "3:4", "16:9")'),
-	angle: z
-		.string()
-		.min(1, 'Camera angle is required')
-		.max(50, 'Camera angle cannot exceed 50 characters'),
+	angle: z.string().min(1, 'Camera angle is required').max(50, 'Camera angle cannot exceed 50 characters'),
 })
 
 export type CustomCameraSettingsInput = z.infer<typeof CustomCameraSettingsSchema>

@@ -2,8 +2,8 @@
  * @fileoverview List Assets Input DTO
  */
 
-import { z } from 'zod'
 import { AssetCategory, AssetStatus } from '@foundry/domain'
+import { z } from 'zod'
 
 export const ListAssetsSchema = z.object({
 	storeId: z.string().uuid(),

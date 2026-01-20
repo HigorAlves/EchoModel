@@ -2,8 +2,8 @@
  * @fileoverview Update Model Input DTO
  */
 
-import { z } from 'zod'
 import { CameraFraming, LightingPreset, ProductCategory } from '@foundry/domain'
+import { z } from 'zod'
 import { CustomCameraSettingsSchema, CustomLightingSettingsSchema } from './CreateModel.input'
 
 export const UpdateModelSchema = z

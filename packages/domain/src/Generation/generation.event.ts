@@ -4,8 +4,6 @@
  * Domain Events for the Generation bounded context.
  */
 
-import type { GenerationStatus } from './generation.enum'
-
 /**
  * Base interface for all Generation domain events
  */

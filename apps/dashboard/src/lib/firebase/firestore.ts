@@ -5,20 +5,19 @@
  */
 
 import {
-	getFirestore,
 	collection,
-	doc,
-	query,
-	where,
-	orderBy,
-	limit,
-	onSnapshot,
-	getDocs,
-	getDoc,
 	connectFirestoreEmulator,
 	type DocumentData,
+	doc,
+	getDoc,
+	getFirestore,
+	limit,
+	onSnapshot,
+	orderBy,
 	type QueryConstraint,
+	query,
 	type Unsubscribe,
+	where,
 } from 'firebase/firestore'
 import { app } from './config'
 
@@ -26,7 +25,10 @@ import { app } from './config'
 const db = getFirestore(app)
 
 // Connect to emulator in development
-if (typeof window !== 'undefined' && (process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_USE_EMULATOR === 'true')) {
+if (
+	typeof window !== 'undefined' &&
+	(process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_USE_EMULATOR === 'true')
+) {
 	try {
 		connectFirestoreEmulator(db, 'localhost', 8080)
 	} catch {
@@ -192,11 +194,9 @@ export function subscribeToModels(
 		includeDeleted?: boolean
 		status?: ModelDocument['status']
 		limitCount?: number
-	}
+	},
 ): Unsubscribe {
-	const constraints: QueryConstraint[] = [
-		where('storeId', '==', storeId),
-	]
+	const constraints: QueryConstraint[] = [where('storeId', '==', storeId)]
 
 	if (!options?.includeDeleted) {
 		constraints.push(where('deletedAt', '==', null))
@@ -219,9 +219,7 @@ export function subscribeToModels(
 	const q = query(collection(db, Collections.MODELS), ...constraints)
 
 	return onSnapshot(q, (snapshot) => {
-		const models = snapshot.docs.map((doc) =>
-			convertDocument<ModelDocument>(doc.id, doc.data())
-		)
+		const models = snapshot.docs.map((doc) => convertDocument<ModelDocument>(doc.id, doc.data()))
 		callback(models)
 	})
 }
@@ -250,11 +248,9 @@ export function subscribeToGenerations(
 		modelId?: string
 		status?: GenerationDocument['status']
 		limitCount?: number
-	}
+	},
 ): Unsubscribe {
-	const constraints: QueryConstraint[] = [
-		where('storeId', '==', storeId),
-	]
+	const constraints: QueryConstraint[] = [where('storeId', '==', storeId)]
 
 	if (options?.modelId) {
 		constraints.push(where('modelId', '==', options.modelId))
@@ -273,9 +269,7 @@ export function subscribeToGenerations(
 	const q = query(collection(db, Collections.GENERATIONS), ...constraints)
 
 	return onSnapshot(q, (snapshot) => {
-		const generations = snapshot.docs.map((doc) =>
-			convertDocument<GenerationDocument>(doc.id, doc.data())
-		)
+		const generations = snapshot.docs.map((doc) => convertDocument<GenerationDocument>(doc.id, doc.data()))
 		callback(generations)
 	})
 }
@@ -305,11 +299,9 @@ export function subscribeToAssets(
 		status?: AssetDocument['status']
 		includeDeleted?: boolean
 		limitCount?: number
-	}
+	},
 ): Unsubscribe {
-	const constraints: QueryConstraint[] = [
-		where('storeId', '==', storeId),
-	]
+	const constraints: QueryConstraint[] = [where('storeId', '==', storeId)]
 
 	if (!options?.includeDeleted) {
 		constraints.push(where('deletedAt', '==', null))
@@ -332,9 +324,7 @@ export function subscribeToAssets(
 	const q = query(collection(db, Collections.ASSETS), ...constraints)
 
 	return onSnapshot(q, (snapshot) => {
-		const assets = snapshot.docs.map((doc) =>
-			convertDocument<AssetDocument>(doc.id, doc.data())
-		)
+		const assets = snapshot.docs.map((doc) => convertDocument<AssetDocument>(doc.id, doc.data()))
 		callback(assets)
 	})
 }
@@ -356,21 +346,16 @@ export async function getAsset(assetId: string): Promise<AssetDocument | null> {
 /**
  * Subscribe to stores for a user
  */
-export function subscribeToStores(
-	ownerId: string,
-	callback: (stores: StoreDocument[]) => void
-): Unsubscribe {
+export function subscribeToStores(ownerId: string, callback: (stores: StoreDocument[]) => void): Unsubscribe {
 	const q = query(
 		collection(db, Collections.STORES),
 		where('ownerId', '==', ownerId),
 		where('deletedAt', '==', null),
-		orderBy('createdAt', 'desc')
+		orderBy('createdAt', 'desc'),
 	)
 
 	return onSnapshot(q, (snapshot) => {
-		const stores = snapshot.docs.map((doc) =>
-			convertDocument<StoreDocument>(doc.id, doc.data())
-		)
+		const stores = snapshot.docs.map((doc) => convertDocument<StoreDocument>(doc.id, doc.data()))
 		callback(stores)
 	})
 }

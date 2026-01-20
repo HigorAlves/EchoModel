@@ -7,16 +7,16 @@
  * and Cloud Functions for mutations.
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
-	subscribeToModels,
-	getModel,
-	createModel,
-	startCalibration,
 	approveCalibration,
-	rejectCalibration,
-	type ModelDocument,
 	type CreateModelInput,
+	createModel,
+	getModel,
+	type ModelDocument,
+	rejectCalibration,
+	startCalibration,
+	subscribeToModels,
 } from '@/lib/firebase'
 
 // ==================== Types ====================
@@ -65,7 +65,7 @@ export function useModels(storeId: string | null, options?: UseModelsOptions): U
 	const [models, setModels] = useState<ModelDocument[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState<Error | null>(null)
-	const [refreshTrigger, setRefreshTrigger] = useState(0)
+	const [_refreshTrigger, setRefreshTrigger] = useState(0)
 
 	useEffect(() => {
 		if (!storeId) {
@@ -88,11 +88,11 @@ export function useModels(storeId: string | null, options?: UseModelsOptions): U
 				includeDeleted: options?.includeDeleted,
 				status: options?.status,
 				limitCount: options?.limit,
-			}
+			},
 		)
 
 		return () => unsubscribe()
-	}, [storeId, options?.includeArchived, options?.includeDeleted, options?.status, options?.limit, refreshTrigger])
+	}, [storeId, options?.includeArchived, options?.includeDeleted, options?.status, options?.limit])
 
 	const refresh = useCallback(() => {
 		setRefreshTrigger((prev) => prev + 1)
@@ -163,7 +163,7 @@ export function useCreateModel(storeId: string | null): UseCreateModelResult {
 				setIsLoading(false)
 			}
 		},
-		[storeId]
+		[storeId],
 	)
 
 	return { createModel: create, isLoading, error }
@@ -217,7 +217,7 @@ export function useCalibration(modelId: string | null, storeId: string | null): 
 				setIsLoading(false)
 			}
 		},
-		[modelId, storeId]
+		[modelId, storeId],
 	)
 
 	const reject = useCallback(
@@ -239,7 +239,7 @@ export function useCalibration(modelId: string | null, storeId: string | null): 
 				setIsLoading(false)
 			}
 		},
-		[modelId, storeId]
+		[modelId, storeId],
 	)
 
 	return {

@@ -3,7 +3,6 @@
  */
 
 import type { AssetCategory, AssetStatus, AssetType } from '@foundry/domain'
-import type { AllowedMimeType } from '@foundry/domain'
 
 export interface AssetMetadataOutput {
 	readonly width?: number

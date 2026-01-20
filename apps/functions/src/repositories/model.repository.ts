@@ -4,21 +4,21 @@
  * Implements IModelRepository interface using Firestore as the persistence layer.
  */
 
-import type { Firestore, Query, DocumentData } from 'firebase-admin/firestore'
 import {
-	Model,
 	type IModelRepository,
-	type ModelQueryFilters,
-	type PersistenceModel,
-	ModelId,
-	ModelName,
-	ModelDescription,
-	ModelPrompt,
-	ModelStatus,
-	ModelLightingConfig,
+	Model,
 	ModelCameraConfig,
+	ModelDescription,
+	ModelId,
+	ModelLightingConfig,
+	ModelName,
+	ModelPrompt,
+	type ModelQueryFilters,
+	ModelStatus,
 	ModelTexturePreferences,
+	type PersistenceModel,
 } from '@foundry/domain'
+import type { DocumentData, Firestore, Query } from 'firebase-admin/firestore'
 import { Collections } from '../lib/firebase'
 
 /**

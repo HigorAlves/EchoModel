@@ -3,9 +3,9 @@
  */
 
 import type { IStoreRepository } from '@foundry/domain'
+import type { DeleteStoreResponse } from '@/Store'
 import type { Context } from '@/shared'
 import { ApplicationError } from '@/shared'
-import type { DeleteStoreResponse } from '@/Store'
 
 export class DeleteStoreCommand {
 	constructor(private readonly storeRepository: IStoreRepository) {}

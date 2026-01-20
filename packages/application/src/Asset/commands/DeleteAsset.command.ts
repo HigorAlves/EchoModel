@@ -3,10 +3,10 @@
  */
 
 import type { IAssetRepository, IStorageService } from '@foundry/domain'
-import type { Context } from '@/shared'
-import { ApplicationError } from '@/shared'
 import type { DeleteAssetInput, DeleteAssetResponse } from '@/Asset'
 import { DeleteAssetSchema } from '@/Asset'
+import type { Context } from '@/shared'
+import { ApplicationError } from '@/shared'
 
 export class DeleteAssetCommand {
 	constructor(
@@ -14,7 +14,7 @@ export class DeleteAssetCommand {
 		private readonly storageService: IStorageService,
 	) {}
 
-	async execute(input: DeleteAssetInput, ctx: Context): Promise<DeleteAssetResponse> {
+	async execute(input: DeleteAssetInput, _ctx: Context): Promise<DeleteAssetResponse> {
 		const { assetId } = DeleteAssetSchema.parse(input)
 
 		const asset = await this.assetRepository.findById(assetId)
@@ -29,7 +29,7 @@ export class DeleteAssetCommand {
 		// Delete from storage
 		try {
 			await this.storageService.deleteFile(asset.storagePath.value)
-		} catch (error) {
+		} catch (_error) {
 			// Log but don't fail if storage deletion fails
 		}
 

@@ -2,8 +2,8 @@
  * @fileoverview Create Store Input DTO
  */
 
-import { z } from 'zod'
 import { AspectRatio } from '@foundry/domain'
+import { z } from 'zod'
 
 export const CreateStoreSchema = z.object({
 	name: z.string().min(2).max(100),

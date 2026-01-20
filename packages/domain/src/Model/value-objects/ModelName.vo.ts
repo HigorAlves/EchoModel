@@ -19,7 +19,9 @@ export class ModelName {
 		const schema = z
 			.string()
 			.transform((val) => val.trim())
-			.pipe(z.string().min(2, 'Model name must be at least 2 characters').max(50, 'Model name cannot exceed 50 characters'))
+			.pipe(
+				z.string().min(2, 'Model name must be at least 2 characters').max(50, 'Model name cannot exceed 50 characters'),
+			)
 
 		const result = schema.safeParse(data)
 		if (!result.success) {

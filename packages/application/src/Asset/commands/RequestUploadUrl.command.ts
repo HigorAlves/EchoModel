@@ -3,9 +3,9 @@
  */
 
 import type { Asset, IAssetRepository, IStorageService } from '@foundry/domain'
-import type { Context, IEventBus } from '@/shared'
 import type { RequestUploadUrlInput, RequestUploadUrlResponse } from '@/Asset'
 import { RequestUploadUrlSchema } from '@/Asset'
+import type { Context, IEventBus } from '@/shared'
 
 const UPLOAD_URL_EXPIRY_SECONDS = 15 * 60 // 15 minutes
 
@@ -19,6 +19,10 @@ export class RequestUploadUrlCommand {
 	async execute(input: RequestUploadUrlInput, ctx: Context): Promise<RequestUploadUrlResponse> {
 		const validated = RequestUploadUrlSchema.parse(input)
 
+		if (!ctx.userId) {
+			throw new Error('User ID is required for upload requests')
+		}
+
 		const { Asset } = await import('@foundry/domain')
 		const asset = Asset.requestUpload({
 			storeId: validated.storeId,
@@ -26,7 +30,7 @@ export class RequestUploadUrlCommand {
 			filename: validated.filename,
 			mimeType: validated.mimeType,
 			sizeBytes: validated.sizeBytes,
-			uploadedBy: ctx.userId!,
+			uploadedBy: ctx.userId,
 			metadata: validated.metadata,
 		})
 

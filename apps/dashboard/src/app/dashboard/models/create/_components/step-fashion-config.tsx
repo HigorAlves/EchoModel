@@ -1,41 +1,28 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import {
-	Camera,
-	ImageIcon,
-	Info,
-	Lightbulb,
-	Palette,
-	Settings,
-	Shirt,
-	Smile,
-	Sparkles,
-	X,
-	Move,
-} from 'lucide-react'
+import { Camera, ImageIcon, Info, Lightbulb, Move, Palette, Settings, Shirt, Smile, Sparkles, X } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Field, FieldDescription, FieldLabel } from '@/components/ui/field'
+import { Field, FieldDescription } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-
-import type { UseModelFormReturn } from '../_hooks'
 import {
-	LIGHTING_PRESETS,
-	CAMERA_FRAMINGS,
 	BACKGROUND_OPTIONS,
-	POSE_STYLES,
+	CAMERA_FRAMINGS,
 	EXPRESSION_OPTIONS,
+	LIGHTING_PRESETS,
+	POSE_STYLES,
 	POST_PROCESSING_STYLES,
 	PRODUCT_CATEGORIES,
 } from '../_constants'
-import { SelectionCard, SelectionCardContent, SelectionCardGrid } from './selection-card'
+import type { UseModelFormReturn } from '../_hooks'
 import type { ProductCategory as ProductCategoryType } from '../_schemas'
+import { SelectionCard, SelectionCardContent, SelectionCardGrid } from './selection-card'
 
 interface StepFashionConfigProps {
 	form: UseModelFormReturn['form']
@@ -316,6 +303,7 @@ export function StepFashionConfig({
 									const isDisabled = !isSelected && field.state.value.length >= 3
 
 									return (
+										// biome-ignore lint/a11y/noLabelWithoutControl: Checkbox component is inside label
 										<label
 											key={category.value}
 											className={`flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition-all ${
@@ -335,9 +323,7 @@ export function StepFashionConfig({
 									)
 								})}
 							</div>
-							<FieldDescription>
-								{field.state.value.length}/3 categories selected (minimum 1 required)
-							</FieldDescription>
+							<FieldDescription>{field.state.value.length}/3 categories selected (minimum 1 required)</FieldDescription>
 						</Field>
 					)}
 				</form.Field>
@@ -359,16 +345,14 @@ export function StepFashionConfig({
 										</TooltipTrigger>
 										<TooltipContent>
 											<p className='max-w-xs'>
-												Allow this model to be used for garment swapping, where different clothing
-												items can be placed on the model.
+												Allow this model to be used for garment swapping, where different clothing items can be placed
+												on the model.
 											</p>
 										</TooltipContent>
 									</Tooltip>
 								</TooltipProvider>
 							</div>
-							<p className='text-muted-foreground text-sm'>
-								Use this model for virtual try-on and outfit generation
-							</p>
+							<p className='text-muted-foreground text-sm'>Use this model for virtual try-on and outfit generation</p>
 						</div>
 						<Switch
 							id='outfit-swapping'

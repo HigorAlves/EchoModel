@@ -1,5 +1,5 @@
-import { Generation, type FashionConfigOverride } from './Generation.entity'
-import type { PersistenceGeneration, PersistenceFashionConfigOverride } from './generation.repository'
+import { type FashionConfigOverride, Generation } from './Generation.entity'
+import type { PersistenceFashionConfigOverride, PersistenceGeneration } from './generation.repository'
 import { GenerationId, IdempotencyKey, ScenePrompt } from './value-objects'
 
 /**

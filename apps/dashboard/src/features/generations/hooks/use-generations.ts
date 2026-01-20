@@ -7,14 +7,14 @@
  * and Cloud Functions for mutations.
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
-	subscribeToGenerations,
-	getGeneration,
-	createGeneration,
-	processGeneration,
-	type GenerationDocument,
 	type CreateGenerationInput,
+	createGeneration,
+	type GenerationDocument,
+	getGeneration,
+	processGeneration,
+	subscribeToGenerations,
 } from '@/lib/firebase'
 
 // ==================== Types ====================
@@ -63,7 +63,7 @@ export function useGenerations(storeId: string | null, options?: UseGenerationsO
 	const [generations, setGenerations] = useState<GenerationDocument[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState<Error | null>(null)
-	const [refreshTrigger, setRefreshTrigger] = useState(0)
+	const [_refreshTrigger, setRefreshTrigger] = useState(0)
 
 	useEffect(() => {
 		if (!storeId) {
@@ -85,11 +85,11 @@ export function useGenerations(storeId: string | null, options?: UseGenerationsO
 				modelId: options?.modelId,
 				status: options?.status,
 				limitCount: options?.limit,
-			}
+			},
 		)
 
 		return () => unsubscribe()
-	}, [storeId, options?.modelId, options?.status, options?.limit, refreshTrigger])
+	}, [storeId, options?.modelId, options?.status, options?.limit])
 
 	const refresh = useCallback(() => {
 		setRefreshTrigger((prev) => prev + 1)
@@ -163,7 +163,7 @@ export function useCreateGeneration(storeId: string | null): UseCreateGeneration
 				setIsLoading(false)
 			}
 		},
-		[storeId]
+		[storeId],
 	)
 
 	return { createGeneration: create, isLoading, error }

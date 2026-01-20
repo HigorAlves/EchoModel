@@ -2,8 +2,8 @@
  * @fileoverview Update Store Settings Input DTO
  */
 
-import { z } from 'zod'
 import { AspectRatio } from '@foundry/domain'
+import { z } from 'zod'
 
 export const UpdateStoreSettingsSchema = z
 	.object({

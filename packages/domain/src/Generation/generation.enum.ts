@@ -8,13 +8,16 @@
  * Generation Status Enumeration
  *
  * State machine:
- * pending → processing → completed
- *              ↓
- *           failed
+ * pending → queued → processing → completed
+ *             ↓          ↓
+ *          failed      failed
  */
 export enum GenerationStatus {
 	/** Initial state, waiting to be processed */
 	PENDING = 'PENDING',
+
+	/** Queued for processing (with rate limiting) */
+	QUEUED = 'QUEUED',
 
 	/** Currently being processed by AI service */
 	PROCESSING = 'PROCESSING',
@@ -50,7 +53,9 @@ export function isValidGenerationStatus(status: string): status is GenerationSta
 export function getValidGenerationTransitionsFrom(status: GenerationStatus): GenerationStatus[] {
 	switch (status) {
 		case GenerationStatus.PENDING:
-			return [GenerationStatus.PROCESSING]
+			return [GenerationStatus.QUEUED, GenerationStatus.PROCESSING]
+		case GenerationStatus.QUEUED:
+			return [GenerationStatus.PROCESSING, GenerationStatus.FAILED]
 		case GenerationStatus.PROCESSING:
 			return [GenerationStatus.COMPLETED, GenerationStatus.FAILED]
 		case GenerationStatus.COMPLETED:
@@ -77,6 +82,8 @@ export function getGenerationStatusLabel(status: GenerationStatus): string {
 	switch (status) {
 		case GenerationStatus.PENDING:
 			return 'Pending'
+		case GenerationStatus.QUEUED:
+			return 'Queued'
 		case GenerationStatus.PROCESSING:
 			return 'Processing'
 		case GenerationStatus.COMPLETED:

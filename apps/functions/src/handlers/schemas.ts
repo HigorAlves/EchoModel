@@ -2,18 +2,18 @@
  * @fileoverview Zod validation schemas for Cloud Function inputs
  */
 
-import { z } from 'zod'
 import {
-	Gender,
 	AgeRange,
-	Ethnicity,
-	BodyType,
 	AspectRatio,
 	AssetCategory,
-	LightingPreset,
+	BodyType,
 	CameraFraming,
+	Ethnicity,
+	Gender,
+	LightingPreset,
 	ProductCategory,
 } from '@foundry/domain'
+import { z } from 'zod'
 
 // ==================== Fashion Config Schemas ====================
 
@@ -40,7 +40,8 @@ export const CreateModelInputSchema = z.object({
 	ethnicity: z.nativeEnum(Ethnicity),
 	bodyType: z.nativeEnum(BodyType),
 	prompt: z.string().min(10).max(1000).optional(),
-	referenceImageIds: z.array(z.string()).optional(),
+	/** Reference image IDs for multi-image character consistency (max 14 per Seedream 4.5 API) */
+	referenceImageIds: z.array(z.string()).max(14, 'Maximum 14 reference images allowed').optional(),
 	// Seedream 4.5 Fashion configuration
 	lightingPreset: z.nativeEnum(LightingPreset).optional(),
 	customLightingSettings: CustomLightingSettingsSchema.optional(),
@@ -109,12 +110,30 @@ export type ProcessGenerationInput = z.infer<typeof ProcessGenerationInputSchema
 
 // ==================== Asset Schemas ====================
 
+/**
+ * Allowed MIME types for image uploads
+ * Updated per BytePlus Seedream 4.5 API docs to include BMP, TIFF, GIF
+ */
+export const AllowedImageMimeTypes = [
+	'image/jpeg',
+	'image/png',
+	'image/webp',
+	'image/bmp',
+	'image/tiff',
+	'image/gif',
+] as const
+
+/**
+ * Maximum file size (10 MB per BytePlus API constraints)
+ */
+export const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024
+
 export const RequestUploadUrlInputSchema = z.object({
 	storeId: z.string().min(1, 'Store ID is required'),
 	category: z.nativeEnum(AssetCategory),
 	filename: z.string().min(1, 'Filename is required').max(255),
-	mimeType: z.enum(['image/jpeg', 'image/png', 'image/webp']),
-	sizeBytes: z.number().int().min(1).max(50 * 1024 * 1024), // Max 50MB
+	mimeType: z.enum(AllowedImageMimeTypes),
+	sizeBytes: z.number().int().min(1).max(MAX_IMAGE_SIZE_BYTES), // Max 10MB per BytePlus docs
 	uploadedBy: z.string().min(1, 'Uploader ID is required'),
 	metadata: z.record(z.unknown()).optional(),
 })
@@ -144,15 +163,19 @@ export type CreateStoreInput = z.infer<typeof CreateStoreInputSchema>
 export const GenerationCallbackInputSchema = z.object({
 	generationId: z.string().min(1, 'Generation ID is required'),
 	success: z.boolean(),
-	images: z.array(z.object({
-		id: z.string(),
-		url: z.string().url(),
-		thumbnailUrl: z.string().url().optional(),
-		aspectRatio: z.nativeEnum(AspectRatio),
-		width: z.number().int().optional(),
-		height: z.number().int().optional(),
-		seed: z.number().int().optional(),
-	})).optional(),
+	images: z
+		.array(
+			z.object({
+				id: z.string(),
+				url: z.string().url(),
+				thumbnailUrl: z.string().url().optional(),
+				aspectRatio: z.nativeEnum(AspectRatio),
+				width: z.number().int().optional(),
+				height: z.number().int().optional(),
+				seed: z.number().int().optional(),
+			}),
+		)
+		.optional(),
 	error: z.string().optional(),
 	processingTimeMs: z.number().int().optional(),
 })
@@ -162,13 +185,17 @@ export type GenerationCallbackInput = z.infer<typeof GenerationCallbackInputSche
 export const CalibrationCallbackInputSchema = z.object({
 	modelId: z.string().min(1, 'Model ID is required'),
 	success: z.boolean(),
-	images: z.array(z.object({
-		id: z.string(),
-		url: z.string().url(),
-		thumbnailUrl: z.string().url().optional(),
-		width: z.number().int().optional(),
-		height: z.number().int().optional(),
-	})).optional(),
+	images: z
+		.array(
+			z.object({
+				id: z.string(),
+				url: z.string().url(),
+				thumbnailUrl: z.string().url().optional(),
+				width: z.number().int().optional(),
+				height: z.number().int().optional(),
+			}),
+		)
+		.optional(),
 	lockedIdentityUrl: z.string().url().optional(),
 	error: z.string().optional(),
 })

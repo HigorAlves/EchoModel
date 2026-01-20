@@ -4,19 +4,19 @@
  * Implements IStoreRepository interface using Firestore as the persistence layer.
  */
 
-import type { Firestore, Query, DocumentData } from 'firebase-admin/firestore'
 import {
-	Store,
+	AspectRatio,
+	DefaultStyle,
 	type IStoreRepository,
-	type StoreQueryFilters,
 	type PersistenceStore,
+	Store,
+	StoreDescription,
 	StoreId,
 	StoreName,
-	StoreDescription,
-	DefaultStyle,
-	StoreStatus,
-	AspectRatio,
+	type StoreQueryFilters,
+	type StoreStatus,
 } from '@foundry/domain'
+import type { DocumentData, Firestore, Query } from 'firebase-admin/firestore'
 import { Collections } from '../lib/firebase'
 
 /**

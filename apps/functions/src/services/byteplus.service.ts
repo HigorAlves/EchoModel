@@ -223,11 +223,7 @@ export class BytePlusService {
 	/**
 	 * Make HTTP request to BytePlus API with retry logic
 	 */
-	private async makeRequest(
-		endpoint: string,
-		payload: Record<string, unknown>,
-		attempt = 1,
-	): Promise<unknown> {
+	private async makeRequest(endpoint: string, payload: Record<string, unknown>, attempt = 1): Promise<unknown> {
 		const url = `${this.baseUrl}${endpoint}`
 
 		const controller = new AbortController()
@@ -249,7 +245,7 @@ export class BytePlusService {
 			// Handle rate limiting with exponential backoff
 			if (response.status === 429 && attempt < this.maxRetries) {
 				const retryAfter = Number.parseInt(response.headers.get('Retry-After') ?? '5', 10)
-				const backoffDelay = Math.min(Math.pow(2, attempt) * 1000, retryAfter * 1000)
+				const backoffDelay = Math.min(2 ** attempt * 1000, retryAfter * 1000)
 
 				logger.warn('Rate limited, retrying', {
 					attempt,
@@ -272,11 +268,8 @@ export class BytePlusService {
 			clearTimeout(timeoutId)
 
 			// Retry on network errors
-			if (
-				attempt < this.maxRetries &&
-				(error instanceof TypeError || (error as Error).name === 'AbortError')
-			) {
-				const backoffDelay = Math.pow(2, attempt) * 1000
+			if (attempt < this.maxRetries && (error instanceof TypeError || (error as Error).name === 'AbortError')) {
+				const backoffDelay = 2 ** attempt * 1000
 
 				logger.warn('Network error, retrying', {
 					attempt,

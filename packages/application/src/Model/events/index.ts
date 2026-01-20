@@ -1,2 +1,2 @@
-export * from './ModelCreated.event'
 export * from './ModelApproved.event'
+export * from './ModelCreated.event'

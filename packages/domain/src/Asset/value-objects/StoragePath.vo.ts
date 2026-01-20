@@ -49,8 +49,15 @@ export class StoragePath {
 	 */
 	get storeId(): string {
 		const parts = this.data.split('/')
+		const storeId = parts[1]
 		// Safe: create() validates path format stores/{storeId}/{category}/{assetId}/{filename}
-		return parts[1]!
+		if (!storeId) {
+			throw new AssetValidationError(['Invalid storage path: missing storeId'], {
+				field: 'storagePath',
+				value: this.data,
+			})
+		}
+		return storeId
 	}
 
 	/**
@@ -58,8 +65,15 @@ export class StoragePath {
 	 */
 	get category(): string {
 		const parts = this.data.split('/')
+		const category = parts[2]
 		// Safe: create() validates path format
-		return parts[2]!
+		if (!category) {
+			throw new AssetValidationError(['Invalid storage path: missing category'], {
+				field: 'storagePath',
+				value: this.data,
+			})
+		}
+		return category
 	}
 
 	/**
@@ -67,8 +81,15 @@ export class StoragePath {
 	 */
 	get assetId(): string {
 		const parts = this.data.split('/')
+		const assetId = parts[3]
 		// Safe: create() validates path format
-		return parts[3]!
+		if (!assetId) {
+			throw new AssetValidationError(['Invalid storage path: missing assetId'], {
+				field: 'storagePath',
+				value: this.data,
+			})
+		}
+		return assetId
 	}
 
 	/**
@@ -76,8 +97,15 @@ export class StoragePath {
 	 */
 	get filename(): string {
 		const parts = this.data.split('/')
+		const filename = parts[4]
 		// Safe: create() validates path format
-		return parts[4]!
+		if (!filename) {
+			throw new AssetValidationError(['Invalid storage path: missing filename'], {
+				field: 'storagePath',
+				value: this.data,
+			})
+		}
+		return filename
 	}
 
 	equals(other: StoragePath): boolean {

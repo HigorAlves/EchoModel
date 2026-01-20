@@ -6,21 +6,20 @@ import { CheckCircle, Edit2, Image, Palette, Settings, User } from 'lucide-react
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-
-import type { UseModelFormReturn, Step } from '../_hooks'
 import {
-	getLightingPresetByValue,
-	getCameraFramingByValue,
-	getBackgroundByValue,
-	getPoseStyleByValue,
-	getExpressionByValue,
-	getPostProcessingByValue,
-	getProductCategoryByValue,
-	GENDER_OPTIONS,
 	AGE_RANGE_OPTIONS,
 	BODY_TYPE_OPTIONS,
 	ETHNICITY_OPTIONS,
+	GENDER_OPTIONS,
+	getBackgroundByValue,
+	getCameraFramingByValue,
+	getExpressionByValue,
+	getLightingPresetByValue,
+	getPoseStyleByValue,
+	getPostProcessingByValue,
+	getProductCategoryByValue,
 } from '../_constants'
+import type { Step, UseModelFormReturn } from '../_hooks'
 
 interface StepReviewProps {
 	form: UseModelFormReturn['form']
@@ -57,12 +56,7 @@ function ReviewSection({
 			<AccordionContent>
 				<div className='space-y-4 pt-2'>
 					{children}
-					<Button
-						type='button'
-						variant='outline'
-						size='sm'
-						onClick={() => onEdit(step)}
-						className='gap-2'>
+					<Button type='button' variant='outline' size='sm' onClick={() => onEdit(step)} className='gap-2'>
 						<Edit2 className='h-3 w-3' />
 						Edit
 					</Button>
@@ -104,9 +98,7 @@ export function StepReview({ form, onEditStep }: StepReviewProps) {
 				</div>
 				<div>
 					<h3 className='font-semibold'>Review & Create</h3>
-					<p className='text-muted-foreground text-sm'>
-						Review your configuration before creating the model
-					</p>
+					<p className='text-muted-foreground text-sm'>Review your configuration before creating the model</p>
 				</div>
 			</div>
 
@@ -157,24 +149,12 @@ export function StepReview({ form, onEditStep }: StepReviewProps) {
 					index={2}
 					onEdit={onEditStep}>
 					<div className='rounded-lg bg-muted p-4 space-y-3'>
-						<ReviewField
-							label='Lighting'
-							value={getLightingPresetByValue(values.lightingPreset)?.label}
-						/>
-						<ReviewField
-							label='Camera Framing'
-							value={getCameraFramingByValue(values.cameraFraming)?.label}
-						/>
-						<ReviewField
-							label='Background'
-							value={getBackgroundByValue(values.backgroundType)?.label}
-						/>
+						<ReviewField label='Lighting' value={getLightingPresetByValue(values.lightingPreset)?.label} />
+						<ReviewField label='Camera Framing' value={getCameraFramingByValue(values.cameraFraming)?.label} />
+						<ReviewField label='Background' value={getBackgroundByValue(values.backgroundType)?.label} />
 						<ReviewField label='Pose Style' value={getPoseStyleByValue(values.poseStyle)?.label} />
 						<ReviewField label='Expression' value={getExpressionByValue(values.expression)?.label} />
-						<ReviewField
-							label='Post-Processing'
-							value={getPostProcessingByValue(values.postProcessingStyle)?.label}
-						/>
+						<ReviewField label='Post-Processing' value={getPostProcessingByValue(values.postProcessingStyle)?.label} />
 
 						{/* Textures */}
 						<div className='pt-2 border-t'>
@@ -210,10 +190,7 @@ export function StepReview({ form, onEditStep }: StepReviewProps) {
 
 						{/* Outfit Swapping */}
 						<div className='pt-2 border-t'>
-							<ReviewField
-								label='Outfit Swapping'
-								value={values.supportOutfitSwapping ? 'Enabled' : 'Disabled'}
-							/>
+							<ReviewField label='Outfit Swapping' value={values.supportOutfitSwapping ? 'Enabled' : 'Disabled'} />
 						</div>
 					</div>
 				</ReviewSection>
@@ -230,19 +207,13 @@ export function StepReview({ form, onEditStep }: StepReviewProps) {
 						{values.referenceImages.length > 0 ? (
 							<>
 								<p className='text-sm text-muted-foreground'>
-									{values.referenceImages.length} image{values.referenceImages.length !== 1 ? 's' : ''}{' '}
-									uploaded
+									{values.referenceImages.length} image{values.referenceImages.length !== 1 ? 's' : ''} uploaded
 								</p>
 								<div className='grid grid-cols-5 gap-2'>
 									{values.referenceImages.map((image) => (
-										<div
-											key={image.id}
-											className='aspect-square overflow-hidden rounded-lg border bg-muted'>
-											<img
-												src={image.preview}
-												alt={image.name}
-												className='h-full w-full object-cover'
-											/>
+										<div key={image.id} className='aspect-square overflow-hidden rounded-lg border bg-muted'>
+											{/* biome-ignore lint/performance/noImgElement: Client-side preview from FileReader, not suitable for Next.js Image */}
+											<img src={image.preview} alt={image.name} className='h-full w-full object-cover' />
 										</div>
 									))}
 								</div>
@@ -261,8 +232,8 @@ export function StepReview({ form, onEditStep }: StepReviewProps) {
 					<div className='text-sm text-green-800 dark:text-green-200'>
 						<p className='font-medium'>Ready to create your model!</p>
 						<p className='mt-1'>
-							Click &quot;Create Model&quot; below to start generating your AI influencer. The calibration
-							process will begin automatically.
+							Click &quot;Create Model&quot; below to start generating your AI influencer. The calibration process will
+							begin automatically.
 						</p>
 					</div>
 				</div>

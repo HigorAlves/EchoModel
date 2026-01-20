@@ -4,7 +4,7 @@
  * Provides typed callable functions for Cloud Functions integration.
  */
 
-import { getFunctions, httpsCallable, connectFunctionsEmulator } from 'firebase/functions'
+import { connectFunctionsEmulator, getFunctions, httpsCallable } from 'firebase/functions'
 import { app } from './config'
 
 // Initialize Firebase Functions
@@ -273,31 +273,55 @@ export interface GetStoreResult {
 
 // Model functions
 export const createModel = httpsCallable<CreateModelInput, CreateModelResult>(functions, 'createModel')
-export const startCalibration = httpsCallable<StartCalibrationInput, StartCalibrationResult>(functions, 'startCalibration')
-export const approveCalibration = httpsCallable<ApproveCalibrationInput, ApproveCalibrationResult>(functions, 'approveCalibration')
-export const rejectCalibration = httpsCallable<{ modelId: string; storeId: string; reason: string }, { success: boolean; modelId: string; status: string }>(functions, 'rejectCalibration')
+export const startCalibration = httpsCallable<StartCalibrationInput, StartCalibrationResult>(
+	functions,
+	'startCalibration',
+)
+export const approveCalibration = httpsCallable<ApproveCalibrationInput, ApproveCalibrationResult>(
+	functions,
+	'approveCalibration',
+)
+export const rejectCalibration = httpsCallable<
+	{ modelId: string; storeId: string; reason: string },
+	{ success: boolean; modelId: string; status: string }
+>(functions, 'rejectCalibration')
 
 // Generation functions
-export const createGeneration = httpsCallable<CreateGenerationInput, CreateGenerationResult>(functions, 'createGeneration')
-export const processGeneration = httpsCallable<ProcessGenerationInput, ProcessGenerationResult>(functions, 'processGeneration')
+export const createGeneration = httpsCallable<CreateGenerationInput, CreateGenerationResult>(
+	functions,
+	'createGeneration',
+)
+export const processGeneration = httpsCallable<ProcessGenerationInput, ProcessGenerationResult>(
+	functions,
+	'processGeneration',
+)
 
 // Asset functions
-export const requestUploadUrl = httpsCallable<RequestUploadUrlInput, RequestUploadUrlResult>(functions, 'requestUploadUrl')
+export const requestUploadUrl = httpsCallable<RequestUploadUrlInput, RequestUploadUrlResult>(
+	functions,
+	'requestUploadUrl',
+)
 export const confirmUpload = httpsCallable<ConfirmUploadInput, ConfirmUploadResult>(functions, 'confirmUpload')
 export const getDownloadUrl = httpsCallable<GetDownloadUrlInput, GetDownloadUrlResult>(functions, 'getDownloadUrl')
-export const deleteAsset = httpsCallable<{ assetId: string; storeId: string }, { success: boolean; assetId: string }>(functions, 'deleteAsset')
+export const deleteAsset = httpsCallable<{ assetId: string; storeId: string }, { success: boolean; assetId: string }>(
+	functions,
+	'deleteAsset',
+)
 
 // Store functions
 export const createStore = httpsCallable<CreateStoreInput, CreateStoreResult>(functions, 'createStore')
 export const getMyStores = httpsCallable<void, GetMyStoresResult>(functions, 'getMyStores')
 export const getStore = httpsCallable<{ storeId: string }, GetStoreResult>(functions, 'getStore')
-export const updateStoreSettings = httpsCallable<{
-	storeId: string
-	settings: {
-		defaultAspectRatio?: string
-		defaultImageCount?: number
-		watermarkEnabled?: boolean
-	}
-}, { success: boolean; storeId: string; settings: object }>(functions, 'updateStoreSettings')
+export const updateStoreSettings = httpsCallable<
+	{
+		storeId: string
+		settings: {
+			defaultAspectRatio?: string
+			defaultImageCount?: number
+			watermarkEnabled?: boolean
+		}
+	},
+	{ success: boolean; storeId: string; settings: object }
+>(functions, 'updateStoreSettings')
 
 export { functions }

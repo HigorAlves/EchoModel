@@ -1,7 +1,16 @@
 import type { Model } from './Model.entity'
-import type { AgeRange, BodyType, CameraFraming, Ethnicity, Gender, LightingPreset, ModelStatus, ProductCategory } from './model.enum'
-import type { CameraConfigData, CustomCameraSettings } from './value-objects/ModelCameraConfig.vo'
-import type { CustomLightingSettings, LightingConfigData } from './value-objects/ModelLightingConfig.vo'
+import type {
+	AgeRange,
+	BodyType,
+	CameraFraming,
+	Ethnicity,
+	Gender,
+	LightingPreset,
+	ModelStatus,
+	ProductCategory,
+} from './model.enum'
+import type { CustomCameraSettings } from './value-objects/ModelCameraConfig.vo'
+import type { CustomLightingSettings } from './value-objects/ModelLightingConfig.vo'
 
 /**
  * @fileoverview Model Repository Interface

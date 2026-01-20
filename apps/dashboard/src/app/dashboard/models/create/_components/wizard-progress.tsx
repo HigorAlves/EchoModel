@@ -1,7 +1,7 @@
 'use client'
 
-import { CheckCircle, Image, Palette, Settings, User } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { CheckCircle, Image, Palette, Settings, User } from 'lucide-react'
 
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'

@@ -7,15 +7,14 @@
  * and Cloud Functions for mutations.
  */
 
-import { useState, useEffect, useCallback, createContext, useContext, type ReactNode } from 'react'
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from 'react'
 import {
-	subscribeToStores,
-	getStoreById,
-	createStore,
-	getMyStores,
-	updateStoreSettings,
-	type StoreDocument,
 	type CreateStoreInput,
+	createStore,
+	getStoreById,
+	type StoreDocument,
+	subscribeToStores,
+	updateStoreSettings,
 } from '@/lib/firebase'
 
 // ==================== Types ====================
@@ -59,7 +58,7 @@ export function useStores(userId: string | null): UseStoresResult {
 	const [stores, setStores] = useState<StoreDocument[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState<Error | null>(null)
-	const [refreshTrigger, setRefreshTrigger] = useState(0)
+	const [_refreshTrigger, setRefreshTrigger] = useState(0)
 
 	useEffect(() => {
 		if (!userId) {
@@ -77,7 +76,7 @@ export function useStores(userId: string | null): UseStoresResult {
 		})
 
 		return () => unsubscribe()
-	}, [userId, refreshTrigger])
+	}, [userId])
 
 	const refresh = useCallback(() => {
 		setRefreshTrigger((prev) => prev + 1)
@@ -148,7 +147,7 @@ export function useCreateStore(userId: string | null): UseCreateStoreResult {
 				setIsLoading(false)
 			}
 		},
-		[userId]
+		[userId],
 	)
 
 	return { createStore: create, isLoading, error }
@@ -162,11 +161,7 @@ export function useStoreSettings(storeId: string | null): UseStoreSettingsResult
 	const [error, setError] = useState<Error | null>(null)
 
 	const update = useCallback(
-		async (settings: {
-			defaultAspectRatio?: string
-			defaultImageCount?: number
-			watermarkEnabled?: boolean
-		}) => {
+		async (settings: { defaultAspectRatio?: string; defaultImageCount?: number; watermarkEnabled?: boolean }) => {
 			if (!storeId) {
 				throw new Error('Store ID is required')
 			}
@@ -184,7 +179,7 @@ export function useStoreSettings(storeId: string | null): UseStoreSettingsResult
 				setIsLoading(false)
 			}
 		},
-		[storeId]
+		[storeId],
 	)
 
 	return { updateSettings: update, isLoading, error }
@@ -253,8 +248,7 @@ export function StoreProvider({ children, userId }: StoreProviderProps) {
 				isLoading,
 				selectStore,
 				refresh,
-			}}
-		>
+			}}>
 			{children}
 		</StoreContext.Provider>
 	)

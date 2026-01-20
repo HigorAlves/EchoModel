@@ -2,8 +2,8 @@
  * @fileoverview Create Generation Input DTO
  */
 
-import { z } from 'zod'
 import { AspectRatio } from '@foundry/domain'
+import { z } from 'zod'
 
 export const CreateGenerationSchema = z.object({
 	idempotencyKey: z.string().uuid(),

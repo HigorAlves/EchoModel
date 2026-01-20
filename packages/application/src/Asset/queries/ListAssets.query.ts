@@ -3,9 +3,9 @@
  */
 
 import type { AssetQueryFilters, IAssetRepository } from '@foundry/domain'
-import type { PaginatedResult } from '@/shared'
 import type { AssetOutput, ListAssetsInput } from '@/Asset'
 import { ListAssetsSchema } from '@/Asset'
+import type { PaginatedResult } from '@/shared'
 import { toAssetResponseList } from '../mappers'
 
 export class ListAssetsQuery {

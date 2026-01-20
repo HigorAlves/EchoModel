@@ -1,19 +1,12 @@
 'use client'
 
-import {
-	Cog,
-	FolderOpen,
-	ImagePlus,
-	LayoutDashboard,
-	Sparkles,
-	Users,
-} from 'lucide-react'
+import { Cog, FolderOpen, LayoutDashboard, Sparkles, Users } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import type * as React from 'react'
 
 import { NavMain } from '@/components/layout/dashboard/nav-main'
 import { NavUser } from '@/components/layout/dashboard/nav-user'
-import { StoreSwitcher, type StoreData } from '@/components/layout/dashboard/store-switcher'
+import { type StoreData, StoreSwitcher } from '@/components/layout/dashboard/store-switcher'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar'
 
 // Sample user data - will be replaced with real auth data

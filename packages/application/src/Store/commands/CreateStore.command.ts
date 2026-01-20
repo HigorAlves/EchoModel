@@ -3,9 +3,9 @@
  */
 
 import type { IStoreRepository, Store } from '@foundry/domain'
-import type { Context, IEventBus } from '@/shared'
 import type { CreateStoreInput, CreateStoreResponse } from '@/Store'
 import { CreateStoreSchema } from '@/Store'
+import type { Context, IEventBus } from '@/shared'
 
 export class CreateStoreCommand {
 	constructor(
@@ -16,9 +16,13 @@ export class CreateStoreCommand {
 	async execute(input: CreateStoreInput, ctx: Context): Promise<CreateStoreResponse> {
 		const validated = CreateStoreSchema.parse(input)
 
+		if (!ctx.userId) {
+			throw new Error('User ID is required to create a store')
+		}
+
 		const { Store } = await import('@foundry/domain')
 		const store = Store.create({
-			ownerId: ctx.userId!,
+			ownerId: ctx.userId,
 			name: validated.name,
 			description: validated.description,
 			defaultStyle: validated.defaultStyle,

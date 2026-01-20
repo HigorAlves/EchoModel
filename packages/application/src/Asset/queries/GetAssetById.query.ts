@@ -3,7 +3,7 @@
  */
 
 import type { IAssetRepository } from '@foundry/domain'
-import type { GetAssetByIdInput, AssetOutput } from '@/Asset'
+import type { AssetOutput, GetAssetByIdInput } from '@/Asset'
 import { GetAssetByIdSchema } from '@/Asset'
 import { toAssetResponse } from '../mappers'
 

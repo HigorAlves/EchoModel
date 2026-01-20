@@ -8,7 +8,12 @@ import { AssetValidationError } from '../asset.error'
  * Validates against allowed image types.
  */
 
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const
+/**
+ * Allowed MIME types for image assets
+ * Updated to include BMP, TIFF, GIF per BytePlus Seedream 4.5 API documentation
+ * @see https://docs.byteplus.com/en/docs/ModelArk/1541523
+ */
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp', 'image/tiff', 'image/gif'] as const
 
 export type AllowedMimeType = (typeof ALLOWED_MIME_TYPES)[number]
 
@@ -59,6 +64,15 @@ export class MimeType {
 				return 'png'
 			case 'image/webp':
 				return 'webp'
+			case 'image/bmp':
+				return 'bmp'
+			case 'image/tiff':
+				return 'tiff'
+			case 'image/gif':
+				return 'gif'
+			default:
+				// This should never happen due to validation in create()
+				throw new AssetValidationError(['Unknown MIME type'], { field: 'mimeType', value: this.data })
 		}
 	}
 

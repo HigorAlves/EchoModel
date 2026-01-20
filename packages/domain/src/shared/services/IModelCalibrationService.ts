@@ -26,7 +26,10 @@ export interface CalibrationFashionConfig {
 export interface CalibrationParams {
 	/** Text prompt describing the model (optional if reference images provided) */
 	readonly prompt?: string
-	/** URLs of reference images (optional if prompt provided) */
+	/**
+	 * URLs of reference images (optional, max 14 per Seedream 4.5 API)
+	 * These images are used for multi-image character consistency.
+	 */
 	readonly referenceImageUrls?: string[]
 	/** Gender presentation */
 	readonly gender: Gender
@@ -38,6 +41,11 @@ export interface CalibrationParams {
 	readonly bodyType: BodyType
 	/** Number of calibration images to generate (typically 4-8) */
 	readonly count: number
+	/**
+	 * Use sequential generation for batch output (Seedream 4.5 feature)
+	 * When enabled, generates related images in sequence for better consistency.
+	 */
+	readonly useSequentialGeneration?: boolean
 	/** Seedream 4.5 Fashion configuration (optional, defaults will be applied if not provided) */
 	readonly fashionConfig?: CalibrationFashionConfig
 }

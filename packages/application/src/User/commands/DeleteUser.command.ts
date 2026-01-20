@@ -3,8 +3,8 @@
  */
 
 import type { IUserRepository } from '@foundry/domain'
-import { ApplicationError } from '@/shared'
 import type { Context, IEventBus } from '@/shared'
+import { ApplicationError } from '@/shared'
 import type { DeleteUserInput, DeleteUserResponse } from '../dto'
 import { DeleteUserSchema } from '../dto'
 

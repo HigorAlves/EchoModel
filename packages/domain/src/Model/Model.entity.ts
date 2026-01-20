@@ -5,10 +5,10 @@ import {
 	CameraFraming,
 	type Ethnicity,
 	type Gender,
+	isValidModelTransition,
 	LightingPreset,
 	ModelStatus,
 	type ProductCategory,
-	isValidModelTransition,
 } from './model.enum'
 import { ModelInvalidTransitionError, ModelRequiresInputError } from './model.error'
 import type { ModelEvent } from './model.event'

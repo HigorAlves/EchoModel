@@ -3,9 +3,9 @@
  */
 
 import type { GenerationQueryFilters, IGenerationRepository } from '@foundry/domain'
-import type { PaginatedResult } from '@/shared'
 import type { GenerationOutput, ListGenerationsInput } from '@/Generation'
 import { ListGenerationsSchema } from '@/Generation'
+import type { PaginatedResult } from '@/shared'
 import { toGenerationResponseList } from '../mappers'
 
 export class ListGenerationsQuery {

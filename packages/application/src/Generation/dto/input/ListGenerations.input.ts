@@ -2,8 +2,8 @@
  * @fileoverview List Generations Input DTO
  */
 
-import { z } from 'zod'
 import { GenerationStatus } from '@foundry/domain'
+import { z } from 'zod'
 
 export const ListGenerationsSchema = z.object({
 	storeId: z.string().uuid(),

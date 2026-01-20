@@ -3,10 +3,10 @@
  */
 
 import type { IStoreRepository, Store } from '@foundry/domain'
-import type { Context, IEventBus } from '@/shared'
-import { ApplicationError } from '@/shared'
 import type { UpdateStoreSettingsInput, UpdateStoreSettingsResponse } from '@/Store'
 import { UpdateStoreSettingsSchema } from '@/Store'
+import type { Context, IEventBus } from '@/shared'
+import { ApplicationError } from '@/shared'
 
 export class UpdateStoreSettingsCommand {
 	constructor(

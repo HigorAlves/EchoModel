@@ -20,9 +20,9 @@
  * ```
  */
 
+export * as Asset from './Asset'
+export * as Generation from './Generation'
+export * as Model from './Model'
+export * as Store from './Store'
 export * from './shared'
 export * as User from './User'
-export * as Store from './Store'
-export * as Asset from './Asset'
-export * as Model from './Model'
-export * as Generation from './Generation'

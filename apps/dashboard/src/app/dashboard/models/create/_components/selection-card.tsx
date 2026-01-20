@@ -12,13 +12,7 @@ interface SelectionCardProps {
 	children: React.ReactNode
 }
 
-export function SelectionCard({
-	selected,
-	onClick,
-	disabled,
-	className,
-	children,
-}: SelectionCardProps) {
+export function SelectionCard({ selected, onClick, disabled, className, children }: SelectionCardProps) {
 	return (
 		<motion.button
 			type='button'
@@ -26,9 +20,7 @@ export function SelectionCard({
 			disabled={disabled}
 			className={cn(
 				'relative rounded-lg border p-4 text-left transition-all',
-				selected
-					? 'border-primary bg-primary/5 ring-1 ring-primary'
-					: 'border-muted hover:border-primary/50',
+				selected ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-muted hover:border-primary/50',
 				disabled && 'cursor-not-allowed opacity-50',
 				className,
 			)}

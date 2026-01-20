@@ -16,18 +16,18 @@
 
 import { randomUUID } from 'node:crypto'
 import type {
-	IImageGenerationService,
-	IModelCalibrationService,
-	GenerationParams,
-	GenerationResult,
-	GeneratedImageResult,
+	CalibrationFashionConfig,
+	CalibrationImage,
 	CalibrationParams,
 	CalibrationResult,
-	CalibrationImage,
 	FashionConfig,
-	CalibrationFashionConfig,
+	GeneratedImageResult,
+	GenerationParams,
+	GenerationResult,
+	IImageGenerationService,
+	IModelCalibrationService,
 } from '@foundry/domain'
-import { AspectRatio, LightingPreset, CameraFraming } from '@foundry/domain'
+import { AspectRatio, CameraFraming, LightingPreset } from '@foundry/domain'
 
 /**
  * Seedream API configuration
@@ -126,7 +126,7 @@ export class SeedreamService implements IImageGenerationService, IModelCalibrati
 					const response = await fetch(`${this.baseUrl}/generate`, {
 						method: 'POST',
 						headers: {
-							'Authorization': `Bearer ${this.apiKey}`,
+							Authorization: `Bearer ${this.apiKey}`,
 							'Content-Type': 'application/json',
 						},
 						body: JSON.stringify({
@@ -150,7 +150,7 @@ export class SeedreamService implements IImageGenerationService, IModelCalibrati
 						throw new Error(`Seedream API error: ${response.statusText}`)
 					}
 
-					const result = await response.json() as {
+					const result = (await response.json()) as {
 						id: string
 						output_url: string
 						thumbnail_url?: string
@@ -207,7 +207,7 @@ export class SeedreamService implements IImageGenerationService, IModelCalibrati
 			const response = await fetch(`${this.baseUrl}/calibrate`, {
 				method: 'POST',
 				headers: {
-					'Authorization': `Bearer ${this.apiKey}`,
+					Authorization: `Bearer ${this.apiKey}`,
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
@@ -232,7 +232,7 @@ export class SeedreamService implements IImageGenerationService, IModelCalibrati
 				throw new Error(`Seedream API error: ${response.statusText}`)
 			}
 
-			const result = await response.json() as {
+			const result = (await response.json()) as {
 				images: Array<{
 					id: string
 					url: string
@@ -279,7 +279,7 @@ export class SeedreamService implements IImageGenerationService, IModelCalibrati
 		const response = await fetch(`${this.baseUrl}/lock-identity`, {
 			method: 'POST',
 			headers: {
-				'Authorization': `Bearer ${this.apiKey}`,
+				Authorization: `Bearer ${this.apiKey}`,
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify({
@@ -292,7 +292,7 @@ export class SeedreamService implements IImageGenerationService, IModelCalibrati
 			throw new Error(`Seedream API error: ${response.statusText}`)
 		}
 
-		const result = await response.json() as { locked_identity_url: string }
+		const result = (await response.json()) as { locked_identity_url: string }
 		return result.locked_identity_url
 	}
 

@@ -14,11 +14,7 @@ interface StepReferenceImagesProps {
 	removeReferenceImage: (imageId: string) => void
 }
 
-export function StepReferenceImages({
-	form,
-	addReferenceImages,
-	removeReferenceImage,
-}: StepReferenceImagesProps) {
+export function StepReferenceImages({ form, addReferenceImages, removeReferenceImage }: StepReferenceImagesProps) {
 	return (
 		<motion.div
 			initial={{ opacity: 0, x: 20 }}
@@ -63,8 +59,8 @@ export function StepReferenceImages({
 							Reference Images
 						</FieldLabel>
 						<FieldDescription className='mb-4'>
-							Upload 3-5 reference images to help define your model&apos;s appearance. The AI will use
-							these as guidance for generating consistent results.
+							Upload 3-5 reference images to help define your model&apos;s appearance. The AI will use these as guidance
+							for generating consistent results.
 						</FieldDescription>
 						<ImageUploadZone
 							images={field.state.value}

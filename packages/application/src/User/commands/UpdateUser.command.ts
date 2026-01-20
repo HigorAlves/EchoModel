@@ -3,8 +3,8 @@
  */
 
 import type { IUserRepository, User, UserStatus } from '@foundry/domain'
-import { ApplicationError } from '@/shared'
 import type { Context, IEventBus } from '@/shared'
+import { ApplicationError } from '@/shared'
 import type { UpdateUseInput, UpdateUserResponse } from '../dto'
 
 export class UpdateUserCommand {

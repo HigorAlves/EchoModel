@@ -3,9 +3,9 @@
  */
 
 import type { IModelRepository } from '@foundry/domain'
-import { ApplicationError } from '@/shared'
 import type { CalibrationStatusOutput, GetModelByIdInput } from '@/Model'
 import { GetModelByIdSchema } from '@/Model'
+import { ApplicationError } from '@/shared'
 import { toCalibrationStatusResponse } from '../mappers'
 
 export class GetCalibrationStatusQuery {

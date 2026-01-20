@@ -3,13 +3,13 @@
  */
 
 export {
-	useModels,
-	useModel,
-	useCreateModel,
-	useCalibration,
+	type UseCalibrationResult,
+	type UseCreateModelResult,
+	type UseModelResult,
 	type UseModelsOptions,
 	type UseModelsResult,
-	type UseModelResult,
-	type UseCreateModelResult,
-	type UseCalibrationResult,
+	useCalibration,
+	useCreateModel,
+	useModel,
+	useModels,
 } from './hooks/use-models'

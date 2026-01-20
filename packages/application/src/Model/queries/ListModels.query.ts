@@ -3,9 +3,9 @@
  */
 
 import type { IModelRepository, ModelQueryFilters } from '@foundry/domain'
-import type { PaginatedResult } from '@/shared'
 import type { ListModelsInput, ModelOutput } from '@/Model'
 import { ListModelsSchema } from '@/Model'
+import type { PaginatedResult } from '@/shared'
 import { toModelResponseList } from '../mappers'
 
 export class ListModelsQuery {

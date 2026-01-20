@@ -4,12 +4,8 @@
  * Implements IStorageService interface using Firebase Storage.
  */
 
+import type { FileMetadata, IStorageService, SignedUploadUrlResult } from '@foundry/domain'
 import type { Storage } from 'firebase-admin/storage'
-import type {
-	IStorageService,
-	SignedUploadUrlResult,
-	FileMetadata,
-} from '@foundry/domain'
 
 /**
  * Firebase Storage implementation of IStorageService
@@ -17,7 +13,10 @@ import type {
 export class FirebaseStorageService implements IStorageService {
 	private readonly bucket
 
-	constructor(private readonly storage: Storage, bucketName?: string) {
+	constructor(
+		private readonly storage: Storage,
+		bucketName?: string,
+	) {
 		this.bucket = bucketName ? this.storage.bucket(bucketName) : this.storage.bucket()
 	}
 
@@ -95,7 +94,7 @@ export class FirebaseStorageService implements IStorageService {
 				? Object.fromEntries(
 						Object.entries(metadata.metadata)
 							.filter(([, v]) => v != null)
-							.map(([k, v]) => [k, String(v)])
+							.map(([k, v]) => [k, String(v)]),
 					)
 				: undefined
 

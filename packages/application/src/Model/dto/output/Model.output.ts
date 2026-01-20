@@ -2,7 +2,16 @@
  * @fileoverview Model Response DTOs
  */
 
-import type { AgeRange, BodyType, CameraFraming, Ethnicity, Gender, LightingPreset, ModelStatus, ProductCategory } from '@foundry/domain'
+import type {
+	AgeRange,
+	BodyType,
+	CameraFraming,
+	Ethnicity,
+	Gender,
+	LightingPreset,
+	ModelStatus,
+	ProductCategory,
+} from '@foundry/domain'
 
 /**
  * Lighting configuration output

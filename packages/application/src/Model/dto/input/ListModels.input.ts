@@ -2,8 +2,8 @@
  * @fileoverview List Models Input DTO
  */
 
-import { z } from 'zod'
 import { CameraFraming, Gender, LightingPreset, ModelStatus, ProductCategory } from '@foundry/domain'
+import { z } from 'zod'
 
 export const ListModelsSchema = z.object({
 	storeId: z.string().uuid(),

@@ -4,30 +4,29 @@
  * Exports all Cloud Function handlers.
  */
 
-// Model handlers
+// Asset handlers
 export {
-	createModel,
-	startCalibration,
-	approveCalibration,
-	rejectCalibration,
-} from './models'
+	confirmUpload,
+	deleteAsset,
+	getDownloadUrl,
+	onAssetUploaded,
+	requestUploadUrl,
+} from './assets'
 
 // Generation handlers
 export {
 	createGeneration,
-	processGeneration,
 	handleGenerationCallback,
+	processGeneration,
 	processGenerationPubSub,
 } from './generations'
-
-// Asset handlers
+// Model handlers
 export {
-	requestUploadUrl,
-	confirmUpload,
-	getDownloadUrl,
-	deleteAsset,
-	onAssetUploaded,
-} from './assets'
+	approveCalibration,
+	createModel,
+	rejectCalibration,
+	startCalibration,
+} from './models'
 
 // Store handlers
 export {

@@ -4,7 +4,7 @@
  * Initializes and exports Firebase Admin services for use in Cloud Functions.
  */
 
-import { initializeApp, getApps, getApp } from 'firebase-admin/app'
+import { getApp, getApps, initializeApp } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 import { getStorage } from 'firebase-admin/storage'
 
@@ -30,8 +30,7 @@ export const StoragePaths = {
 		`${storeId}/${category}/${assetId}/${filename}`,
 	getModelReferencePath: (storeId: string, assetId: string, filename: string) =>
 		`${storeId}/model-references/${assetId}/${filename}`,
-	getGarmentPath: (storeId: string, assetId: string, filename: string) =>
-		`${storeId}/garments/${assetId}/${filename}`,
+	getGarmentPath: (storeId: string, assetId: string, filename: string) => `${storeId}/garments/${assetId}/${filename}`,
 	getGeneratedPath: (storeId: string, assetId: string, filename: string) =>
 		`${storeId}/generated/${assetId}/${filename}`,
 	getCalibrationPath: (storeId: string, assetId: string, filename: string) =>

@@ -4,7 +4,7 @@
  * Domain Events represent something important that happened in the Asset domain.
  */
 
-import type { AssetCategory, AssetStatus } from './asset.enum'
+import type { AssetCategory } from './asset.enum'
 
 /**
  * Base interface for all Asset domain events

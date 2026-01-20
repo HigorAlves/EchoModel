@@ -1,6 +1,17 @@
 'use client'
 
-import { Calendar, Download, Eye, Filter, Image as ImageIcon, MoreHorizontal, Plus, Search, Sparkles, X } from 'lucide-react'
+import {
+	Calendar,
+	Download,
+	Eye,
+	Filter,
+	Image as ImageIcon,
+	MoreHorizontal,
+	Plus,
+	Search,
+	Sparkles,
+	X,
+} from 'lucide-react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
@@ -163,6 +174,7 @@ function GenerationCard({
 			<div className='relative aspect-[4/5] w-full overflow-hidden bg-muted'>
 				{generation.status === 'completed' && generation.images.length > 0 ? (
 					<>
+						{/* biome-ignore lint/performance/noImgElement: Dynamic user-generated content, not suitable for Next.js Image */}
 						<img
 							src={generation.images[selectedImageIndex]}
 							alt={`${generation.modelName} - ${generation.scenePrompt}`}
@@ -211,8 +223,13 @@ function GenerationCard({
 				<div className='absolute right-3 top-3'>
 					<DropdownMenu>
 						<DropdownMenuTrigger
-							render={<Button variant='ghost' size='icon-sm' className='bg-background/80 backdrop-blur-sm hover:bg-background' />}
-						>
+							render={
+								<Button
+									variant='ghost'
+									size='icon-sm'
+									className='bg-background/80 backdrop-blur-sm hover:bg-background'
+								/>
+							}>
 							<MoreHorizontal className='h-4 w-4' />
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align='end'>
@@ -240,12 +257,13 @@ function GenerationCard({
 						{generation.images.map((image, index) => (
 							<button
 								type='button'
+								// biome-ignore lint/suspicious/noArrayIndexKey: Image array order is stable and won't be reordered
 								key={index}
 								onClick={() => setSelectedImageIndex(index)}
 								className={`relative aspect-square overflow-hidden rounded-md transition-all ${
 									selectedImageIndex === index ? 'ring-2 ring-primary ring-offset-2' : 'opacity-60 hover:opacity-100'
-								}`}
-							>
+								}`}>
+								{/* biome-ignore lint/performance/noImgElement: Dynamic user-generated content, not suitable for Next.js Image */}
 								<img src={image} alt={`Thumbnail ${index + 1}`} className='h-full w-full object-cover' />
 							</button>
 						))}
@@ -338,7 +356,8 @@ export default function GenerationsPage() {
 			const matchesModel = selectedModels.length === 0 || selectedModels.includes(generation.modelName)
 
 			// Aspect ratio filter
-			const matchesAspectRatio = selectedAspectRatios.length === 0 || selectedAspectRatios.includes(generation.aspectRatio)
+			const matchesAspectRatio =
+				selectedAspectRatios.length === 0 || selectedAspectRatios.includes(generation.aspectRatio)
 
 			return matchesSearch && matchesStatus && matchesModel && matchesAspectRatio
 		})
@@ -427,8 +446,7 @@ export default function GenerationsPage() {
 											checked={selectedStatuses.includes(status)}
 											onCheckedChange={(checked) => {
 												setSelectedStatuses((prev) => (checked ? [...prev, status] : prev.filter((s) => s !== status)))
-											}}
-										>
+											}}>
 											{t(`status.${status}`)}
 										</DropdownMenuCheckboxItem>
 									))}
@@ -458,8 +476,7 @@ export default function GenerationsPage() {
 											checked={selectedModels.includes(model)}
 											onCheckedChange={(checked) => {
 												setSelectedModels((prev) => (checked ? [...prev, model] : prev.filter((m) => m !== model)))
-											}}
-										>
+											}}>
 											{model}
 										</DropdownMenuCheckboxItem>
 									))}
@@ -488,9 +505,10 @@ export default function GenerationsPage() {
 											key={ratio}
 											checked={selectedAspectRatios.includes(ratio)}
 											onCheckedChange={(checked) => {
-												setSelectedAspectRatios((prev) => (checked ? [...prev, ratio] : prev.filter((r) => r !== ratio)))
-											}}
-										>
+												setSelectedAspectRatios((prev) =>
+													checked ? [...prev, ratio] : prev.filter((r) => r !== ratio),
+												)
+											}}>
 											{ratio}
 										</DropdownMenuCheckboxItem>
 									))}
@@ -514,7 +532,10 @@ export default function GenerationsPage() {
 							{selectedStatuses.map((status) => (
 								<Badge key={`status-${status}`} variant='secondary' className='gap-1'>
 									{t(`status.${status}`)}
-									<button type='button' onClick={() => removeFilter('status', status)} className='ml-1 hover:text-destructive'>
+									<button
+										type='button'
+										onClick={() => removeFilter('status', status)}
+										className='ml-1 hover:text-destructive'>
 										<X className='h-3 w-3' />
 									</button>
 								</Badge>
@@ -522,7 +543,10 @@ export default function GenerationsPage() {
 							{selectedModels.map((model) => (
 								<Badge key={`model-${model}`} variant='secondary' className='gap-1'>
 									{model}
-									<button type='button' onClick={() => removeFilter('model', model)} className='ml-1 hover:text-destructive'>
+									<button
+										type='button'
+										onClick={() => removeFilter('model', model)}
+										className='ml-1 hover:text-destructive'>
 										<X className='h-3 w-3' />
 									</button>
 								</Badge>
@@ -530,7 +554,10 @@ export default function GenerationsPage() {
 							{selectedAspectRatios.map((ratio) => (
 								<Badge key={`ratio-${ratio}`} variant='secondary' className='gap-1'>
 									{ratio}
-									<button type='button' onClick={() => removeFilter('aspectRatio', ratio)} className='ml-1 hover:text-destructive'>
+									<button
+										type='button'
+										onClick={() => removeFilter('aspectRatio', ratio)}
+										className='ml-1 hover:text-destructive'>
 										<X className='h-3 w-3' />
 									</button>
 								</Badge>

@@ -3,10 +3,10 @@
  */
 
 import type { IModelRepository, Model } from '@foundry/domain'
-import type { Context, IEventBus } from '@/shared'
-import { ApplicationError } from '@/shared'
 import type { ArchiveModelInput, ArchiveModelResponse } from '@/Model'
 import { ArchiveModelSchema } from '@/Model'
+import type { Context, IEventBus } from '@/shared'
+import { ApplicationError } from '@/shared'
 
 export class ArchiveModelCommand {
 	constructor(

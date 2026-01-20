@@ -12,8 +12,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 import {
-	StepBasicInfo,
 	StepAppearance,
+	StepBasicInfo,
 	StepFashionConfig,
 	StepReferenceImages,
 	StepReview,
@@ -22,13 +22,7 @@ import {
 import { useModelForm } from './_hooks'
 import type { CreateModelFormData } from './_schemas'
 
-const STEP_TITLES = [
-	'Basic Info',
-	'Appearance',
-	'Fashion Configuration',
-	'Reference Images',
-	'Review & Create',
-]
+const STEP_TITLES = ['Basic Info', 'Appearance', 'Fashion Configuration', 'Reference Images', 'Review & Create']
 
 const STEP_DESCRIPTIONS = [
 	'Enter basic information about your AI model',

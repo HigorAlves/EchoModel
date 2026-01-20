@@ -25,12 +25,12 @@
  */
 
 // E2E testing utilities
-export { createE2ESetup, type E2ESetupConfig, type E2ESetupResult } from './e2e'
+// export { createE2ESetup, type E2ESetupConfig, type E2ESetupResult } from './e2e'
 // Factories
-export { type CreateFeatureFlagInput, type CreateUserInput, FeatureFlagFactory, UserFactory } from './factories'
+export { type CreateUserInput, UserFactory } from './factories'
 // Hono test utilities
-export { createTestClient, makeRequest, parseResponse } from './hono'
+// export { createTestClient, makeRequest, parseResponse } from './hono'
 // Repositories
-export { InMemoryAuthRepository, InMemoryFeatureFlagRepository, InMemoryUserRepository } from './repositories'
+export { InMemoryUserRepository } from './repositories'
 // Vitest setup utilities
 export { createTestSetup, type TestSetupConfig, type TestSetupResult } from './vitest'

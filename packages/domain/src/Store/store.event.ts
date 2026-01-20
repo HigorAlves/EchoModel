@@ -4,7 +4,7 @@
  * Domain Events represent something important that happened in the Store domain.
  */
 
-import type { AspectRatio, StoreStatus } from './store.enum'
+import type { StoreStatus } from './store.enum'
 
 /**
  * Base interface for all Store domain events

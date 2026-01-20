@@ -55,25 +55,11 @@ export const BackgroundTypeSchema = z.enum([
 	'TRANSPARENT',
 ])
 
-export const PoseStyleSchema = z.enum([
-	'STATIC_FRONT',
-	'STATIC_SIDE',
-	'WALKING',
-	'EDITORIAL',
-	'CASUAL',
-	'DYNAMIC',
-])
+export const PoseStyleSchema = z.enum(['STATIC_FRONT', 'STATIC_SIDE', 'WALKING', 'EDITORIAL', 'CASUAL', 'DYNAMIC'])
 
 export const ExpressionSchema = z.enum(['NEUTRAL', 'SMILE', 'SERIOUS', 'CONFIDENT', 'SOFT'])
 
-export const PostProcessingStyleSchema = z.enum([
-	'NATURAL',
-	'VIBRANT',
-	'MUTED',
-	'HIGH_CONTRAST',
-	'WARM',
-	'COOL',
-])
+export const PostProcessingStyleSchema = z.enum(['NATURAL', 'VIBRANT', 'MUTED', 'HIGH_CONTRAST', 'WARM', 'COOL'])
 
 export const ProductCategorySchema = z.enum([
 	'TOPS',
@@ -96,10 +82,7 @@ export const ProductCategorySchema = z.enum([
  * Step 1: Basic Information Schema
  */
 export const BasicInfoSchema = z.object({
-	name: z
-		.string()
-		.min(2, 'Name must be at least 2 characters')
-		.max(50, 'Name must be less than 50 characters'),
+	name: z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name must be less than 50 characters'),
 	description: z.string().max(500, 'Description must be less than 500 characters').optional(),
 })
 
@@ -125,10 +108,7 @@ export const FashionConfigSchema = z.object({
 	expression: ExpressionSchema.default('NEUTRAL'),
 	postProcessingStyle: PostProcessingStyleSchema.default('NATURAL'),
 	texturePreferences: z.array(z.string().min(1).max(50)).max(5, 'Maximum 5 texture preferences'),
-	productCategories: z
-		.array(ProductCategorySchema)
-		.min(1, 'Select at least 1 category')
-		.max(3, 'Maximum 3 categories'),
+	productCategories: z.array(ProductCategorySchema).min(1, 'Select at least 1 category').max(3, 'Maximum 3 categories'),
 	supportOutfitSwapping: z.boolean().default(true),
 })
 
@@ -157,10 +137,7 @@ export const ReferenceImagesSchema = z.object({
 
 export const CreateModelFormSchema = z.object({
 	// Step 1: Basic Info
-	name: z
-		.string()
-		.min(2, 'Name must be at least 2 characters')
-		.max(50, 'Name must be less than 50 characters'),
+	name: z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name must be less than 50 characters'),
 	description: z.string().max(500, 'Description must be less than 500 characters').optional(),
 
 	// Step 2: Appearance
@@ -295,10 +272,7 @@ export function validateStep(step: number, data: Partial<CreateModelFormData>): 
 	}
 }
 
-export function getStepErrors(
-	step: number,
-	data: Partial<CreateModelFormData>,
-): Record<string, string[]> {
+export function getStepErrors(step: number, data: Partial<CreateModelFormData>): Record<string, string[]> {
 	try {
 		switch (step) {
 			case 1:

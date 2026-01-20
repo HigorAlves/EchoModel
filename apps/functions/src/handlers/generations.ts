@@ -5,31 +5,28 @@
  */
 
 import { randomUUID } from 'node:crypto'
-import { onCall, HttpsError } from 'firebase-functions/v2/https'
-import { onMessagePublished } from 'firebase-functions/v2/pubsub'
-import * as logger from 'firebase-functions/logger'
-import { db, storage } from '../lib/firebase'
 import {
-	FirestoreGenerationRepository,
-	FirestoreModelRepository,
-	FirestoreAssetRepository,
-} from '../repositories'
-import { FirebaseStorageService, SeedreamService } from '../services'
-import {
-	Generation,
-	Asset,
-	ModelStatus,
-	AssetStatus,
-	AssetCategory,
-	type GeneratedImage,
-	type AssetMetadata,
 	type AllowedMimeType,
+	Asset,
+	AssetCategory,
+	type AssetMetadata,
+	AssetStatus,
+	type GeneratedImage,
+	Generation,
+	GenerationStatus,
+	ModelStatus,
 } from '@foundry/domain'
+import * as logger from 'firebase-functions/logger'
+import { HttpsError, onCall } from 'firebase-functions/v2/https'
+import { onMessagePublished } from 'firebase-functions/v2/pubsub'
+import { db, storage } from '../lib/firebase'
+import { FirestoreAssetRepository, FirestoreGenerationRepository, FirestoreModelRepository } from '../repositories'
+import { FirebaseStorageService, QueueService, RateLimiterService, SeedreamService } from '../services'
 import {
-	CreateGenerationInputSchema,
-	GenerationCallbackInputSchema,
 	type CreateGenerationInput,
+	CreateGenerationInputSchema,
 	type GenerationCallbackInput,
+	GenerationCallbackInputSchema,
 } from './schemas'
 
 // Initialize repositories and services
@@ -38,6 +35,8 @@ const modelRepository = new FirestoreModelRepository(db)
 const assetRepository = new FirestoreAssetRepository(db)
 const storageService = new FirebaseStorageService(storage)
 const seedreamService = new SeedreamService()
+const queueService = new QueueService({ db })
+const rateLimiter = new RateLimiterService({ db })
 
 /**
  * Create a new image generation request
@@ -123,13 +122,24 @@ export const createGeneration = onCall<CreateGenerationInput>(
 
 			const generationId = await generationRepository.create(generation)
 
-			logger.info('Generation created', { generationId, storeId: input.storeId })
+			// Enqueue the generation for processing
+			await queueService.enqueueGeneration(generationId)
+
+			// Get estimated wait time for user feedback
+			const estimatedWaitSeconds = await queueService.getEstimatedWaitSeconds()
+
+			logger.info('Generation created and enqueued', {
+				generationId,
+				storeId: input.storeId,
+				estimatedWaitSeconds,
+			})
 
 			return {
 				success: true,
 				generationId,
-				status: generation.status,
+				status: GenerationStatus.QUEUED,
 				isExisting: false,
+				estimatedWaitSeconds,
 			}
 		} catch (error) {
 			logger.error('Failed to create generation', { error })
@@ -275,26 +285,69 @@ export const handleGenerationCallback = onCall<GenerationCallbackInput>(
 /**
  * Pub/Sub triggered generation processor
  * Listens to 'generation-requests' topic
+ *
+ * Includes rate limiting to respect BytePlus API limits (500 images/min)
  */
 export const processGenerationPubSub = onMessagePublished(
 	{ topic: 'generation-requests', maxInstances: 5, timeoutSeconds: 300 },
 	async (event) => {
 		const message = event.data.message
-		const data = message.json as { generationId: string } | undefined
+		const data = message.json as { generationId: string; priority?: number } | undefined
 
 		if (!data?.generationId) {
 			logger.error('Invalid Pub/Sub message', { data })
 			return
 		}
 
-		logger.info('Processing generation from Pub/Sub', { generationId: data.generationId })
+		const { generationId } = data
+
+		logger.info('Processing generation from Pub/Sub', { generationId })
 
 		try {
-			await executeGenerationProcessing(data.generationId)
+			// Get generation to calculate image count
+			const generation = await generationRepository.findById(generationId)
+
+			if (!generation) {
+				logger.warn('Generation not found', { generationId })
+				return
+			}
+
+			// Skip if not in processable state
+			if (generation.status !== GenerationStatus.QUEUED && generation.status !== GenerationStatus.PENDING) {
+				logger.info('Generation not in processable state', {
+					generationId,
+					status: generation.status,
+				})
+				return
+			}
+
+			// Calculate total images that will be generated
+			const imageCount = generation.imageCount * generation.aspectRatios.length
+
+			// Check rate limit before processing
+			const rateLimitResult = await rateLimiter.tryConsume(imageCount)
+
+			if (!rateLimitResult.allowed) {
+				logger.warn('Rate limited, scheduling retry', {
+					generationId,
+					imageCount,
+					remaining: rateLimitResult.remaining,
+					resetInSeconds: rateLimitResult.resetInSeconds,
+				})
+
+				// Schedule retry after rate limit resets (with small buffer)
+				const delaySeconds = Math.max(rateLimitResult.resetInSeconds + 5, 30)
+				await queueService.scheduleRetry(generationId, delaySeconds)
+
+				return
+			}
+
+			// Proceed with generation processing
+			await executeGenerationProcessing(generationId)
 		} catch (error) {
 			logger.error('Failed to process generation from Pub/Sub', {
 				error,
-				generationId: data.generationId,
+				generationId,
 			})
 		}
 	},
@@ -385,13 +438,7 @@ async function executeGenerationProcessing(
 	const generatedImages: GeneratedImage[] = []
 
 	for (const image of result.images) {
-		const asset = await createGeneratedAsset(
-			generation.storeId,
-			generationId,
-			image.url,
-			image.aspectRatio,
-			'system',
-		)
+		const asset = await createGeneratedAsset(generation.storeId, generationId, image.url, image.aspectRatio, 'system')
 
 		const generatedImage: GeneratedImage = {
 			id: image.id,
@@ -427,7 +474,7 @@ async function createGeneratedAsset(
 	storeId: string,
 	generationId: string,
 	imageUrl: string,
-	aspectRatio: string,
+	_aspectRatio: string,
 	uploadedBy: string,
 ): Promise<Asset> {
 	const assetId = randomUUID()

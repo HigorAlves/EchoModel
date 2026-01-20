@@ -3,10 +3,10 @@
  */
 
 import type { IModelCalibrationService, IModelRepository, Model } from '@foundry/domain'
-import type { Context, IEventBus } from '@/shared'
-import { ApplicationError } from '@/shared'
 import type { StartCalibrationInput, StartCalibrationResponse } from '@/Model'
 import { StartCalibrationSchema } from '@/Model'
+import type { Context, IEventBus } from '@/shared'
+import { ApplicationError } from '@/shared'
 
 export class StartCalibrationCommand {
 	constructor(

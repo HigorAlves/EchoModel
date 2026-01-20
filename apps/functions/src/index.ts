@@ -17,33 +17,38 @@ import { setGlobalOptions } from 'firebase-functions'
 // maxInstances helps control costs by limiting concurrent function executions
 setGlobalOptions({ maxInstances: 10 })
 
-// ==================== Model Functions ====================
-// Handle AI influencer creation and calibration workflow
+// ==================== Asset Functions ====================
+// Handle file uploads and asset management
 export {
-	createModel,
-	startCalibration,
-	approveCalibration,
-	rejectCalibration,
-} from './handlers/models'
+	confirmUpload,
+	deleteAsset,
+	getDownloadUrl,
+	onAssetUploaded,
+	requestUploadUrl,
+} from './handlers/assets'
 
 // ==================== Generation Functions ====================
 // Handle image generation requests and processing
 export {
 	createGeneration,
-	processGeneration,
 	handleGenerationCallback,
+	processGeneration,
 	processGenerationPubSub,
 } from './handlers/generations'
-
-// ==================== Asset Functions ====================
-// Handle file uploads and asset management
+// ==================== Model Functions ====================
+// Handle AI influencer creation and calibration workflow
 export {
-	requestUploadUrl,
-	confirmUpload,
-	getDownloadUrl,
-	deleteAsset,
-	onAssetUploaded,
-} from './handlers/assets'
+	approveCalibration,
+	createModel,
+	rejectCalibration,
+	startCalibration,
+} from './handlers/models'
+// ==================== Queue Functions ====================
+// Handle rate-limited queue processing and retries
+export {
+	cleanupExpiredGenerations,
+	processScheduledRetries,
+} from './handlers/queue'
 
 // ==================== Store Functions ====================
 // Handle multi-tenant store management
