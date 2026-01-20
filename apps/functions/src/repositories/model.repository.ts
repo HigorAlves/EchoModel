@@ -15,6 +15,9 @@ import {
 	ModelDescription,
 	ModelPrompt,
 	ModelStatus,
+	ModelLightingConfig,
+	ModelCameraConfig,
+	ModelTexturePreferences,
 } from '@foundry/domain'
 import { Collections } from '../lib/firebase'
 
@@ -47,6 +50,18 @@ export class FirestoreModelRepository implements IModelRepository {
 			calibrationImages: [...model.calibrationImages],
 			lockedIdentityUrl: model.lockedIdentityUrl,
 			failureReason: model.failureReason,
+			// Fashion configuration
+			lightingConfig: {
+				preset: model.lightingConfig.preset,
+				customSettings: model.lightingConfig.customSettings,
+			},
+			cameraConfig: {
+				framing: model.cameraConfig.framing,
+				customSettings: model.cameraConfig.customSettings,
+			},
+			texturePreferences: [...model.texturePreferences.value],
+			productCategories: [...model.productCategories],
+			supportOutfitSwapping: model.supportOutfitSwapping,
 			createdAt: model.createdAt,
 			updatedAt: model.updatedAt,
 			deletedAt: model.deletedAt,
@@ -57,6 +72,25 @@ export class FirestoreModelRepository implements IModelRepository {
 	 * Convert Firestore document to domain Model
 	 */
 	private toDomain(data: PersistenceModel): Model {
+		// Reconstruct fashion config value objects with defaults for backward compatibility
+		const lightingConfig = data.lightingConfig
+			? ModelLightingConfig.create({
+					preset: data.lightingConfig.preset,
+					customSettings: data.lightingConfig.customSettings,
+				})
+			: ModelLightingConfig.createDefault()
+
+		const cameraConfig = data.cameraConfig
+			? ModelCameraConfig.create({
+					framing: data.cameraConfig.framing,
+					customSettings: data.cameraConfig.customSettings,
+				})
+			: ModelCameraConfig.createDefault()
+
+		const texturePreferences = data.texturePreferences
+			? ModelTexturePreferences.create(data.texturePreferences)
+			: ModelTexturePreferences.createEmpty()
+
 		return Model.create({
 			id: ModelId.create(data.id),
 			storeId: data.storeId,
@@ -72,6 +106,12 @@ export class FirestoreModelRepository implements IModelRepository {
 			calibrationImages: data.calibrationImages,
 			lockedIdentityUrl: data.lockedIdentityUrl,
 			failureReason: data.failureReason,
+			// Fashion configuration
+			lightingConfig,
+			cameraConfig,
+			texturePreferences,
+			productCategories: data.productCategories ?? [],
+			supportOutfitSwapping: data.supportOutfitSwapping ?? true,
 			createdAt: data.createdAt instanceof Date ? data.createdAt : (data.createdAt as any).toDate(),
 			updatedAt: data.updatedAt instanceof Date ? data.updatedAt : (data.updatedAt as any).toDate(),
 			deletedAt: data.deletedAt
@@ -106,6 +146,19 @@ export class FirestoreModelRepository implements IModelRepository {
 			}
 			if (filters.bodyType) {
 				query = query.where('bodyType', '==', filters.bodyType)
+			}
+			// Fashion config filters
+			if (filters.lightingPreset) {
+				query = query.where('lightingConfig.preset', '==', filters.lightingPreset)
+			}
+			if (filters.cameraFraming) {
+				query = query.where('cameraConfig.framing', '==', filters.cameraFraming)
+			}
+			if (filters.productCategory) {
+				query = query.where('productCategories', 'array-contains', filters.productCategory)
+			}
+			if (typeof filters.supportsOutfitSwapping === 'boolean') {
+				query = query.where('supportOutfitSwapping', '==', filters.supportsOutfitSwapping)
 			}
 			if (!filters.includeDeleted) {
 				query = query.where('deletedAt', '==', null)

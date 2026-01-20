@@ -1,6 +1,15 @@
 import { Model } from './Model.entity'
+import { LightingPreset, CameraFraming } from './model.enum'
 import type { PersistenceModel } from './model.repository'
-import { ModelDescription, ModelId, ModelName, ModelPrompt } from './value-objects'
+import {
+	ModelCameraConfig,
+	ModelDescription,
+	ModelId,
+	ModelLightingConfig,
+	ModelName,
+	ModelPrompt,
+	ModelTexturePreferences,
+} from './value-objects'
 
 /**
  * @fileoverview Model Mapper
@@ -13,6 +22,27 @@ import { ModelDescription, ModelId, ModelName, ModelPrompt } from './value-objec
  * Maps persistence data to a domain entity
  */
 export function toDomain(data: PersistenceModel): Model {
+	// Reconstruct lighting config from persistence data
+	const lightingConfig = data.lightingConfig
+		? ModelLightingConfig.create({
+				preset: data.lightingConfig.preset,
+				customSettings: data.lightingConfig.customSettings,
+			})
+		: ModelLightingConfig.createDefault()
+
+	// Reconstruct camera config from persistence data
+	const cameraConfig = data.cameraConfig
+		? ModelCameraConfig.create({
+				framing: data.cameraConfig.framing,
+				customSettings: data.cameraConfig.customSettings,
+			})
+		: ModelCameraConfig.createDefault()
+
+	// Reconstruct texture preferences
+	const texturePreferences = data.texturePreferences
+		? ModelTexturePreferences.create(data.texturePreferences)
+		: ModelTexturePreferences.createEmpty()
+
 	return Model.create({
 		id: ModelId.create(data.id),
 		storeId: data.storeId,
@@ -28,6 +58,11 @@ export function toDomain(data: PersistenceModel): Model {
 		calibrationImages: data.calibrationImages,
 		lockedIdentityUrl: data.lockedIdentityUrl,
 		failureReason: data.failureReason,
+		lightingConfig,
+		cameraConfig,
+		texturePreferences,
+		productCategories: data.productCategories ?? [],
+		supportOutfitSwapping: data.supportOutfitSwapping ?? true,
 		createdAt: data.createdAt,
 		updatedAt: data.updatedAt,
 		deletedAt: data.deletedAt,
@@ -53,6 +88,18 @@ export function toPersistence(entity: Model): PersistenceModel {
 		calibrationImages: [...entity.calibrationImages],
 		lockedIdentityUrl: entity.lockedIdentityUrl,
 		failureReason: entity.failureReason,
+		// Fashion configuration
+		lightingConfig: {
+			preset: entity.lightingConfig.preset,
+			customSettings: entity.lightingConfig.customSettings,
+		},
+		cameraConfig: {
+			framing: entity.cameraConfig.framing,
+			customSettings: entity.cameraConfig.customSettings,
+		},
+		texturePreferences: [...entity.texturePreferences.value],
+		productCategories: [...entity.productCategories],
+		supportOutfitSwapping: entity.supportOutfitSwapping,
 		createdAt: entity.createdAt,
 		updatedAt: entity.updatedAt,
 		deletedAt: entity.deletedAt,

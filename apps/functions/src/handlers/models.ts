@@ -51,7 +51,7 @@ export const createModel = onCall<CreateModelInput>(
 		const input = parseResult.data
 
 		try {
-			// Create the model
+			// Create the model with Seedream 4.5 Fashion configuration
 			const model = Model.createFromDTO({
 				storeId: input.storeId,
 				name: input.name,
@@ -62,12 +62,26 @@ export const createModel = onCall<CreateModelInput>(
 				bodyType: input.bodyType,
 				prompt: input.prompt,
 				referenceImageIds: input.referenceImageIds,
+				// Fashion configuration
+				lightingPreset: input.lightingPreset,
+				customLightingSettings: input.customLightingSettings,
+				cameraFraming: input.cameraFraming,
+				customCameraSettings: input.customCameraSettings,
+				texturePreferences: input.texturePreferences,
+				productCategories: input.productCategories,
+				supportOutfitSwapping: input.supportOutfitSwapping,
 			})
 
 			// Persist the model
 			const modelId = await modelRepository.create(model)
 
-			logger.info('Model created successfully', { modelId, storeId: input.storeId })
+			logger.info('Model created successfully', {
+				modelId,
+				storeId: input.storeId,
+				lightingPreset: model.lightingConfig.preset,
+				cameraFraming: model.cameraConfig.framing,
+				supportOutfitSwapping: model.supportOutfitSwapping,
+			})
 
 			return {
 				success: true,
@@ -131,7 +145,7 @@ export const startCalibration = onCall<StartCalibrationInput>(
 			const calibratingModel = model.startCalibration()
 			await modelRepository.update(calibratingModel)
 
-			// Generate calibration images
+			// Generate calibration images with Seedream 4.5 Fashion configuration
 			const calibrationResult = await seedreamService.generateCalibrationImages({
 				prompt: model.prompt?.value,
 				referenceImageUrls: referenceImageUrls.length > 0 ? referenceImageUrls : undefined,
@@ -140,6 +154,12 @@ export const startCalibration = onCall<StartCalibrationInput>(
 				ethnicity: model.ethnicity,
 				bodyType: model.bodyType,
 				count: 4, // Generate 4 calibration images
+				// Pass model's fashion configuration to calibration
+				fashionConfig: {
+					lightingPreset: model.lightingConfig.preset,
+					cameraFraming: model.cameraConfig.framing,
+					texturePreferences: [...model.texturePreferences.value],
+				},
 			})
 
 			if (!calibrationResult.success) {

@@ -108,7 +108,7 @@ export const createGeneration = onCall<CreateGenerationInput>(
 				throw new HttpsError('failed-precondition', 'Garment asset is not ready')
 			}
 
-			// Create the generation request
+			// Create the generation request with optional fashion config override
 			const generation = Generation.createFromDTO({
 				storeId: input.storeId,
 				modelId: input.modelId,
@@ -117,6 +117,8 @@ export const createGeneration = onCall<CreateGenerationInput>(
 				scenePrompt: input.scenePrompt,
 				aspectRatios: input.aspectRatios,
 				imageCount: input.imageCount,
+				// Fashion config override (inherits from model if not provided)
+				fashionConfigOverride: input.fashionConfigOverride,
 			})
 
 			const generationId = await generationRepository.create(generation)
@@ -340,13 +342,30 @@ async function executeGenerationProcessing(
 	let processingGeneration = generation.startProcessing()
 	await generationRepository.update(processingGeneration)
 
-	// Generate images
+	// Merge model's fashion config with generation override
+	// Generation override takes precedence where specified
+	const fashionConfigOverride = generation.fashionConfigOverride
+	const fashionConfig = {
+		lightingPreset: fashionConfigOverride?.lightingPreset ?? model.lightingConfig.preset,
+		cameraFraming: fashionConfigOverride?.cameraFraming ?? model.cameraConfig.framing,
+		texturePreferences: fashionConfigOverride?.texturePreferences ?? [...model.texturePreferences.value],
+	}
+
+	logger.info('Generating images with fashion config', {
+		generationId,
+		lightingPreset: fashionConfig.lightingPreset,
+		cameraFraming: fashionConfig.cameraFraming,
+		hasTexturePreferences: fashionConfig.texturePreferences.length > 0,
+	})
+
+	// Generate images with Seedream 4.5 Fashion configuration
 	const result = await seedreamService.generateImages({
 		modelIdentityUrl: model.lockedIdentityUrl,
 		garmentImageUrl: garmentUrl,
 		scenePrompt: generation.scenePrompt.value,
 		aspectRatios: [...generation.aspectRatios],
 		count: generation.imageCount,
+		fashionConfig,
 	})
 
 	if (!result.success) {

@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import type { CameraFraming, LightingPreset } from '../Model/model.enum'
 import type { AspectRatio } from '../Store/store.enum'
 import { GenerationStatus, isValidGenerationTransition } from './generation.enum'
 import { GenerationInvalidTransitionError } from './generation.error'
@@ -12,6 +13,16 @@ import {
 } from './generation.event'
 import type { GeneratedImage, GenerationMetadata } from './generation.repository'
 import { GenerationId, IdempotencyKey, ScenePrompt } from './value-objects'
+
+/**
+ * Fashion configuration override for per-generation customization.
+ * If not provided, inherits from the Model's fashion configuration.
+ */
+export interface FashionConfigOverride {
+	readonly lightingPreset?: LightingPreset
+	readonly cameraFraming?: CameraFraming
+	readonly texturePreferences?: readonly string[]
+}
 
 /**
  * @fileoverview Generation Aggregate Root
@@ -40,6 +51,8 @@ export interface GenerationProps {
 	readonly completedAt: Date | null
 	readonly failureReason: string | null
 	readonly metadata: GenerationMetadata
+	/** Optional fashion config override - if not provided, inherits from Model */
+	readonly fashionConfigOverride: FashionConfigOverride | null
 	readonly createdAt: Date
 	readonly updatedAt: Date
 }
@@ -52,6 +65,8 @@ interface CreateGenerationDTO {
 	readonly scenePrompt: string
 	readonly aspectRatios: AspectRatio[]
 	readonly imageCount: number
+	/** Optional fashion config override for this generation */
+	readonly fashionConfigOverride?: FashionConfigOverride
 }
 
 /**
@@ -95,6 +110,7 @@ export class Generation {
 			metadata: {
 				requestedAt: now,
 			},
+			fashionConfigOverride: dto.fashionConfigOverride ?? null,
 			createdAt: now,
 			updatedAt: now,
 		})
@@ -170,6 +186,17 @@ export class Generation {
 
 	get metadata(): GenerationMetadata {
 		return this.data.metadata
+	}
+
+	get fashionConfigOverride(): FashionConfigOverride | null {
+		return this.data.fashionConfigOverride
+	}
+
+	/**
+	 * Check if this generation has a fashion config override
+	 */
+	get hasFashionConfigOverride(): boolean {
+		return this.data.fashionConfigOverride !== null
 	}
 
 	get createdAt(): Date {

@@ -296,6 +296,153 @@
 			"deleteAccount": "Excluir Conta"
 		}
 	},
+	"models": {
+		"title": "Modelos de IA",
+		"subtitle": "Crie e gerencie seus influenciadores de IA",
+		"breadcrumbs": {
+			"models": "Modelos",
+			"all": "Todos os Modelos",
+			"create": "Criar Modelo",
+			"calibration": "Calibracao",
+			"details": "Detalhes do Modelo"
+		},
+		"status": {
+			"draft": "Rascunho",
+			"calibrating": "Calibrando",
+			"active": "Ativo",
+			"failed": "Falhou",
+			"archived": "Arquivado"
+		},
+		"create": {
+			"title": "Criar Novo Modelo",
+			"subtitle": "Defina as caracteristicas do seu influenciador de IA",
+			"step1": "Informacoes Basicas",
+			"step2": "Aparencia",
+			"step3": "Configuracao de Moda",
+			"step4": "Imagens de Referencia",
+			"step5": "Revisar e Criar"
+		},
+		"form": {
+			"name": "Nome do Modelo",
+			"namePlaceholder": "Digite um nome para seu modelo",
+			"nameDescription": "De um nome memoravel ao seu influenciador de IA",
+			"description": "Descricao",
+			"descriptionPlaceholder": "Descreva a personalidade e estilo do seu modelo",
+			"gender": "Genero",
+			"genderOptions": {
+				"male": "Masculino",
+				"female": "Feminino",
+				"nonBinary": "Nao-Binario"
+			},
+			"ageRange": "Faixa Etaria",
+			"ageRangeOptions": {
+				"young": "18-25",
+				"adult": "26-35",
+				"mature": "36-45",
+				"senior": "46+"
+			},
+			"ethnicity": "Etnia",
+			"ethnicityOptions": {
+				"asian": "Asiatico",
+				"black": "Negro",
+				"caucasian": "Caucasiano",
+				"hispanic": "Hispanico",
+				"middleEastern": "Oriente Medio",
+				"mixed": "Misto",
+				"southAsian": "Sul-Asiatico"
+			},
+			"bodyType": "Tipo Fisico",
+			"bodyTypeOptions": {
+				"slim": "Magro",
+				"athletic": "Atletico",
+				"average": "Medio",
+				"curvy": "Curvilinea",
+				"plusSize": "Plus Size"
+			},
+			"prompt": "Prompt Personalizado",
+			"promptPlaceholder": "Adicione detalhes especificos sobre a aparencia do modelo",
+			"promptDescription": "Opcional: Forneça detalhes adicionais para resultados mais precisos",
+			"referenceImages": "Imagens de Referencia",
+			"referenceImagesDescription": "Envie 3-5 imagens para ajudar a definir a aparencia do modelo",
+			"lightingPreset": "Preset de Iluminacao",
+			"lightingOptions": {
+				"softStudio": "Estudio Suave",
+				"editorialContrast": "Contraste Editorial",
+				"naturalDaylight": "Luz Natural",
+				"ringLight": "Ring Light",
+				"goldenHour": "Hora Dourada",
+				"dramaticShadow": "Sombra Dramatica",
+				"butterfly": "Butterfly",
+				"rembrandt": "Rembrandt"
+			},
+			"cameraFraming": "Enquadramento da Camera",
+			"cameraOptions": {
+				"waistUp50mm": "Cintura Para Cima (50mm)",
+				"fullBody35mm": "Corpo Inteiro (35mm)",
+				"portrait85mm": "Retrato (85mm)",
+				"closeUp": "Close Up",
+				"threeQuarter": "Vista 3/4",
+				"backView": "Vista Traseira",
+				"kneeUp": "Joelho Para Cima"
+			},
+			"backgroundType": "Fundo/Cenario",
+			"backgroundOptions": {
+				"studioWhite": "Estudio Branco",
+				"studioGray": "Estudio Cinza",
+				"gradient": "Gradiente",
+				"outdoorUrban": "Externo Urbano",
+				"outdoorNature": "Externo Natural",
+				"transparent": "Transparente"
+			},
+			"poseStyle": "Estilo de Pose",
+			"poseOptions": {
+				"staticFront": "Estatica Frontal",
+				"staticSide": "Estatica Lateral",
+				"walking": "Caminhando",
+				"editorial": "Editorial",
+				"casual": "Casual",
+				"dynamic": "Dinamica"
+			},
+			"expression": "Expressao do Modelo",
+			"expressionOptions": {
+				"neutral": "Neutro",
+				"smile": "Sorriso",
+				"serious": "Serio",
+				"confident": "Confiante",
+				"soft": "Suave"
+			},
+			"postProcessingStyle": "Estilo de Pos-Processamento",
+			"postProcessingOptions": {
+				"natural": "Natural",
+				"vibrant": "Vibrante",
+				"muted": "Suave",
+				"highContrast": "Alto Contraste",
+				"warm": "Quente",
+				"cool": "Frio"
+			},
+			"texturePreferences": "Preferencias de Textura",
+			"productCategories": "Categorias de Produto",
+			"categoryOptions": {
+				"tops": "Blusas",
+				"bottoms": "Calcas",
+				"dresses": "Vestidos",
+				"outerwear": "Casacos",
+				"accessories": "Acessorios",
+				"footwear": "Calcados",
+				"swimwear": "Moda Praia",
+				"activewear": "Roupas Esportivas",
+				"formal": "Roupas Formais",
+				"jewelry": "Joias"
+			},
+			"outfitSwapping": "Habilitar Troca de Roupa",
+			"outfitSwappingDescription": "Use este modelo para provar roupas virtualmente"
+		},
+		"empty": {
+			"title": "Nenhum modelo ainda",
+			"description": "Crie seu primeiro influenciador de IA para comecar",
+			"createButton": "Criar Modelo"
+		}
+	},
 	"generations": {
 		"title": "Geracoes",
 		"subtitle": "Gerar e gerenciar imagens criadas por IA",

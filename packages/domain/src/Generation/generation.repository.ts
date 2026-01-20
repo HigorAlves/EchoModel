@@ -1,3 +1,4 @@
+import type { CameraFraming, LightingPreset } from '../Model/model.enum'
 import type { AspectRatio } from '../Store/store.enum'
 import type { Generation } from './Generation.entity'
 import type { GenerationStatus } from './generation.enum'
@@ -30,6 +31,15 @@ export interface GenerationMetadata {
 }
 
 /**
+ * Fashion configuration override for persistence
+ */
+export interface PersistenceFashionConfigOverride {
+	readonly lightingPreset?: LightingPreset
+	readonly cameraFraming?: CameraFraming
+	readonly texturePreferences?: string[]
+}
+
+/**
  * Persistence representation of Generation
  */
 export interface PersistenceGeneration {
@@ -47,6 +57,8 @@ export interface PersistenceGeneration {
 	readonly completedAt: Date | null
 	readonly failureReason: string | null
 	readonly metadata: GenerationMetadata
+	/** Fashion config override for this generation (null if using model defaults) */
+	readonly fashionConfigOverride: PersistenceFashionConfigOverride | null
 	readonly createdAt: Date
 	readonly updatedAt: Date
 }

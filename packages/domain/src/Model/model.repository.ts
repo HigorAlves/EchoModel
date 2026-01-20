@@ -1,11 +1,29 @@
 import type { Model } from './Model.entity'
-import type { AgeRange, BodyType, Ethnicity, Gender, ModelStatus } from './model.enum'
+import type { AgeRange, BodyType, CameraFraming, Ethnicity, Gender, LightingPreset, ModelStatus, ProductCategory } from './model.enum'
+import type { CameraConfigData, CustomCameraSettings } from './value-objects/ModelCameraConfig.vo'
+import type { CustomLightingSettings, LightingConfigData } from './value-objects/ModelLightingConfig.vo'
 
 /**
  * @fileoverview Model Repository Interface
  *
  * Repository interface for the Model (AI Influencer) bounded context.
  */
+
+/**
+ * Persistence representation of lighting configuration
+ */
+export interface PersistenceLightingConfig {
+	readonly preset: LightingPreset
+	readonly customSettings?: CustomLightingSettings
+}
+
+/**
+ * Persistence representation of camera configuration
+ */
+export interface PersistenceCameraConfig {
+	readonly framing: CameraFraming
+	readonly customSettings?: CustomCameraSettings
+}
 
 /**
  * Persistence representation of Model
@@ -25,6 +43,12 @@ export interface PersistenceModel {
 	readonly calibrationImages: string[]
 	readonly lockedIdentityUrl: string | null
 	readonly failureReason: string | null
+	// Seedream 4.5 Fashion configuration
+	readonly lightingConfig: PersistenceLightingConfig
+	readonly cameraConfig: PersistenceCameraConfig
+	readonly texturePreferences: string[]
+	readonly productCategories: ProductCategory[]
+	readonly supportOutfitSwapping: boolean
 	readonly createdAt: Date
 	readonly updatedAt: Date
 	readonly deletedAt: Date | null
@@ -41,6 +65,11 @@ export interface ModelQueryFilters {
 	readonly ageRange?: AgeRange
 	readonly ethnicity?: Ethnicity
 	readonly bodyType?: BodyType
+	// Seedream 4.5 Fashion filters
+	readonly lightingPreset?: LightingPreset
+	readonly cameraFraming?: CameraFraming
+	readonly productCategory?: ProductCategory
+	readonly supportsOutfitSwapping?: boolean
 	readonly includeDeleted?: boolean
 	readonly includeArchived?: boolean
 	readonly limit?: number

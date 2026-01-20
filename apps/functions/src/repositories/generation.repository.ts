@@ -31,6 +31,17 @@ export class FirestoreGenerationRepository implements IGenerationRepository {
 	 * Convert domain Generation to Firestore document data
 	 */
 	private toFirestore(generation: Generation): PersistenceGeneration {
+		// Map fashion config override to persistence format
+		const fashionConfigOverride = generation.fashionConfigOverride
+			? {
+					lightingPreset: generation.fashionConfigOverride.lightingPreset,
+					cameraFraming: generation.fashionConfigOverride.cameraFraming,
+					texturePreferences: generation.fashionConfigOverride.texturePreferences
+						? [...generation.fashionConfigOverride.texturePreferences]
+						: undefined,
+				}
+			: null
+
 		return {
 			id: generation.id.value,
 			storeId: generation.storeId,
@@ -46,6 +57,7 @@ export class FirestoreGenerationRepository implements IGenerationRepository {
 			completedAt: generation.completedAt,
 			failureReason: generation.failureReason,
 			metadata: { ...generation.metadata },
+			fashionConfigOverride,
 			createdAt: generation.createdAt,
 			updatedAt: generation.updatedAt,
 		}
@@ -60,6 +72,15 @@ export class FirestoreGenerationRepository implements IGenerationRepository {
 			if (!value) return null
 			return value instanceof Date ? value : value.toDate()
 		}
+
+		// Map persistence fashion config override to domain type
+		const fashionConfigOverride = data.fashionConfigOverride
+			? {
+					lightingPreset: data.fashionConfigOverride.lightingPreset,
+					cameraFraming: data.fashionConfigOverride.cameraFraming,
+					texturePreferences: data.fashionConfigOverride.texturePreferences,
+				}
+			: null
 
 		return Generation.create({
 			id: GenerationId.create(data.id),
@@ -82,6 +103,7 @@ export class FirestoreGenerationRepository implements IGenerationRepository {
 				...data.metadata,
 				requestedAt: toDate(data.metadata.requestedAt) ?? undefined,
 			},
+			fashionConfigOverride,
 			createdAt: toDate(data.createdAt) ?? new Date(),
 			updatedAt: toDate(data.updatedAt) ?? new Date(),
 		})

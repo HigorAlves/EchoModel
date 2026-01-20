@@ -187,8 +187,31 @@
 			"subtitle": "Define the characteristics of your AI influencer",
 			"step1": "Basic Info",
 			"step2": "Appearance",
-			"step3": "References",
-			"step4": "Review"
+			"step3": "Fashion Configuration",
+			"step4": "Reference Images",
+			"step5": "Review & Create",
+			"steps": {
+				"basicInfo": {
+					"title": "Basic Information",
+					"description": "Enter basic information about your AI model"
+				},
+				"appearance": {
+					"title": "Appearance",
+					"description": "Define the physical appearance of your model"
+				},
+				"fashionConfig": {
+					"title": "Fashion Configuration",
+					"description": "Configure lighting, camera, and styling preferences for optimal results"
+				},
+				"referenceImages": {
+					"title": "Reference Images",
+					"description": "Upload images to guide the AI model generation"
+				},
+				"review": {
+					"title": "Review & Create",
+					"description": "Review your configuration before creating the model"
+				}
+			}
 		},
 		"form": {
 			"name": "Model Name",
@@ -210,6 +233,15 @@
 				"senior": "46+"
 			},
 			"ethnicity": "Ethnicity",
+			"ethnicityOptions": {
+				"asian": "Asian",
+				"black": "Black",
+				"caucasian": "Caucasian",
+				"hispanic": "Hispanic",
+				"middleEastern": "Middle Eastern",
+				"mixed": "Mixed",
+				"southAsian": "South Asian"
+			},
 			"bodyType": "Body Type",
 			"bodyTypeOptions": {
 				"slim": "Slim",
@@ -222,7 +254,83 @@
 			"promptPlaceholder": "Add specific details about the model's appearance",
 			"promptDescription": "Optional: Provide additional details for more precise results",
 			"referenceImages": "Reference Images",
-			"referenceImagesDescription": "Upload 3-5 images to help define the model's appearance"
+			"referenceImagesDescription": "Upload 3-5 images to help define the model's appearance",
+			"lightingPreset": "Lighting Preset",
+			"lightingPresetTooltip": "Controls the lighting style for generated images. Choose based on your product photography needs.",
+			"lightingOptions": {
+				"softStudio": "Soft Studio",
+				"editorialContrast": "Editorial Contrast",
+				"naturalDaylight": "Natural Daylight",
+				"ringLight": "Ring Light",
+				"goldenHour": "Golden Hour",
+				"dramaticShadow": "Dramatic Shadow",
+				"butterfly": "Butterfly",
+				"rembrandt": "Rembrandt"
+			},
+			"cameraFraming": "Camera Framing",
+			"cameraFramingTooltip": "Defines how the model is framed in generated images.",
+			"cameraOptions": {
+				"waistUp50mm": "Waist Up (50mm)",
+				"fullBody35mm": "Full Body (35mm)",
+				"portrait85mm": "Portrait (85mm)",
+				"closeUp": "Close Up",
+				"threeQuarter": "3/4 View",
+				"backView": "Back View",
+				"kneeUp": "Knee Up"
+			},
+			"backgroundType": "Background/Backdrop",
+			"backgroundOptions": {
+				"studioWhite": "Studio White",
+				"studioGray": "Studio Gray",
+				"gradient": "Gradient",
+				"outdoorUrban": "Urban Outdoor",
+				"outdoorNature": "Natural Outdoor",
+				"transparent": "Transparent"
+			},
+			"poseStyle": "Pose Style",
+			"poseOptions": {
+				"staticFront": "Static Front",
+				"staticSide": "Static Side",
+				"walking": "Walking",
+				"editorial": "Editorial",
+				"casual": "Casual",
+				"dynamic": "Dynamic"
+			},
+			"expression": "Model Expression",
+			"expressionOptions": {
+				"neutral": "Neutral",
+				"smile": "Smile",
+				"serious": "Serious",
+				"confident": "Confident",
+				"soft": "Soft"
+			},
+			"postProcessingStyle": "Post-Processing Style",
+			"postProcessingOptions": {
+				"natural": "Natural",
+				"vibrant": "Vibrant",
+				"muted": "Muted",
+				"highContrast": "High Contrast",
+				"warm": "Warm",
+				"cool": "Cool"
+			},
+			"texturePreferences": "Texture Preferences",
+			"texturePreferencesTooltip": "Add keywords describing fabric textures and materials.",
+			"productCategories": "Product Categories",
+			"productCategoriesTooltip": "Select up to 3 product categories this model specializes in.",
+			"categoryOptions": {
+				"tops": "Tops",
+				"bottoms": "Bottoms",
+				"dresses": "Dresses",
+				"outerwear": "Outerwear",
+				"accessories": "Accessories",
+				"footwear": "Footwear",
+				"swimwear": "Swimwear",
+				"activewear": "Activewear",
+				"formal": "Formal Wear",
+				"jewelry": "Jewelry"
+			},
+			"outfitSwapping": "Enable Outfit Swapping",
+			"outfitSwappingDescription": "Use this model for virtual try-on and outfit generation"
 		},
 		"calibration": {
 			"title": "Model Calibration",

@@ -10,7 +10,24 @@ import {
 	BodyType,
 	AspectRatio,
 	AssetCategory,
+	LightingPreset,
+	CameraFraming,
+	ProductCategory,
 } from '@foundry/domain'
+
+// ==================== Fashion Config Schemas ====================
+
+export const CustomLightingSettingsSchema = z.object({
+	intensity: z.number().min(0).max(100),
+	warmth: z.number().min(0).max(100),
+	contrast: z.number().min(0).max(100),
+})
+
+export const CustomCameraSettingsSchema = z.object({
+	focalLength: z.number().min(24).max(200),
+	cropRatio: z.string().regex(/^\d+:\d+$/),
+	angle: z.string().min(1).max(50),
+})
 
 // ==================== Model Schemas ====================
 
@@ -24,6 +41,14 @@ export const CreateModelInputSchema = z.object({
 	bodyType: z.nativeEnum(BodyType),
 	prompt: z.string().min(10).max(1000).optional(),
 	referenceImageIds: z.array(z.string()).optional(),
+	// Seedream 4.5 Fashion configuration
+	lightingPreset: z.nativeEnum(LightingPreset).optional(),
+	customLightingSettings: CustomLightingSettingsSchema.optional(),
+	cameraFraming: z.nativeEnum(CameraFraming).optional(),
+	customCameraSettings: CustomCameraSettingsSchema.optional(),
+	texturePreferences: z.array(z.string().min(2).max(50)).max(5).optional(),
+	productCategories: z.array(z.nativeEnum(ProductCategory)).max(3).optional(),
+	supportOutfitSwapping: z.boolean().optional().default(true),
 })
 
 export type CreateModelInput = z.infer<typeof CreateModelInputSchema>
@@ -53,6 +78,15 @@ export type RejectCalibrationInput = z.infer<typeof RejectCalibrationInputSchema
 
 // ==================== Generation Schemas ====================
 
+/**
+ * Fashion config override schema for per-generation customization
+ */
+export const FashionConfigOverrideSchema = z.object({
+	lightingPreset: z.nativeEnum(LightingPreset).optional(),
+	cameraFraming: z.nativeEnum(CameraFraming).optional(),
+	texturePreferences: z.array(z.string().min(2).max(50)).max(5).optional(),
+})
+
 export const CreateGenerationInputSchema = z.object({
 	storeId: z.string().min(1, 'Store ID is required'),
 	modelId: z.string().min(1, 'Model ID is required'),
@@ -61,6 +95,8 @@ export const CreateGenerationInputSchema = z.object({
 	aspectRatios: z.array(z.nativeEnum(AspectRatio)).min(1, 'At least one aspect ratio is required'),
 	imageCount: z.number().int().min(1).max(10).default(4),
 	idempotencyKey: z.string().optional(),
+	// Seedream 4.5 Fashion config override (optional - inherits from model if not provided)
+	fashionConfigOverride: FashionConfigOverrideSchema.optional(),
 })
 
 export type CreateGenerationInput = z.infer<typeof CreateGenerationInputSchema>

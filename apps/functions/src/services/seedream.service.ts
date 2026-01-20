@@ -4,6 +4,12 @@
  * Implements IImageGenerationService and IModelCalibrationService interfaces
  * for AI image generation using the Seedream API.
  *
+ * Supports Seedream 4.5 Fashion capabilities:
+ * - Lighting Control: Preset profiles (soft studio, editorial contrast, natural daylight)
+ * - Camera Standardization: Fixed framing (50mm lens, waist-up shots, specific crop ratios)
+ * - Texture Rendering: Surface descriptions (e.g., "matte brushed cotton", "high-gloss patent leather")
+ * - Outfit Swapping: Garment substitution using clothing photos as torso references
+ *
  * Note: This implementation includes a mock mode for development/testing.
  * Set SEEDREAM_API_KEY environment variable to use the real API.
  */
@@ -18,8 +24,10 @@ import type {
 	CalibrationParams,
 	CalibrationResult,
 	CalibrationImage,
+	FashionConfig,
+	CalibrationFashionConfig,
 } from '@foundry/domain'
-import { AspectRatio } from '@foundry/domain'
+import { AspectRatio, LightingPreset, CameraFraming } from '@foundry/domain'
 
 /**
  * Seedream API configuration
@@ -98,8 +106,15 @@ export class SeedreamService implements IImageGenerationService, IModelCalibrati
 		const startTime = Date.now()
 
 		try {
-			// Compose the generation prompt
-			const composedPrompt = this.composeGenerationPrompt(params.scenePrompt)
+			// Compose the generation prompt with fashion config
+			const composedPrompt = this.composeGenerationPrompt(params.scenePrompt, params.fashionConfig)
+
+			// Get fashion config with defaults
+			const fashionConfig = params.fashionConfig ?? this.getDefaultFashionConfig()
+
+			// Map fashion config to API parameters
+			const lightingParam = this.mapLightingPresetToApi(fashionConfig.lightingPreset)
+			const cameraParams = this.mapCameraFramingToApi(fashionConfig.cameraFraming)
 
 			// Generate images for each aspect ratio
 			const images: GeneratedImageResult[] = []
@@ -121,6 +136,13 @@ export class SeedreamService implements IImageGenerationService, IModelCalibrati
 							width: dimensions.width,
 							height: dimensions.height,
 							num_outputs: 1,
+							// TODO: Seedream 4.5 Fashion API parameters (update when API docs available)
+							lighting: lightingParam,
+							camera: {
+								framing: cameraParams.framing,
+								focal_length: cameraParams.focalLength,
+							},
+							texture_preferences: fashionConfig.texturePreferences,
 						}),
 					})
 
@@ -172,8 +194,15 @@ export class SeedreamService implements IImageGenerationService, IModelCalibrati
 		const startTime = Date.now()
 
 		try {
-			// Compose the calibration prompt
+			// Compose the calibration prompt with fashion config
 			const composedPrompt = this.composeCalibrationPrompt(params)
+
+			// Get fashion config with defaults
+			const fashionConfig = params.fashionConfig ?? this.getDefaultCalibrationFashionConfig()
+
+			// Map fashion config to API parameters
+			const lightingParam = this.mapLightingPresetToApi(fashionConfig.lightingPreset)
+			const cameraParams = this.mapCameraFramingToApi(fashionConfig.cameraFraming)
 
 			const response = await fetch(`${this.baseUrl}/calibrate`, {
 				method: 'POST',
@@ -189,6 +218,13 @@ export class SeedreamService implements IImageGenerationService, IModelCalibrati
 					age_range: params.ageRange.toLowerCase(),
 					ethnicity: params.ethnicity.toLowerCase(),
 					body_type: params.bodyType.toLowerCase(),
+					// TODO: Seedream 4.5 Fashion API parameters (update when API docs available)
+					lighting: lightingParam,
+					camera: {
+						framing: cameraParams.framing,
+						focal_length: cameraParams.focalLength,
+					},
+					texture_preferences: fashionConfig.texturePreferences,
 				}),
 			})
 
@@ -339,16 +375,130 @@ export class SeedreamService implements IImageGenerationService, IModelCalibrati
 	// ==================== HELPER METHODS ====================
 
 	/**
-	 * Compose a prompt for image generation
+	 * Get default fashion configuration
 	 */
-	private composeGenerationPrompt(scenePrompt: string): string {
-		return `Professional fashion photography, ${scenePrompt}, high quality, studio lighting, 8k resolution`
+	private getDefaultFashionConfig(): FashionConfig {
+		return {
+			lightingPreset: LightingPreset.SOFT_STUDIO,
+			cameraFraming: CameraFraming.WAIST_UP_50MM,
+			texturePreferences: [],
+		}
 	}
 
 	/**
-	 * Compose a prompt for calibration image generation
+	 * Get default calibration fashion configuration
+	 */
+	private getDefaultCalibrationFashionConfig(): CalibrationFashionConfig {
+		return {
+			lightingPreset: LightingPreset.SOFT_STUDIO,
+			cameraFraming: CameraFraming.WAIST_UP_50MM,
+			texturePreferences: [],
+		}
+	}
+
+	/**
+	 * Map LightingPreset to Seedream API lighting parameter
+	 * TODO: Update with real Seedream API parameter names when integrating
+	 */
+	private mapLightingPresetToApi(preset: LightingPreset): string {
+		switch (preset) {
+			case LightingPreset.SOFT_STUDIO:
+				return 'soft'
+			case LightingPreset.EDITORIAL_CONTRAST:
+				return 'high_contrast'
+			case LightingPreset.NATURAL_DAYLIGHT:
+				return 'natural'
+			case LightingPreset.CUSTOM:
+				return 'custom'
+			default:
+				return 'soft'
+		}
+	}
+
+	/**
+	 * Map CameraFraming to Seedream API camera parameters
+	 * TODO: Update with real Seedream API parameter names when integrating
+	 */
+	private mapCameraFramingToApi(framing: CameraFraming): { framing: string; focalLength: number } {
+		switch (framing) {
+			case CameraFraming.WAIST_UP_50MM:
+				return { framing: 'waist_up', focalLength: 50 }
+			case CameraFraming.FULL_BODY_35MM:
+				return { framing: 'full_body', focalLength: 35 }
+			case CameraFraming.PORTRAIT_85MM:
+				return { framing: 'portrait', focalLength: 85 }
+			case CameraFraming.CUSTOM:
+				return { framing: 'custom', focalLength: 50 }
+			default:
+				return { framing: 'waist_up', focalLength: 50 }
+		}
+	}
+
+	/**
+	 * Get lighting description for prompt engineering
+	 */
+	private getLightingDescription(preset: LightingPreset): string {
+		switch (preset) {
+			case LightingPreset.SOFT_STUDIO:
+				return 'soft diffused studio lighting'
+			case LightingPreset.EDITORIAL_CONTRAST:
+				return 'high contrast editorial lighting with dramatic shadows'
+			case LightingPreset.NATURAL_DAYLIGHT:
+				return 'natural daylight, window light'
+			case LightingPreset.CUSTOM:
+				return 'studio lighting'
+			default:
+				return 'studio lighting'
+		}
+	}
+
+	/**
+	 * Get camera description for prompt engineering
+	 */
+	private getCameraDescription(framing: CameraFraming): string {
+		switch (framing) {
+			case CameraFraming.WAIST_UP_50MM:
+				return 'waist-up shot, 50mm lens, professional fashion photography framing'
+			case CameraFraming.FULL_BODY_35MM:
+				return 'full body shot, 35mm lens, showing complete outfit'
+			case CameraFraming.PORTRAIT_85MM:
+				return 'portrait shot, 85mm lens, face and upper body focus'
+			case CameraFraming.CUSTOM:
+				return 'professional fashion photography'
+			default:
+				return 'professional fashion photography'
+		}
+	}
+
+	/**
+	 * Compose a prompt for image generation with Seedream 4.5 Fashion features
+	 */
+	private composeGenerationPrompt(scenePrompt: string, fashionConfig?: FashionConfig): string {
+		const config = fashionConfig ?? this.getDefaultFashionConfig()
+
+		const parts = [
+			'Professional fashion photography',
+			scenePrompt,
+			this.getLightingDescription(config.lightingPreset),
+			this.getCameraDescription(config.cameraFraming),
+		]
+
+		// Add texture preferences if provided
+		if (config.texturePreferences.length > 0) {
+			parts.push(`material textures: ${config.texturePreferences.join(', ')}`)
+		}
+
+		parts.push('high quality', '8k resolution')
+
+		return parts.filter(Boolean).join(', ')
+	}
+
+	/**
+	 * Compose a prompt for calibration image generation with fashion config
 	 */
 	private composeCalibrationPrompt(params: CalibrationParams): string {
+		const fashionConfig = params.fashionConfig ?? this.getDefaultCalibrationFashionConfig()
+
 		const parts = [
 			'Professional fashion model portrait',
 			params.prompt,
@@ -356,12 +506,18 @@ export class SeedreamService implements IImageGenerationService, IModelCalibrati
 			`${params.ageRange.toLowerCase().replace('_', ' ')} appearance`,
 			`${params.ethnicity.toLowerCase().replace('_', ' ')}`,
 			`${params.bodyType.toLowerCase().replace('_', ' ')} body type`,
-			'high quality studio photography',
-			'neutral background',
-			'8k resolution',
-		].filter(Boolean)
+			this.getLightingDescription(fashionConfig.lightingPreset),
+			this.getCameraDescription(fashionConfig.cameraFraming),
+		]
 
-		return parts.join(', ')
+		// Add texture preferences if provided
+		if (fashionConfig.texturePreferences.length > 0) {
+			parts.push(`material textures: ${fashionConfig.texturePreferences.join(', ')}`)
+		}
+
+		parts.push('neutral background', '8k resolution')
+
+		return parts.filter(Boolean).join(', ')
 	}
 
 	/**

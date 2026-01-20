@@ -1,5 +1,5 @@
-import { Generation } from './Generation.entity'
-import type { PersistenceGeneration } from './generation.repository'
+import { Generation, type FashionConfigOverride } from './Generation.entity'
+import type { PersistenceGeneration, PersistenceFashionConfigOverride } from './generation.repository'
 import { GenerationId, IdempotencyKey, ScenePrompt } from './value-objects'
 
 /**
@@ -13,6 +13,15 @@ import { GenerationId, IdempotencyKey, ScenePrompt } from './value-objects'
  * Maps persistence data to a domain entity
  */
 export function toDomain(data: PersistenceGeneration): Generation {
+	// Map persistence fashion config override to domain type
+	const fashionConfigOverride: FashionConfigOverride | null = data.fashionConfigOverride
+		? {
+				lightingPreset: data.fashionConfigOverride.lightingPreset,
+				cameraFraming: data.fashionConfigOverride.cameraFraming,
+				texturePreferences: data.fashionConfigOverride.texturePreferences,
+			}
+		: null
+
 	return Generation.create({
 		id: GenerationId.create(data.id),
 		storeId: data.storeId,
@@ -28,6 +37,7 @@ export function toDomain(data: PersistenceGeneration): Generation {
 		completedAt: data.completedAt,
 		failureReason: data.failureReason,
 		metadata: data.metadata,
+		fashionConfigOverride,
 		createdAt: data.createdAt,
 		updatedAt: data.updatedAt,
 	})
@@ -37,6 +47,17 @@ export function toDomain(data: PersistenceGeneration): Generation {
  * Maps a domain entity to persistence format
  */
 export function toPersistence(entity: Generation): PersistenceGeneration {
+	// Map domain fashion config override to persistence type
+	const fashionConfigOverride: PersistenceFashionConfigOverride | null = entity.fashionConfigOverride
+		? {
+				lightingPreset: entity.fashionConfigOverride.lightingPreset,
+				cameraFraming: entity.fashionConfigOverride.cameraFraming,
+				texturePreferences: entity.fashionConfigOverride.texturePreferences
+					? [...entity.fashionConfigOverride.texturePreferences]
+					: undefined,
+			}
+		: null
+
 	return {
 		id: entity.id.value,
 		storeId: entity.storeId,
@@ -52,6 +73,7 @@ export function toPersistence(entity: Generation): PersistenceGeneration {
 		completedAt: entity.completedAt,
 		failureReason: entity.failureReason,
 		metadata: entity.metadata,
+		fashionConfigOverride,
 		createdAt: entity.createdAt,
 		updatedAt: entity.updatedAt,
 	}

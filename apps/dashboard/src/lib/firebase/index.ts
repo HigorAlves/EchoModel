@@ -35,6 +35,16 @@ export {
 	type RequestUploadUrlResult,
 	type CreateStoreInput,
 	type CreateStoreResult,
+	// Fashion configuration types (expanded)
+	type LightingPreset,
+	type CameraFraming,
+	type BackgroundType,
+	type PoseStyle,
+	type Expression,
+	type PostProcessingStyle,
+	type ProductCategory,
+	type CustomLightingSettings,
+	type CustomCameraSettings,
 } from './functions'
 
 // Firestore

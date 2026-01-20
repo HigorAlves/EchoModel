@@ -2,7 +2,31 @@
  * @fileoverview Model Response DTOs
  */
 
-import type { AgeRange, BodyType, Ethnicity, Gender, ModelStatus } from '@foundry/domain'
+import type { AgeRange, BodyType, CameraFraming, Ethnicity, Gender, LightingPreset, ModelStatus, ProductCategory } from '@foundry/domain'
+
+/**
+ * Lighting configuration output
+ */
+export interface LightingConfigOutput {
+	readonly preset: LightingPreset
+	readonly customSettings?: {
+		readonly intensity: number
+		readonly warmth: number
+		readonly contrast: number
+	}
+}
+
+/**
+ * Camera configuration output
+ */
+export interface CameraConfigOutput {
+	readonly framing: CameraFraming
+	readonly customSettings?: {
+		readonly focalLength: number
+		readonly cropRatio: string
+		readonly angle: string
+	}
+}
 
 export interface ModelOutput {
 	readonly id: string
@@ -19,6 +43,12 @@ export interface ModelOutput {
 	readonly calibrationImages: string[]
 	readonly lockedIdentityUrl: string | null
 	readonly failureReason: string | null
+	// Seedream 4.5 Fashion configuration
+	readonly lightingConfig: LightingConfigOutput
+	readonly cameraConfig: CameraConfigOutput
+	readonly texturePreferences: string[]
+	readonly productCategories: ProductCategory[]
+	readonly supportOutfitSwapping: boolean
 	readonly createdAt: Date
 	readonly updatedAt: Date
 }

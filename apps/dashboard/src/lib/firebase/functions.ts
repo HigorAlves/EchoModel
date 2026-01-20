@@ -17,6 +17,66 @@ if (process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_USE_EMULAT
 
 // ==================== Type Definitions ====================
 
+// Fashion configuration types (expanded)
+export type LightingPreset =
+	| 'SOFT_STUDIO'
+	| 'EDITORIAL_CONTRAST'
+	| 'NATURAL_DAYLIGHT'
+	| 'RING_LIGHT'
+	| 'GOLDEN_HOUR'
+	| 'DRAMATIC_SHADOW'
+	| 'BUTTERFLY'
+	| 'REMBRANDT'
+	| 'CUSTOM'
+
+export type CameraFraming =
+	| 'WAIST_UP_50MM'
+	| 'FULL_BODY_35MM'
+	| 'PORTRAIT_85MM'
+	| 'CLOSE_UP'
+	| 'THREE_QUARTER'
+	| 'BACK_VIEW'
+	| 'KNEE_UP'
+	| 'CUSTOM'
+
+export type BackgroundType =
+	| 'STUDIO_WHITE'
+	| 'STUDIO_GRAY'
+	| 'GRADIENT'
+	| 'OUTDOOR_URBAN'
+	| 'OUTDOOR_NATURE'
+	| 'TRANSPARENT'
+
+export type PoseStyle = 'STATIC_FRONT' | 'STATIC_SIDE' | 'WALKING' | 'EDITORIAL' | 'CASUAL' | 'DYNAMIC'
+
+export type Expression = 'NEUTRAL' | 'SMILE' | 'SERIOUS' | 'CONFIDENT' | 'SOFT'
+
+export type PostProcessingStyle = 'NATURAL' | 'VIBRANT' | 'MUTED' | 'HIGH_CONTRAST' | 'WARM' | 'COOL'
+
+export type ProductCategory =
+	| 'TOPS'
+	| 'BOTTOMS'
+	| 'DRESSES'
+	| 'OUTERWEAR'
+	| 'ACCESSORIES'
+	| 'FOOTWEAR'
+	| 'SWIMWEAR'
+	| 'ACTIVEWEAR'
+	| 'FORMAL'
+	| 'JEWELRY'
+
+export interface CustomLightingSettings {
+	intensity: number
+	warmth: number
+	contrast: number
+}
+
+export interface CustomCameraSettings {
+	focalLength: number
+	cropRatio: string
+	angle: string
+}
+
 // Model types
 export interface CreateModelInput {
 	storeId: string
@@ -28,6 +88,18 @@ export interface CreateModelInput {
 	bodyType: 'SLIM' | 'ATHLETIC' | 'AVERAGE' | 'CURVY' | 'PLUS_SIZE'
 	prompt?: string
 	referenceImageIds?: string[]
+	// Seedream 4.5 Fashion configuration (expanded)
+	lightingPreset?: LightingPreset
+	customLightingSettings?: CustomLightingSettings
+	cameraFraming?: CameraFraming
+	customCameraSettings?: CustomCameraSettings
+	backgroundType?: BackgroundType
+	poseStyle?: PoseStyle
+	expression?: Expression
+	postProcessingStyle?: PostProcessingStyle
+	texturePreferences?: string[]
+	productCategories?: ProductCategory[]
+	supportOutfitSwapping?: boolean
 }
 
 export interface CreateModelResult {

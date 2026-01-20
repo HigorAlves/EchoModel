@@ -1,3 +1,4 @@
+import type { CameraFraming, LightingPreset } from '../../Model/model.enum'
 import type { AspectRatio } from '../../Store/store.enum'
 
 /**
@@ -7,6 +8,30 @@ import type { AspectRatio } from '../../Store/store.enum'
  * This service generates marketing images using a locked model identity
  * and garment images.
  */
+
+/**
+ * Seedream 4.5 Fashion configuration for image generation
+ */
+export interface FashionConfig {
+	/** Lighting preset (SOFT_STUDIO, EDITORIAL_CONTRAST, NATURAL_DAYLIGHT, CUSTOM) */
+	readonly lightingPreset: LightingPreset
+	/** Custom lighting settings (only used when lightingPreset is CUSTOM) */
+	readonly customLightingSettings?: {
+		readonly intensity: number
+		readonly warmth: number
+		readonly contrast: number
+	}
+	/** Camera framing preset (WAIST_UP_50MM, FULL_BODY_35MM, PORTRAIT_85MM, CUSTOM) */
+	readonly cameraFraming: CameraFraming
+	/** Custom camera settings (only used when cameraFraming is CUSTOM) */
+	readonly customCameraSettings?: {
+		readonly focalLength: number
+		readonly cropRatio: string
+		readonly angle: string
+	}
+	/** Texture preference keywords for material rendering */
+	readonly texturePreferences: readonly string[]
+}
 
 /**
  * Parameters for generating images
@@ -22,6 +47,8 @@ export interface GenerationParams {
 	readonly aspectRatios: AspectRatio[]
 	/** Number of images to generate per aspect ratio */
 	readonly count: number
+	/** Seedream 4.5 Fashion configuration (optional, defaults will be applied if not provided) */
+	readonly fashionConfig?: FashionConfig
 }
 
 /**

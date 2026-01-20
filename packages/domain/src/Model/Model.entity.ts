@@ -1,5 +1,15 @@
 import { randomUUID } from 'node:crypto'
-import { AgeRange, BodyType, Ethnicity, Gender, ModelStatus, isValidModelTransition } from './model.enum'
+import {
+	type AgeRange,
+	type BodyType,
+	CameraFraming,
+	type Ethnicity,
+	type Gender,
+	LightingPreset,
+	ModelStatus,
+	type ProductCategory,
+	isValidModelTransition,
+} from './model.enum'
 import { ModelInvalidTransitionError, ModelRequiresInputError } from './model.error'
 import type { ModelEvent } from './model.event'
 import {
@@ -11,7 +21,15 @@ import {
 	createModelRejectedEvent,
 	createModelUpdatedEvent,
 } from './model.event'
-import { ModelDescription, ModelId, ModelName, ModelPrompt } from './value-objects'
+import {
+	ModelCameraConfig,
+	ModelDescription,
+	ModelId,
+	ModelLightingConfig,
+	ModelName,
+	ModelPrompt,
+	ModelTexturePreferences,
+} from './value-objects'
 
 /**
  * @fileoverview Model Aggregate Root
@@ -42,6 +60,12 @@ export interface ModelProps {
 	readonly calibrationImages: readonly string[]
 	readonly lockedIdentityUrl: string | null
 	readonly failureReason: string | null
+	// Seedream 4.5 Fashion configuration
+	readonly lightingConfig: ModelLightingConfig
+	readonly cameraConfig: ModelCameraConfig
+	readonly texturePreferences: ModelTexturePreferences
+	readonly productCategories: readonly ProductCategory[]
+	readonly supportOutfitSwapping: boolean
 	readonly createdAt: Date
 	readonly updatedAt: Date
 	readonly deletedAt: Date | null
@@ -57,6 +81,22 @@ interface CreateModelDTO {
 	readonly bodyType: BodyType
 	readonly prompt?: string
 	readonly referenceImageIds?: string[]
+	// Seedream 4.5 Fashion configuration (optional with sensible defaults)
+	readonly lightingPreset?: LightingPreset
+	readonly customLightingSettings?: {
+		readonly intensity: number
+		readonly warmth: number
+		readonly contrast: number
+	}
+	readonly cameraFraming?: CameraFraming
+	readonly customCameraSettings?: {
+		readonly focalLength: number
+		readonly cropRatio: string
+		readonly angle: string
+	}
+	readonly texturePreferences?: string[]
+	readonly productCategories?: ProductCategory[]
+	readonly supportOutfitSwapping?: boolean
 }
 
 interface UpdateModelDTO {
@@ -95,6 +135,29 @@ export class Model {
 		const description = dto.description ? ModelDescription.create(dto.description) : null
 		const prompt = dto.prompt ? ModelPrompt.create(dto.prompt) : null
 
+		// Create fashion configuration with sensible defaults
+		const lightingConfig = dto.lightingPreset
+			? dto.lightingPreset === LightingPreset.CUSTOM && dto.customLightingSettings
+				? ModelLightingConfig.create({
+						preset: LightingPreset.CUSTOM,
+						customSettings: dto.customLightingSettings,
+					})
+				: ModelLightingConfig.fromPreset(dto.lightingPreset)
+			: ModelLightingConfig.createDefault()
+
+		const cameraConfig = dto.cameraFraming
+			? dto.cameraFraming === CameraFraming.CUSTOM && dto.customCameraSettings
+				? ModelCameraConfig.create({
+						framing: CameraFraming.CUSTOM,
+						customSettings: dto.customCameraSettings,
+					})
+				: ModelCameraConfig.fromFraming(dto.cameraFraming)
+			: ModelCameraConfig.createDefault()
+
+		const texturePreferences = dto.texturePreferences
+			? ModelTexturePreferences.create(dto.texturePreferences)
+			: ModelTexturePreferences.createEmpty()
+
 		const model = new Model({
 			id,
 			storeId: dto.storeId,
@@ -110,6 +173,11 @@ export class Model {
 			calibrationImages: [],
 			lockedIdentityUrl: null,
 			failureReason: null,
+			lightingConfig,
+			cameraConfig,
+			texturePreferences,
+			productCategories: dto.productCategories ?? [],
+			supportOutfitSwapping: dto.supportOutfitSwapping ?? true,
 			createdAt: now,
 			updatedAt: now,
 			deletedAt: null,
@@ -185,6 +253,27 @@ export class Model {
 
 	get failureReason(): string | null {
 		return this.data.failureReason
+	}
+
+	// Fashion configuration getters
+	get lightingConfig(): ModelLightingConfig {
+		return this.data.lightingConfig
+	}
+
+	get cameraConfig(): ModelCameraConfig {
+		return this.data.cameraConfig
+	}
+
+	get texturePreferences(): ModelTexturePreferences {
+		return this.data.texturePreferences
+	}
+
+	get productCategories(): readonly ProductCategory[] {
+		return this.data.productCategories
+	}
+
+	get supportOutfitSwapping(): boolean {
+		return this.data.supportOutfitSwapping
 	}
 
 	get createdAt(): Date {

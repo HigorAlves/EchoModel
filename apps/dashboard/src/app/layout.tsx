@@ -3,6 +3,7 @@ import { Noto_Sans } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import { AuthProvider, ThemeProvider } from '@/components/providers'
+import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 
 const notoSans = Noto_Sans({
@@ -30,6 +31,7 @@ export default async function RootLayout({
 				<NextIntlClientProvider messages={messages}>
 					<ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
 						<AuthProvider>{children}</AuthProvider>
+						<Toaster richColors position='top-right' />
 					</ThemeProvider>
 				</NextIntlClientProvider>
 			</body>

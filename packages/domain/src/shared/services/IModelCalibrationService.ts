@@ -1,4 +1,4 @@
-import type { AgeRange, BodyType, Ethnicity, Gender } from '../../Model/model.enum'
+import type { AgeRange, BodyType, CameraFraming, Ethnicity, Gender, LightingPreset } from '../../Model/model.enum'
 
 /**
  * @fileoverview Model Calibration Service Interface
@@ -7,6 +7,18 @@ import type { AgeRange, BodyType, Ethnicity, Gender } from '../../Model/model.en
  * This service generates calibration images used to create and lock
  * the identity of an AI influencer model.
  */
+
+/**
+ * Fashion configuration for calibration
+ */
+export interface CalibrationFashionConfig {
+	/** Lighting preset for calibration images */
+	readonly lightingPreset: LightingPreset
+	/** Camera framing for calibration images */
+	readonly cameraFraming: CameraFraming
+	/** Texture preferences to apply to calibration images */
+	readonly texturePreferences: readonly string[]
+}
 
 /**
  * Parameters for generating calibration images
@@ -26,6 +38,8 @@ export interface CalibrationParams {
 	readonly bodyType: BodyType
 	/** Number of calibration images to generate (typically 4-8) */
 	readonly count: number
+	/** Seedream 4.5 Fashion configuration (optional, defaults will be applied if not provided) */
+	readonly fashionConfig?: CalibrationFashionConfig
 }
 
 /**
