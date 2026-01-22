@@ -8,7 +8,7 @@ import { AssetCategory, AssetStatus, Model } from '@foundry/domain'
 import * as logger from 'firebase-functions/logger'
 import { HttpsError, onCall } from 'firebase-functions/v2/https'
 import { db, storage } from '../lib/firebase'
-import { FirestoreAssetRepository, FirestoreModelRepository } from '../repositories'
+import { FirestoreAssetRepository, FirestoreModelRepository, FirestoreStoreRepository } from '../repositories'
 import { FirebaseStorageService, Seedream45Service } from '../services'
 import {
 	type ApproveCalibrationInput,
@@ -24,6 +24,7 @@ import {
 // Initialize repositories and services
 const modelRepository = new FirestoreModelRepository(db)
 const assetRepository = new FirestoreAssetRepository(db)
+const storeRepository = new FirestoreStoreRepository(db)
 const storageService = new FirebaseStorageService(storage)
 const seedream45Service = new Seedream45Service()
 
@@ -49,6 +50,16 @@ export const createModel = onCall<CreateModelInput>({ maxInstances: 10, timeoutS
 	const input = parseResult.data
 
 	try {
+		// Verify user has access to the store
+		const store = await storeRepository.findById(input.storeId)
+		if (!store) {
+			throw new HttpsError('not-found', 'Store not found')
+		}
+		if (store.ownerId !== userId) {
+			logger.warn('Unauthorized store access attempt', { userId, storeId: input.storeId, storeOwnerId: store.ownerId })
+			throw new HttpsError('permission-denied', 'You do not have access to this store')
+		}
+
 		// Create the model with Seedream 4.5 Fashion configuration
 		const model = Model.createFromDTO({
 			storeId: input.storeId,
@@ -65,6 +76,10 @@ export const createModel = onCall<CreateModelInput>({ maxInstances: 10, timeoutS
 			customLightingSettings: input.customLightingSettings,
 			cameraFraming: input.cameraFraming,
 			customCameraSettings: input.customCameraSettings,
+			backgroundType: input.backgroundType,
+			poseStyle: input.poseStyle,
+			expression: input.expression,
+			postProcessingStyle: input.postProcessingStyle,
 			texturePreferences: input.texturePreferences,
 			productCategories: input.productCategories,
 			supportOutfitSwapping: input.supportOutfitSwapping,

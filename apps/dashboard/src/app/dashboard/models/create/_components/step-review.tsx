@@ -19,8 +19,7 @@ import {
 	getPostProcessingByValue,
 	getProductCategoryByValue,
 } from '../_constants'
-import type { Step } from '../_hooks/use-model-wizard'
-import type { UseModelWizardReturn } from '../_hooks/use-model-wizard'
+import type { Step, UseModelWizardReturn } from '../_hooks/use-model-wizard'
 
 interface StepReviewProps {
 	wizard: UseModelWizardReturn

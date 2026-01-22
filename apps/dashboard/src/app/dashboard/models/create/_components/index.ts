@@ -1,7 +1,7 @@
 export { ImageUploadZone } from './image-upload-zone'
 export { SelectionCard, SelectionCardContent, SelectionCardGrid } from './selection-card'
 export { StepAppearance } from './step-appearance'
-export { StepBasicInfo } from './step-basic-info'
+export { StepBasicInfo } from './step-basic-info-v2'
 export { StepFashionConfig } from './step-fashion-config'
 export { StepReferenceImages } from './step-reference-images'
 export { StepReview } from './step-review'

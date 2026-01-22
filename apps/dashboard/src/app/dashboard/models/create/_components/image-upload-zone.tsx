@@ -220,9 +220,7 @@ export function ImageUploadZone({ images, onAddImages, onRemoveImage, maxImages 
 								{/* Uploaded Badge */}
 								{image.assetId && image.uploadProgress === 100 && (
 									<div className='absolute bottom-2 left-2 right-2'>
-										<div className='rounded bg-green-500/90 px-2 py-1 text-center text-xs text-white'>
-											✓ Uploaded
-										</div>
+										<div className='rounded bg-green-500/90 px-2 py-1 text-center text-xs text-white'>✓ Uploaded</div>
 									</div>
 								)}
 

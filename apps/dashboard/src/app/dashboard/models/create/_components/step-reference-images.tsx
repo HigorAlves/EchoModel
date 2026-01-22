@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion'
 import { Image, Info } from 'lucide-react'
-import { useMemo } from 'react'
 import { toast } from 'sonner'
 
 import { useAuth } from '@/components/providers'
@@ -21,9 +20,8 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 	const { user } = useAuth()
 	const { currentStore } = useCurrentStore()
 
-	// FIXME: Replace with real store from StoreProvider once stores are implemented
-	// Memoize storeId to prevent generating new UUID on every render
-	const storeId = useMemo(() => currentStore?.id || crypto.randomUUID(), [currentStore?.id])
+	// Use current store ID - if no store, uploads will be blocked
+	const storeId = currentStore?.id
 
 	// Upload function for immediate upload using Firebase Storage SDK
 	const handleUpload = async (file: File, imageId: string) => {
@@ -34,9 +32,14 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 			return
 		}
 
-		try {
-			console.log('[DEBUG] handleUpload called for:', file.name, 'with ID:', imageId)
+		if (!storeId) {
+			toast.error('No store selected', {
+				description: 'Please select a store before uploading images',
+			})
+			return
+		}
 
+		try {
 			// Update progress: Starting
 			updateImageProgress(imageId, 10)
 
@@ -66,7 +69,6 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 					updateImageProgress(imageId, Math.round(progress))
 				},
 				(error) => {
-					console.error('[StepReferenceImages] Upload error:', error)
 					throw error
 				},
 			)
@@ -74,10 +76,8 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 			// Wait for upload to complete
 			await uploadTask
 
-			// Get download URL
-			const downloadUrl = await getDownloadURL(storageRef)
-
-			console.log('[DEBUG] Upload complete for:', file.name, 'ID:', imageId, 'assetId:', assetId)
+			// Get download URL (validates upload completed)
+			await getDownloadURL(storageRef)
 
 			// Update progress: Complete and store storagePath
 			updateImageProgress(imageId, 100)
@@ -87,7 +87,6 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 				description: `${file.name} uploaded successfully`,
 			})
 		} catch (error) {
-			console.error('[StepReferenceImages] Upload failed:', error)
 			updateImageProgress(imageId, 0)
 			toast.error('Upload failed', {
 				description: error instanceof Error ? error.message : 'Unknown error',
@@ -96,7 +95,7 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 	}
 
 	// Delete function for removing images using Firebase Storage SDK
-	const handleDelete = async (imageId: string, assetId: string) => {
+	const handleDelete = async (imageId: string, _assetId: string) => {
 		try {
 			// Get the image from state
 			const image = formData.referenceImages.find((img) => img.id === imageId)
@@ -104,10 +103,12 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 				return
 			}
 
-			// Use storagePath from state if available, otherwise reconstruct it
-			const storagePath =
-				image.storagePath ||
-				`${storeId}/MODEL_REFERENCE/${assetId}/${image.file?.name || image.name}`
+			// Use storagePath from state - required for deletion
+			const storagePath = image.storagePath
+			if (!storagePath) {
+				// No storage path means image wasn't uploaded yet, nothing to delete
+				return
+			}
 
 			// Import Firebase Storage functions
 			const { ref, deleteObject } = await import('firebase/storage')
@@ -126,17 +127,13 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 				error instanceof Error &&
 				(error.message.includes('object-not-found') || error.message.includes('does not exist'))
 
-			if (isNotFound) {
-				// File doesn't exist, silently succeed
-				// This is expected when storeId changes on page refresh or file was manually deleted
-				// Silent success - no toast needed for expected 404
-			} else {
-				// Real error, log and show error toast
-				console.error('[StepReferenceImages] Delete failed:', error)
+			if (!isNotFound) {
+				// Real error, show error toast
 				toast.error('Delete failed', {
 					description: error instanceof Error ? error.message : 'Failed to delete image',
 				})
 			}
+			// File doesn't exist - silently succeed (expected when storeId changes on page refresh)
 		}
 	}
 
@@ -183,9 +180,7 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 				<FieldDescription className='mt-2'>
 					{formData.referenceImages.length}/5 images (optional, but recommended)
 					{formData.referenceImages.length > 0 && (
-						<span className='ml-2 text-green-600 dark:text-green-400'>
-							• Images uploaded directly to Storage
-						</span>
+						<span className='ml-2 text-green-600 dark:text-green-400'>• Images uploaded directly to Storage</span>
 					)}
 				</FieldDescription>
 			</Field>

@@ -1,15 +1,16 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, ArrowRight, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { useActionState, useEffect, useState } from 'react'
+import { useActionState, useEffect } from 'react'
 import { toast } from 'sonner'
 
 import { useBreadcrumbs } from '@/components/layout/dashboard/dashboard-header'
 import { useAuth } from '@/components/providers'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createModelAction } from '@/features/models/actions/model.actions'
@@ -23,7 +24,6 @@ import {
 	StepReview,
 	WizardProgress,
 } from './_components'
-import { StepBasicInfo as StepBasicInfoV2 } from './_components/step-basic-info-v2'
 import { useModelWizard } from './_hooks/use-model-wizard'
 
 const STEP_TITLES = ['Basic Info', 'Appearance', 'Fashion Configuration', 'Reference Images', 'Review & Create']
@@ -57,11 +57,11 @@ export default function CreateModelPage() {
 	const t = useTranslations('models')
 	const router = useRouter()
 	const { user } = useAuth()
-	const { currentStore, stores, isLoading: isLoadingStores } = useCurrentStore()
+	const { currentStore, isLoading: isLoadingStores } = useCurrentStore()
 
 	// Initialize wizard hook
 	const wizard = useModelWizard()
-	const { currentStep, stepDirection, goNext, goBack, goToStep, canGoNext, formData, setImageAssetId } = wizard
+	const { currentStep, stepDirection, goNext, goBack, goToStep, formData } = wizard
 
 	// Initialize action state for final submission
 	const [state, formAction, isPending] = useActionState(createModelAction, null)
@@ -71,17 +71,8 @@ export default function CreateModelPage() {
 		setItems([{ label: t('breadcrumbs.models'), href: '/dashboard/models' }, { label: t('breadcrumbs.create') }])
 	}, [setItems, t])
 
-	// FIXME: Re-enable store validation once stores are implemented
 	// Check for store availability
-	// useEffect(() => {
-	// 	if (!isLoadingStores && stores.length === 0) {
-	// 		toast.warning('No store available', {
-	// 			description: 'Using temporary store ID for development',
-	// 			duration: 3000,
-	// 		})
-	// 		console.warn('[CreateModel] No stores available, will use random UUID')
-	// 	}
-	// }, [isLoadingStores, stores, router])
+	const hasStore = !isLoadingStores && currentStore?.id
 
 	// Handle success
 	useEffect(() => {
@@ -101,41 +92,28 @@ export default function CreateModelPage() {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 
-		console.log('[CreateModel] ========================================')
-		console.log('[CreateModel] handleSubmit called, currentStep:', currentStep)
-		console.log('[CreateModel] user:', user?.uid)
-		console.log('[CreateModel] currentStore:', currentStore?.id)
-		console.log('[CreateModel] formData.referenceImages:', formData.referenceImages.length)
-		console.log('[CreateModel] ========================================')
-		console.log('[CreateModel] Reference Images Details:', formData.referenceImages.map(img => ({
-			name: img.name,
-			hasFile: !!img.file,
-			uploadProgress: img.uploadProgress,
-			assetId: img.assetId
-		})))
-
 		if (currentStep === 5) {
 			// Validate user authentication
 			if (!user?.uid) {
-				console.error('[CreateModel] No user authenticated')
 				toast.error('Authentication required', {
 					description: 'Please log in to create a model',
 				})
 				return
 			}
 
-			// FIXME: Replace with real store from StoreProvider once stores are implemented
-			const storeId = currentStore?.id || crypto.randomUUID()
-			console.log('[CreateModel] Creating model with storeId:', storeId)
-			console.log('[CreateModel] Using', currentStore?.id ? 'real store' : 'random UUID (FIXME)')
+			// Validate store exists
+			if (!currentStore?.id) {
+				toast.error('No store selected', {
+					description: 'Please select a store before creating a model',
+				})
+				return
+			}
 
 			try {
 				// Collect assetIds from already-uploaded images
 				const referenceImageIds = formData.referenceImages
-					.filter((img) => img.assetId)
-					.map((img) => img.assetId!)
-
-				console.log('[CreateModel] Collected', referenceImageIds.length, 'uploaded asset IDs:', referenceImageIds)
+					.map((img) => img.assetId)
+					.filter((assetId): assetId is string => assetId !== undefined)
 
 				// Check if any images are still uploading
 				const stillUploading = formData.referenceImages.filter(
@@ -150,14 +128,13 @@ export default function CreateModelPage() {
 				}
 
 				// Submit to server action
-				console.log('[CreateModel] Submitting to server action')
 				const formDataObj = new FormData()
 				formDataObj.append(
 					'data',
 					JSON.stringify({
 						...formData,
 						referenceImageIds,
-						storeId,
+						storeId: currentStore.id,
 					}),
 				)
 
@@ -190,6 +167,20 @@ export default function CreateModelPage() {
 				<WizardProgress currentStep={currentStep} onStepClick={goToStep} />
 			</div>
 
+			{/* No Store Warning */}
+			{!isLoadingStores && !currentStore?.id && (
+				<Alert variant='destructive' className='mx-auto w-full max-w-3xl'>
+					<AlertTriangle className='h-4 w-4' />
+					<AlertTitle>No store selected</AlertTitle>
+					<AlertDescription>
+						You need to select or create a store before creating models.{' '}
+						<Link href='/dashboard/stores' className='underline'>
+							Go to stores
+						</Link>
+					</AlertDescription>
+				</Alert>
+			)}
+
 			{/* Global Error */}
 			{state?.error && !state?.fieldErrors && (
 				<div className='bg-destructive/10 text-destructive mx-auto w-full max-w-3xl rounded-md p-3 text-sm'>
@@ -198,11 +189,7 @@ export default function CreateModelPage() {
 			)}
 
 			{/* Form Card */}
-			<form
-				onSubmit={(e) => {
-					console.log('[CreateModel] Form onSubmit event fired!')
-					handleSubmit(e)
-				}}>
+			<form onSubmit={handleSubmit}>
 				<Card className='mx-auto w-full max-w-3xl'>
 					<CardHeader>
 						<CardTitle>{STEP_TITLES[currentStep - 1]}</CardTitle>
@@ -219,7 +206,7 @@ export default function CreateModelPage() {
 								exit='exit'
 								transition={{ duration: 0.3, ease: 'easeInOut' }}>
 								{/* Step 1: Basic Information (New Version with InputGroup) */}
-								{currentStep === 1 && <StepBasicInfoV2 wizard={wizard} />}
+								{currentStep === 1 && <StepBasicInfo wizard={wizard} />}
 
 								{/* Step 2: Appearance */}
 								{currentStep === 2 && <StepAppearance wizard={wizard} />}
@@ -252,7 +239,7 @@ export default function CreateModelPage() {
 								<ArrowRight className='ml-2 h-4 w-4' />
 							</Button>
 						) : (
-							<Button render={<button type='submit' />} disabled={isPending}>
+							<Button render={<button type='submit' />} disabled={isPending || !hasStore}>
 								{isPending ? (
 									<>
 										<Loader2 className='mr-2 h-4 w-4 animate-spin' />

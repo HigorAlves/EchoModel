@@ -4,12 +4,16 @@
 
 import type {
 	AgeRange,
+	BackgroundType,
 	BodyType,
 	CameraFraming,
 	Ethnicity,
+	Expression,
 	Gender,
 	LightingPreset,
 	ModelStatus,
+	PoseStyle,
+	PostProcessingStyle,
 	ProductCategory,
 } from '@foundry/domain'
 
@@ -55,6 +59,10 @@ export interface ModelOutput {
 	// Seedream 4.5 Fashion configuration
 	readonly lightingConfig: LightingConfigOutput
 	readonly cameraConfig: CameraConfigOutput
+	readonly backgroundType: BackgroundType
+	readonly poseStyle: PoseStyle
+	readonly expression: Expression
+	readonly postProcessingStyle: PostProcessingStyle
 	readonly texturePreferences: string[]
 	readonly productCategories: ProductCategory[]
 	readonly supportOutfitSwapping: boolean

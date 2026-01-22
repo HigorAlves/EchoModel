@@ -58,6 +58,10 @@ export function toModelResponse(model: Model): ModelOutput {
 		// Fashion configuration
 		lightingConfig: toLightingConfigOutput(model),
 		cameraConfig: toCameraConfigOutput(model),
+		backgroundType: model.backgroundType,
+		poseStyle: model.poseStyle,
+		expression: model.expression,
+		postProcessingStyle: model.postProcessingStyle,
 		texturePreferences: [...model.texturePreferences.value],
 		productCategories: [...model.productCategories],
 		supportOutfitSwapping: model.supportOutfitSwapping,

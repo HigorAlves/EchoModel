@@ -1,12 +1,16 @@
 import type { Model } from './Model.entity'
 import type {
 	AgeRange,
+	BackgroundType,
 	BodyType,
 	CameraFraming,
 	Ethnicity,
+	Expression,
 	Gender,
 	LightingPreset,
 	ModelStatus,
+	PoseStyle,
+	PostProcessingStyle,
 	ProductCategory,
 } from './model.enum'
 import type { CustomCameraSettings } from './value-objects/ModelCameraConfig.vo'
@@ -55,6 +59,10 @@ export interface PersistenceModel {
 	// Seedream 4.5 Fashion configuration
 	readonly lightingConfig: PersistenceLightingConfig
 	readonly cameraConfig: PersistenceCameraConfig
+	readonly backgroundType: BackgroundType
+	readonly poseStyle: PoseStyle
+	readonly expression: Expression
+	readonly postProcessingStyle: PostProcessingStyle
 	readonly texturePreferences: string[]
 	readonly productCategories: ProductCategory[]
 	readonly supportOutfitSwapping: boolean
@@ -77,6 +85,10 @@ export interface ModelQueryFilters {
 	// Seedream 4.5 Fashion filters
 	readonly lightingPreset?: LightingPreset
 	readonly cameraFraming?: CameraFraming
+	readonly backgroundType?: BackgroundType
+	readonly poseStyle?: PoseStyle
+	readonly expression?: Expression
+	readonly postProcessingStyle?: PostProcessingStyle
 	readonly productCategory?: ProductCategory
 	readonly supportsOutfitSwapping?: boolean
 	readonly includeDeleted?: boolean

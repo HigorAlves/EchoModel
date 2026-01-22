@@ -27,6 +27,18 @@ export class CreateModelCommand {
 			bodyType: validated.bodyType,
 			prompt: validated.prompt,
 			referenceImageIds: validated.referenceImageIds,
+			// Seedream 4.5 Fashion configuration
+			lightingPreset: validated.lightingPreset,
+			customLightingSettings: validated.customLightingSettings,
+			cameraFraming: validated.cameraFraming,
+			customCameraSettings: validated.customCameraSettings,
+			backgroundType: validated.backgroundType,
+			poseStyle: validated.poseStyle,
+			expression: validated.expression,
+			postProcessingStyle: validated.postProcessingStyle,
+			texturePreferences: validated.texturePreferences,
+			productCategories: validated.productCategories,
+			supportOutfitSwapping: validated.supportOutfitSwapping,
 		})
 
 		const modelId = await this.modelRepository.create(model)

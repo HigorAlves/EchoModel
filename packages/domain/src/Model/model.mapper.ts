@@ -1,4 +1,5 @@
 import { Model } from './Model.entity'
+import { BackgroundType, Expression, PoseStyle, PostProcessingStyle } from './model.enum'
 import type { PersistenceModel } from './model.repository'
 import {
 	ModelCameraConfig,
@@ -59,6 +60,10 @@ export function toDomain(data: PersistenceModel): Model {
 		failureReason: data.failureReason,
 		lightingConfig,
 		cameraConfig,
+		backgroundType: data.backgroundType ?? BackgroundType.STUDIO_WHITE,
+		poseStyle: data.poseStyle ?? PoseStyle.STATIC_FRONT,
+		expression: data.expression ?? Expression.NEUTRAL,
+		postProcessingStyle: data.postProcessingStyle ?? PostProcessingStyle.NATURAL,
 		texturePreferences,
 		productCategories: data.productCategories ?? [],
 		supportOutfitSwapping: data.supportOutfitSwapping ?? true,
@@ -96,6 +101,10 @@ export function toPersistence(entity: Model): PersistenceModel {
 			framing: entity.cameraConfig.framing,
 			customSettings: entity.cameraConfig.customSettings,
 		},
+		backgroundType: entity.backgroundType,
+		poseStyle: entity.poseStyle,
+		expression: entity.expression,
+		postProcessingStyle: entity.postProcessingStyle,
 		texturePreferences: [...entity.texturePreferences.value],
 		productCategories: [...entity.productCategories],
 		supportOutfitSwapping: entity.supportOutfitSwapping,

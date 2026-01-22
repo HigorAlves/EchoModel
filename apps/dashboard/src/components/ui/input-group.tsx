@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 
 function InputGroup({ className, ...props }: React.ComponentProps<'div'>) {
 	return (
+		// biome-ignore lint/a11y/useSemanticElements: Using role='group' for UI library compatibility
 		<div
 			data-slot='input-group'
 			role='group'
@@ -44,17 +45,25 @@ function InputGroupAddon({
 	align = 'inline-start',
 	...props
 }: React.ComponentProps<'div'> & VariantProps<typeof inputGroupAddonVariants>) {
+	const handleFocusInput = (e: React.SyntheticEvent<HTMLDivElement>) => {
+		if ((e.target as HTMLElement).closest('button')) {
+			return
+		}
+		e.currentTarget.parentElement?.querySelector('input')?.focus()
+	}
+
 	return (
+		// biome-ignore lint/a11y/useSemanticElements: Using role='group' for UI library compatibility
 		<div
 			role='group'
 			data-slot='input-group-addon'
 			data-align={align}
 			className={cn(inputGroupAddonVariants({ align }), className)}
-			onClick={(e) => {
-				if ((e.target as HTMLElement).closest('button')) {
-					return
+			onClick={handleFocusInput}
+			onKeyDown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					handleFocusInput(e)
 				}
-				e.currentTarget.parentElement?.querySelector('input')?.focus()
 			}}
 			{...props}
 		/>

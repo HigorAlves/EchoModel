@@ -201,9 +201,6 @@ export function useModelWizard() {
 					size: file.size,
 					uploadProgress: 0,
 				}))
-				console.log('[DEBUG] Created images with IDs:', imagesRef.current.map(img => img.id))
-			} else {
-				console.log('[DEBUG] Reusing images (Fast Refresh), IDs:', imagesRef.current.map(img => img.id))
 			}
 
 			return {
@@ -218,12 +215,11 @@ export function useModelWizard() {
 		// Use queueMicrotask to ensure state update completes first
 		queueMicrotask(() => {
 			const imagesToUpload = imagesRef.current
-			console.log('[DEBUG] Triggering uploads for IDs:', imagesToUpload.map(img => img.id))
 			if (uploadFn && imagesToUpload.length > 0) {
 				for (const image of imagesToUpload) {
 					if (image.file) {
-						uploadFn(image.file, image.id).catch((error) => {
-							console.error('[useModelWizard] Upload failed for', image.name, ':', error)
+						uploadFn(image.file, image.id).catch(() => {
+							// Upload errors are handled by the upload function
 						})
 					}
 				}
@@ -242,8 +238,8 @@ export function useModelWizard() {
 
 				// Delete from storage if assetId exists
 				if (imageToRemove?.assetId && deleteFn) {
-					deleteFn(imageId, imageToRemove.assetId).catch((error) => {
-						console.error('[useModelWizard] Delete failed for', imageToRemove.name, ':', error)
+					deleteFn(imageId, imageToRemove.assetId).catch(() => {
+						// Delete errors are handled by the delete function
 					})
 				}
 
@@ -258,36 +254,22 @@ export function useModelWizard() {
 	)
 
 	const updateImageProgress = useCallback((imageId: string, progress: number) => {
-		setFormData((prev) => {
-			const found = prev.referenceImages.find(img => img.id === imageId)
-			if (!found) {
-				console.warn('[DEBUG] updateImageProgress - Image ID not found:', imageId)
-				console.warn('[DEBUG] Available IDs:', prev.referenceImages.map(img => img.id))
-			}
-			return {
-				...prev,
-				referenceImages: prev.referenceImages.map((img) =>
-					img.id === imageId ? { ...img, uploadProgress: progress } : img,
-				),
-			}
-		})
+		setFormData((prev) => ({
+			...prev,
+			referenceImages: prev.referenceImages.map((img) =>
+				img.id === imageId ? { ...img, uploadProgress: progress } : img,
+			),
+		}))
 		setTouchedFields((prev) => new Set(prev).add('referenceImages'))
 	}, [])
 
 	const setImageAssetId = useCallback((imageId: string, assetId: string, storagePath?: string) => {
-		setFormData((prev) => {
-			const found = prev.referenceImages.find(img => img.id === imageId)
-			if (!found) {
-				console.warn('[DEBUG] setImageAssetId - Image ID not found:', imageId)
-				console.warn('[DEBUG] Available IDs:', prev.referenceImages.map(img => img.id))
-			}
-			return {
-				...prev,
-				referenceImages: prev.referenceImages.map((img) =>
-					img.id === imageId ? { ...img, assetId, storagePath, uploadProgress: 100 } : img,
-				),
-			}
-		})
+		setFormData((prev) => ({
+			...prev,
+			referenceImages: prev.referenceImages.map((img) =>
+				img.id === imageId ? { ...img, assetId, storagePath, uploadProgress: 100 } : img,
+			),
+		}))
 		setTouchedFields((prev) => new Set(prev).add('referenceImages'))
 	}, [])
 

@@ -2,7 +2,19 @@
  * @fileoverview Create Model Input DTO
  */
 
-import { AgeRange, BodyType, CameraFraming, Ethnicity, Gender, LightingPreset, ProductCategory } from '@foundry/domain'
+import {
+	AgeRange,
+	BackgroundType,
+	BodyType,
+	CameraFraming,
+	Ethnicity,
+	Expression,
+	Gender,
+	LightingPreset,
+	PoseStyle,
+	PostProcessingStyle,
+	ProductCategory,
+} from '@foundry/domain'
 import { z } from 'zod'
 
 /**
@@ -43,6 +55,10 @@ export const CreateModelSchema = z
 		customLightingSettings: CustomLightingSettingsSchema.optional(),
 		cameraFraming: z.nativeEnum(CameraFraming).optional(),
 		customCameraSettings: CustomCameraSettingsSchema.optional(),
+		backgroundType: z.nativeEnum(BackgroundType).optional(),
+		poseStyle: z.nativeEnum(PoseStyle).optional(),
+		expression: z.nativeEnum(Expression).optional(),
+		postProcessingStyle: z.nativeEnum(PostProcessingStyle).optional(),
 		texturePreferences: z.array(z.string().min(2).max(50)).max(5).optional(),
 		productCategories: z.array(z.nativeEnum(ProductCategory)).max(3).optional(),
 		supportOutfitSwapping: z.boolean().default(true),

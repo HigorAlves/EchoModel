@@ -5,6 +5,8 @@
  */
 
 import {
+	BackgroundType,
+	Expression,
 	type IModelRepository,
 	Model,
 	ModelCameraConfig,
@@ -17,6 +19,8 @@ import {
 	ModelStatus,
 	ModelTexturePreferences,
 	type PersistenceModel,
+	PoseStyle,
+	PostProcessingStyle,
 } from '@foundry/domain'
 import type { DocumentData, Firestore, Query } from 'firebase-admin/firestore'
 import { Collections } from '../lib/firebase'
@@ -59,6 +63,10 @@ export class FirestoreModelRepository implements IModelRepository {
 				framing: model.cameraConfig.framing,
 				customSettings: model.cameraConfig.customSettings,
 			},
+			backgroundType: model.backgroundType,
+			poseStyle: model.poseStyle,
+			expression: model.expression,
+			postProcessingStyle: model.postProcessingStyle,
 			texturePreferences: [...model.texturePreferences.value],
 			productCategories: [...model.productCategories],
 			supportOutfitSwapping: model.supportOutfitSwapping,
@@ -109,6 +117,10 @@ export class FirestoreModelRepository implements IModelRepository {
 			// Fashion configuration
 			lightingConfig,
 			cameraConfig,
+			backgroundType: data.backgroundType ?? BackgroundType.STUDIO_WHITE,
+			poseStyle: data.poseStyle ?? PoseStyle.STATIC_FRONT,
+			expression: data.expression ?? Expression.NEUTRAL,
+			postProcessingStyle: data.postProcessingStyle ?? PostProcessingStyle.NATURAL,
 			texturePreferences,
 			productCategories: data.productCategories ?? [],
 			supportOutfitSwapping: data.supportOutfitSwapping ?? true,

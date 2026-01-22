@@ -8,8 +8,6 @@ export {
 	subscribeToAuthState,
 } from './auth'
 export { app, getFirebaseApp, getFirebaseAuth } from './config'
-// Storage
-export { storage } from './storage'
 // Firestore
 export {
 	type AssetDocument,
@@ -65,3 +63,5 @@ export {
 	startCalibration,
 	updateStoreSettings,
 } from './functions'
+// Storage
+export { storage } from './storage'

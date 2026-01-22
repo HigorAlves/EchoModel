@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Camera, ImageIcon, Info, Lightbulb, Move, Palette, Settings, Shirt, Smile, Sparkles, X } from 'lucide-react'
+import { Camera, ImageIcon, Info, Lightbulb, Move, Palette, Shirt, Smile, Sparkles, X } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -21,7 +21,6 @@ import {
 	PRODUCT_CATEGORIES,
 } from '../_constants'
 import type { UseModelWizardReturn } from '../_hooks/use-model-wizard'
-import type { ProductCategory as ProductCategoryType } from '../_schemas'
 import { SelectionCard, SelectionCardContent, SelectionCardGrid } from './selection-card'
 
 interface StepFashionConfigProps {
@@ -55,15 +54,8 @@ function SectionHeader({ icon: Icon, iconColor, title, tooltip }: SectionHeaderP
 }
 
 export function StepFashionConfig({ wizard }: StepFashionConfigProps) {
-	const {
-		formData,
-		updateField,
-		textureInput,
-		setTextureInput,
-		addTexture,
-		removeTexture,
-		toggleProductCategory,
-	} = wizard
+	const { formData, updateField, textureInput, setTextureInput, addTexture, removeTexture, toggleProductCategory } =
+		wizard
 
 	const handleTextureKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === 'Enter') {
@@ -141,7 +133,12 @@ export function StepFashionConfig({ wizard }: StepFashionConfigProps) {
 
 			{/* Pose Style */}
 			<div className='space-y-3'>
-				<SectionHeader icon={Move} iconColor='text-pink-500' title='Pose Style' tooltip='Select the pose style for your model in generated images.' />
+				<SectionHeader
+					icon={Move}
+					iconColor='text-pink-500'
+					title='Pose Style'
+					tooltip='Select the pose style for your model in generated images.'
+				/>
 				<SelectionCardGrid columns={3}>
 					{POSE_STYLES.map((pose) => (
 						<SelectionCard

@@ -1,13 +1,17 @@
 import { randomUUID } from 'node:crypto'
 import {
 	type AgeRange,
+	BackgroundType,
 	type BodyType,
 	CameraFraming,
 	type Ethnicity,
+	Expression,
 	type Gender,
 	isValidModelTransition,
 	LightingPreset,
 	ModelStatus,
+	PoseStyle,
+	PostProcessingStyle,
 	type ProductCategory,
 } from './model.enum'
 import { ModelInvalidTransitionError, ModelRequiresInputError } from './model.error'
@@ -63,6 +67,10 @@ export interface ModelProps {
 	// Seedream 4.5 Fashion configuration
 	readonly lightingConfig: ModelLightingConfig
 	readonly cameraConfig: ModelCameraConfig
+	readonly backgroundType: BackgroundType
+	readonly poseStyle: PoseStyle
+	readonly expression: Expression
+	readonly postProcessingStyle: PostProcessingStyle
 	readonly texturePreferences: ModelTexturePreferences
 	readonly productCategories: readonly ProductCategory[]
 	readonly supportOutfitSwapping: boolean
@@ -94,6 +102,10 @@ interface CreateModelDTO {
 		readonly cropRatio: string
 		readonly angle: string
 	}
+	readonly backgroundType?: BackgroundType
+	readonly poseStyle?: PoseStyle
+	readonly expression?: Expression
+	readonly postProcessingStyle?: PostProcessingStyle
 	readonly texturePreferences?: string[]
 	readonly productCategories?: ProductCategory[]
 	readonly supportOutfitSwapping?: boolean
@@ -175,6 +187,10 @@ export class Model {
 			failureReason: null,
 			lightingConfig,
 			cameraConfig,
+			backgroundType: dto.backgroundType ?? BackgroundType.STUDIO_WHITE,
+			poseStyle: dto.poseStyle ?? PoseStyle.STATIC_FRONT,
+			expression: dto.expression ?? Expression.NEUTRAL,
+			postProcessingStyle: dto.postProcessingStyle ?? PostProcessingStyle.NATURAL,
 			texturePreferences,
 			productCategories: dto.productCategories ?? [],
 			supportOutfitSwapping: dto.supportOutfitSwapping ?? true,
@@ -262,6 +278,22 @@ export class Model {
 
 	get cameraConfig(): ModelCameraConfig {
 		return this.data.cameraConfig
+	}
+
+	get backgroundType(): BackgroundType {
+		return this.data.backgroundType
+	}
+
+	get poseStyle(): PoseStyle {
+		return this.data.poseStyle
+	}
+
+	get expression(): Expression {
+		return this.data.expression
+	}
+
+	get postProcessingStyle(): PostProcessingStyle {
+		return this.data.postProcessingStyle
 	}
 
 	get texturePreferences(): ModelTexturePreferences {

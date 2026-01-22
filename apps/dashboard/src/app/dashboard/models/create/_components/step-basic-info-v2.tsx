@@ -27,52 +27,52 @@ export function StepBasicInfo({ wizard }: StepBasicInfoProps) {
 			exit={{ opacity: 0, x: -20 }}
 			transition={{ duration: 0.3 }}
 			className='space-y-4'>
-				{/* Name Field with Icon */}
-				<Field>
-					<FieldLabel htmlFor='name'>Model Name *</FieldLabel>
-					<InputGroup>
-						<InputGroupInput
-							id='name'
-							name='name'
-							placeholder='Enter a name for your model'
-							value={formData.name}
-							onChange={(e) => updateField('name', e.target.value)}
-							onBlur={() => touchField('name')}
-							aria-invalid={!!nameError}
-							required
-						/>
-						<InputGroupAddon>
-							<User className='size-4' />
-						</InputGroupAddon>
-					</InputGroup>
-					<FieldDescription>
-						Give your AI influencer a memorable name ({formData.name.length}/50 characters)
-					</FieldDescription>
-					{nameError && <FieldError>{nameError}</FieldError>}
-				</Field>
+			{/* Name Field with Icon */}
+			<Field>
+				<FieldLabel htmlFor='name'>Model Name *</FieldLabel>
+				<InputGroup>
+					<InputGroupInput
+						id='name'
+						name='name'
+						placeholder='Enter a name for your model'
+						value={formData.name}
+						onChange={(e) => updateField('name', e.target.value)}
+						onBlur={() => touchField('name')}
+						aria-invalid={!!nameError}
+						required
+					/>
+					<InputGroupAddon>
+						<User className='size-4' />
+					</InputGroupAddon>
+				</InputGroup>
+				<FieldDescription>
+					Give your AI influencer a memorable name ({formData.name.length}/50 characters)
+				</FieldDescription>
+				{nameError && <FieldError>{nameError}</FieldError>}
+			</Field>
 
-				{/* Description Field with Icon */}
-				<Field>
-					<FieldLabel htmlFor='description'>Description</FieldLabel>
-					<div className='relative flex w-full items-start'>
-						<FileText className='text-muted-foreground absolute left-2.5 top-2.5 size-4 pointer-events-none z-10' />
-						<Textarea
-							id='description'
-							name='description'
-							placeholder="Describe your model's personality and style..."
-							value={formData.description}
-							onChange={(e) => updateField('description', e.target.value)}
-							onBlur={() => touchField('description')}
-							rows={4}
-							className='pl-9'
-							aria-invalid={!!descriptionError}
-						/>
-					</div>
-					<FieldDescription>
-						Optional: Provide additional context about your model ({formData.description?.length || 0}/500 characters)
-					</FieldDescription>
-					{descriptionError && <FieldError>{descriptionError}</FieldError>}
-				</Field>
+			{/* Description Field with Icon */}
+			<Field>
+				<FieldLabel htmlFor='description'>Description</FieldLabel>
+				<div className='relative flex w-full items-start'>
+					<FileText className='text-muted-foreground absolute left-2.5 top-2.5 size-4 pointer-events-none z-10' />
+					<Textarea
+						id='description'
+						name='description'
+						placeholder="Describe your model's personality and style..."
+						value={formData.description}
+						onChange={(e) => updateField('description', e.target.value)}
+						onBlur={() => touchField('description')}
+						rows={4}
+						className='pl-9'
+						aria-invalid={!!descriptionError}
+					/>
+				</div>
+				<FieldDescription>
+					Optional: Provide additional context about your model ({formData.description?.length || 0}/500 characters)
+				</FieldDescription>
+				{descriptionError && <FieldError>{descriptionError}</FieldError>}
+			</Field>
 		</motion.div>
 	)
 }
