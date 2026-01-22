@@ -1,43 +1,42 @@
 'use client'
 
-import { CreditCard, Palette, Settings, Users } from 'lucide-react'
-import Link from 'next/link'
+import { Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 import { useBreadcrumbs } from '@/components/layout/dashboard/dashboard-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useCurrentStore } from '@/features/stores'
 
-function SettingsNav({ activeSection }: { activeSection: string }) {
-	const t = useTranslations('settings.breadcrumbs')
-
-	const navItems = [
-		{ id: 'store', label: t('store'), icon: Settings, href: '/dashboard/settings' },
-		{ id: 'branding', label: t('branding'), icon: Palette, href: '/dashboard/settings/branding' },
-		{ id: 'billing', label: t('billing'), icon: CreditCard, href: '/dashboard/settings/billing' },
-		{ id: 'team', label: t('team'), icon: Users, href: '/dashboard/settings/team' },
-	]
-
+function SettingsFormSkeleton() {
 	return (
-		<nav className='flex flex-col gap-1'>
-			{navItems.map((item) => (
-				<Link
-					key={item.id}
-					href={item.href}
-					className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
-						activeSection === item.id
-							? 'bg-primary text-primary-foreground'
-							: 'hover:bg-muted text-muted-foreground hover:text-foreground'
-					}`}>
-					<item.icon className='h-4 w-4' />
-					{item.label}
-				</Link>
-			))}
-		</nav>
+		<div className='space-y-6'>
+			<Card>
+				<CardHeader>
+					<Skeleton className='h-6 w-32' />
+					<Skeleton className='h-4 w-64' />
+				</CardHeader>
+				<CardContent className='space-y-6'>
+					<div className='space-y-2'>
+						<Skeleton className='h-4 w-24' />
+						<Skeleton className='h-10 w-full' />
+					</div>
+					<div className='space-y-2'>
+						<Skeleton className='h-4 w-24' />
+						<Skeleton className='h-10 w-full' />
+					</div>
+					<Skeleton className='h-20 w-full' />
+				</CardContent>
+			</Card>
+			<div className='flex justify-end'>
+				<Skeleton className='h-10 w-32' />
+			</div>
+		</div>
 	)
 }
 
@@ -46,17 +45,79 @@ export default function SettingsPage() {
 	const t = useTranslations('settings')
 	const tStore = useTranslations('settings.store')
 
+	const { currentStore, isCurrentStoreLoading, updateStoreInfo, updateStoreSettings, isUpdating } = useCurrentStore()
+
+	// Local form state - synced with store data
 	const [formData, setFormData] = useState({
-		name: 'Fashion Forward',
-		description: 'Premium clothing store specializing in modern fashion',
-		defaultAspectRatio: '4:5',
-		defaultImageCount: '2',
+		name: '',
+		description: '',
 		watermarkEnabled: false,
 	})
+
+	// Track if form has been modified
+	const [isDirty, setIsDirty] = useState(false)
+
+	// Sync form data with store when store changes
+	useEffect(() => {
+		if (currentStore) {
+			setFormData({
+				name: currentStore.name,
+				description: currentStore.description ?? '',
+				watermarkEnabled: currentStore.settings.watermarkEnabled,
+			})
+			setIsDirty(false)
+		}
+	}, [currentStore])
 
 	useEffect(() => {
 		setItems([{ label: t('breadcrumbs.settings'), href: '/dashboard/settings' }, { label: t('breadcrumbs.store') }])
 	}, [setItems, t])
+
+	const handleInputChange = (field: string, value: string | boolean) => {
+		setFormData((prev) => ({ ...prev, [field]: value }))
+		setIsDirty(true)
+	}
+
+	const handleSave = async () => {
+		if (!currentStore) return
+
+		try {
+			// Check what has changed
+			const infoChanges: { name?: string; description?: string | null } = {}
+			const settingsChanges: { watermarkEnabled?: boolean } = {}
+
+			// Compare and build change objects
+			if (formData.name !== currentStore.name) {
+				infoChanges.name = formData.name
+			}
+			if (formData.description !== (currentStore.description ?? '')) {
+				infoChanges.description = formData.description || null
+			}
+
+			if (formData.watermarkEnabled !== currentStore.settings.watermarkEnabled) {
+				settingsChanges.watermarkEnabled = formData.watermarkEnabled
+			}
+
+			// Apply changes
+			const promises: Promise<void>[] = []
+
+			if (Object.keys(infoChanges).length > 0) {
+				promises.push(updateStoreInfo(infoChanges))
+			}
+
+			if (Object.keys(settingsChanges).length > 0) {
+				promises.push(updateStoreSettings(settingsChanges))
+			}
+
+			if (promises.length > 0) {
+				await Promise.all(promises)
+				toast.success(t('saveSuccess'))
+				setIsDirty(false)
+			}
+		} catch {
+			toast.error(t('saveError'))
+		}
+	}
 
 	return (
 		<div className='flex flex-1 flex-col gap-6 p-4 pt-0'>
@@ -66,16 +127,11 @@ export default function SettingsPage() {
 				<p className='text-muted-foreground'>{t('subtitle')}</p>
 			</div>
 
-			<div className='grid gap-6 lg:grid-cols-[240px_1fr]'>
-				{/* Sidebar Navigation */}
-				<Card className='h-fit'>
-					<CardContent className='p-4'>
-						<SettingsNav activeSection='store' />
-					</CardContent>
-				</Card>
-
-				{/* Main Content */}
-				<div className='space-y-6'>
+			{/* Main Content */}
+			{isCurrentStoreLoading || !currentStore ? (
+				<SettingsFormSkeleton />
+			) : (
+				<div className='max-w-2xl space-y-6'>
 					<Card>
 						<CardHeader>
 							<CardTitle>{tStore('title')}</CardTitle>
@@ -89,7 +145,7 @@ export default function SettingsPage() {
 									id='storeName'
 									placeholder={tStore('namePlaceholder')}
 									value={formData.name}
-									onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+									onChange={(e) => handleInputChange('name', e.target.value)}
 								/>
 							</div>
 
@@ -100,44 +156,8 @@ export default function SettingsPage() {
 									id='storeDescription'
 									placeholder={tStore('descriptionPlaceholder')}
 									value={formData.description}
-									onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+									onChange={(e) => handleInputChange('description', e.target.value)}
 								/>
-							</div>
-
-							{/* Default Settings */}
-							<div className='grid gap-4 sm:grid-cols-2'>
-								<div className='space-y-2'>
-									<Label>{tStore('defaultAspectRatio')}</Label>
-									<Select
-										value={formData.defaultAspectRatio || undefined}
-										onValueChange={(value) => setFormData({ ...formData, defaultAspectRatio: value ?? '4:5' })}>
-										<SelectTrigger>
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value='4:5'>Portrait (4:5)</SelectItem>
-											<SelectItem value='9:16'>Story (9:16)</SelectItem>
-											<SelectItem value='1:1'>Square (1:1)</SelectItem>
-											<SelectItem value='16:9'>Landscape (16:9)</SelectItem>
-										</SelectContent>
-									</Select>
-								</div>
-								<div className='space-y-2'>
-									<Label>{tStore('defaultImageCount')}</Label>
-									<Select
-										value={formData.defaultImageCount || undefined}
-										onValueChange={(value) => setFormData({ ...formData, defaultImageCount: value ?? '2' })}>
-										<SelectTrigger>
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value='1'>1 image</SelectItem>
-											<SelectItem value='2'>2 images</SelectItem>
-											<SelectItem value='3'>3 images</SelectItem>
-											<SelectItem value='4'>4 images</SelectItem>
-										</SelectContent>
-									</Select>
-								</div>
 							</div>
 
 							{/* Watermark */}
@@ -148,7 +168,7 @@ export default function SettingsPage() {
 								</div>
 								<Button
 									variant={formData.watermarkEnabled ? 'default' : 'outline'}
-									onClick={() => setFormData({ ...formData, watermarkEnabled: !formData.watermarkEnabled })}>
+									onClick={() => handleInputChange('watermarkEnabled', !formData.watermarkEnabled)}>
 									{formData.watermarkEnabled ? 'Enabled' : 'Disabled'}
 								</Button>
 							</div>
@@ -157,10 +177,13 @@ export default function SettingsPage() {
 
 					{/* Save Button */}
 					<div className='flex justify-end'>
-						<Button>Save Changes</Button>
+						<Button onClick={handleSave} disabled={!isDirty || isUpdating}>
+							{isUpdating && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+							{t('saveChanges')}
+						</Button>
 					</div>
 				</div>
-			</div>
+			)}
 		</div>
 	)
 }

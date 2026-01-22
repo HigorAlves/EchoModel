@@ -58,3 +58,7 @@ export {
 	getStore,
 	updateStoreSettings,
 } from './handlers/stores'
+
+// ==================== Auth Functions ====================
+// Handle Firebase Authentication events
+export { onUserCreated } from './handlers/auth'

@@ -5,23 +5,9 @@ import { useTranslations } from 'next-intl'
 import type * as React from 'react'
 import { NavMain } from '@/components/layout/dashboard/nav-main'
 import { NavUser } from '@/components/layout/dashboard/nav-user'
-import { type StoreData, StoreSwitcher } from '@/components/layout/dashboard/store-switcher'
+import { StoreSwitcher } from '@/components/layout/dashboard/store-switcher'
 import { useAuth } from '@/components/providers'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar'
-
-// Sample stores data - will be replaced with real store data
-const storesData: StoreData[] = [
-	{
-		id: 'store-1',
-		name: 'Fashion Forward',
-		plan: 'pro',
-	},
-	{
-		id: 'store-2',
-		name: 'Urban Style Co.',
-		plan: 'free',
-	},
-]
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const t = useTranslations('sidebar')
@@ -82,9 +68,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			icon: Cog,
 			items: [
 				{ title: t('storeSettings'), url: '/dashboard/settings' },
-				{ title: t('branding'), url: '/dashboard/settings/branding' },
 				{ title: t('billing'), url: '/dashboard/settings/billing' },
-				{ title: t('team'), url: '/dashboard/settings/team' },
 			],
 		},
 	]
@@ -92,7 +76,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
 		<Sidebar collapsible='icon' {...props}>
 			<SidebarHeader>
-				<StoreSwitcher stores={storesData} />
+				<StoreSwitcher />
 			</SidebarHeader>
 			<SidebarContent>
 				<NavMain items={navMain} />

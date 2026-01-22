@@ -117,6 +117,15 @@
 			"free": "Free",
 			"pro": "Pro",
 			"enterprise": "Enterprise"
+		},
+		"createDialog": {
+			"title": "Create Your Store",
+			"description": "Let's get started by creating your first store. You can always change these details later.",
+			"nameLabel": "Store Name",
+			"namePlaceholder": "Enter your store name",
+			"createButton": "Create Store",
+			"success": "Store created successfully!",
+			"error": "Failed to create store. Please try again."
 		}
 	},
 	"sidebar": {
@@ -508,6 +517,9 @@
 	"settings": {
 		"title": "Settings",
 		"subtitle": "Manage your store settings",
+		"saveChanges": "Save Changes",
+		"saveSuccess": "Settings saved successfully",
+		"saveError": "Failed to save settings",
 		"breadcrumbs": {
 			"settings": "Settings",
 			"store": "Store Settings",
@@ -543,7 +555,9 @@
 			"generations": "Generations",
 			"storage": "Storage",
 			"upgrade": "Upgrade Plan",
-			"viewInvoices": "View Invoices"
+			"viewInvoices": "View Invoices",
+			"emptyTitle": "No billing information",
+			"emptyDescription": "Billing and subscription management will be available soon. Stay tuned for updates."
 		},
 		"team": {
 			"title": "Team",

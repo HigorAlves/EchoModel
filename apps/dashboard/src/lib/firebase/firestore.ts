@@ -16,7 +16,9 @@ import {
 	orderBy,
 	type QueryConstraint,
 	query,
+	serverTimestamp,
 	type Unsubscribe,
+	updateDoc,
 	where,
 } from 'firebase/firestore'
 import { app } from './config'
@@ -372,6 +374,72 @@ export async function getStoreById(storeId: string): Promise<StoreDocument | nul
 	}
 
 	return convertDocument<StoreDocument>(snapshot.id, snapshot.data())
+}
+
+/**
+ * Subscribe to a single store for real-time updates
+ */
+export function subscribeToStore(storeId: string, callback: (store: StoreDocument | null) => void): Unsubscribe {
+	const docRef = doc(db, Collections.STORES, storeId)
+
+	return onSnapshot(docRef, (snapshot) => {
+		if (!snapshot.exists()) {
+			callback(null)
+			return
+		}
+		callback(convertDocument<StoreDocument>(snapshot.id, snapshot.data()))
+	})
+}
+
+// ==================== Write Functions ====================
+
+/**
+ * Update store basic information
+ */
+export async function updateStoreInfo(
+	storeId: string,
+	data: {
+		name?: string
+		description?: string | null
+		defaultStyle?: string | null
+	},
+): Promise<void> {
+	const docRef = doc(db, Collections.STORES, storeId)
+	await updateDoc(docRef, {
+		...data,
+		updatedAt: serverTimestamp(),
+	})
+}
+
+/**
+ * Update store settings
+ */
+export async function updateStoreSettingsFirestore(
+	storeId: string,
+	settings: {
+		defaultAspectRatio?: string
+		defaultImageCount?: number
+		watermarkEnabled?: boolean
+	},
+): Promise<void> {
+	const docRef = doc(db, Collections.STORES, storeId)
+
+	// Build the update object with dot notation for nested fields
+	const updates: Record<string, unknown> = {
+		updatedAt: serverTimestamp(),
+	}
+
+	if (settings.defaultAspectRatio !== undefined) {
+		updates['settings.defaultAspectRatio'] = settings.defaultAspectRatio
+	}
+	if (settings.defaultImageCount !== undefined) {
+		updates['settings.defaultImageCount'] = settings.defaultImageCount
+	}
+	if (settings.watermarkEnabled !== undefined) {
+		updates['settings.watermarkEnabled'] = settings.watermarkEnabled
+	}
+
+	await updateDoc(docRef, updates)
 }
 
 export { db }

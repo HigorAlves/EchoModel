@@ -3,8 +3,8 @@
 /**
  * @fileoverview Stores Hooks
  *
- * React hooks for store management with real-time Firestore updates
- * and Cloud Functions for mutations.
+ * React hooks for store management with real-time Firestore updates.
+ * Uses Firestore directly for reads and writes to leverage real-time sync.
  */
 
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from 'react'
@@ -13,8 +13,10 @@ import {
 	createStore,
 	getStoreById,
 	type StoreDocument,
+	subscribeToStore,
 	subscribeToStores,
-	updateStoreSettings,
+	updateStoreInfo,
+	updateStoreSettingsFirestore,
 } from '@/lib/firebase'
 
 // ==================== Types ====================
@@ -154,7 +156,7 @@ export function useCreateStore(userId: string | null): UseCreateStoreResult {
 }
 
 /**
- * Hook to update store settings
+ * Hook to update store settings via Firestore
  */
 export function useStoreSettings(storeId: string | null): UseStoreSettingsResult {
 	const [isLoading, setIsLoading] = useState(false)
@@ -170,7 +172,7 @@ export function useStoreSettings(storeId: string | null): UseStoreSettingsResult
 			setError(null)
 
 			try {
-				await updateStoreSettings({ storeId, settings })
+				await updateStoreSettingsFirestore(storeId, settings)
 			} catch (err) {
 				const error = err instanceof Error ? err : new Error('Failed to update settings')
 				setError(error)
@@ -185,14 +187,71 @@ export function useStoreSettings(storeId: string | null): UseStoreSettingsResult
 	return { updateSettings: update, isLoading, error }
 }
 
+export interface UseStoreInfoResult {
+	updateInfo: (data: { name?: string; description?: string | null; defaultStyle?: string | null }) => Promise<void>
+	isLoading: boolean
+	error: Error | null
+}
+
+/**
+ * Hook to update store basic information via Firestore
+ */
+export function useStoreInfo(storeId: string | null): UseStoreInfoResult {
+	const [isLoading, setIsLoading] = useState(false)
+	const [error, setError] = useState<Error | null>(null)
+
+	const update = useCallback(
+		async (data: { name?: string; description?: string | null; defaultStyle?: string | null }) => {
+			if (!storeId) {
+				throw new Error('Store ID is required')
+			}
+
+			setIsLoading(true)
+			setError(null)
+
+			try {
+				await updateStoreInfo(storeId, data)
+			} catch (err) {
+				const error = err instanceof Error ? err : new Error('Failed to update store info')
+				setError(error)
+				throw error
+			} finally {
+				setIsLoading(false)
+			}
+		},
+		[storeId],
+	)
+
+	return { updateInfo: update, isLoading, error }
+}
+
 // ==================== Store Context ====================
 
 interface StoreContextValue {
+	/** The currently selected store with real-time updates */
 	currentStore: StoreDocument | null
+	/** All stores owned by the user */
 	stores: StoreDocument[]
+	/** Loading state for stores list */
 	isLoading: boolean
+	/** Loading state for current store */
+	isCurrentStoreLoading: boolean
+	/** Select a different store */
 	selectStore: (storeId: string) => void
+	/** Refresh the stores list */
 	refresh: () => void
+	/** Update current store basic info */
+	updateStoreInfo: (data: { name?: string; description?: string | null; defaultStyle?: string | null }) => Promise<void>
+	/** Update current store settings */
+	updateStoreSettings: (settings: {
+		defaultAspectRatio?: string
+		defaultImageCount?: number
+		watermarkEnabled?: boolean
+	}) => Promise<void>
+	/** Whether an update operation is in progress */
+	isUpdating: boolean
+	/** Error from the last update operation */
+	updateError: Error | null
 }
 
 const StoreContext = createContext<StoreContextValue | null>(null)
@@ -204,10 +263,15 @@ interface StoreProviderProps {
 
 /**
  * Store context provider for managing the current active store
+ * Provides real-time subscription to the current store and update methods.
  */
 export function StoreProvider({ children, userId }: StoreProviderProps) {
 	const { stores, isLoading, refresh } = useStores(userId)
 	const [currentStoreId, setCurrentStoreId] = useState<string | null>(null)
+	const [currentStore, setCurrentStore] = useState<StoreDocument | null>(null)
+	const [isCurrentStoreLoading, setIsCurrentStoreLoading] = useState(false)
+	const [isUpdating, setIsUpdating] = useState(false)
+	const [updateError, setUpdateError] = useState<Error | null>(null)
 
 	// Auto-select first store if none selected
 	useEffect(() => {
@@ -234,11 +298,70 @@ export function StoreProvider({ children, userId }: StoreProviderProps) {
 		}
 	}, [stores])
 
-	const currentStore = stores.find((s) => s.id === currentStoreId) ?? null
+	// Subscribe to current store for real-time updates
+	useEffect(() => {
+		if (!currentStoreId) {
+			setCurrentStore(null)
+			return
+		}
+
+		setIsCurrentStoreLoading(true)
+
+		const unsubscribe = subscribeToStore(currentStoreId, (store) => {
+			setCurrentStore(store)
+			setIsCurrentStoreLoading(false)
+		})
+
+		return () => unsubscribe()
+	}, [currentStoreId])
 
 	const selectStore = useCallback((storeId: string) => {
 		setCurrentStoreId(storeId)
 	}, [])
+
+	const handleUpdateStoreInfo = useCallback(
+		async (data: { name?: string; description?: string | null; defaultStyle?: string | null }) => {
+			if (!currentStoreId) {
+				throw new Error('No store selected')
+			}
+
+			setIsUpdating(true)
+			setUpdateError(null)
+
+			try {
+				await updateStoreInfo(currentStoreId, data)
+			} catch (err) {
+				const error = err instanceof Error ? err : new Error('Failed to update store info')
+				setUpdateError(error)
+				throw error
+			} finally {
+				setIsUpdating(false)
+			}
+		},
+		[currentStoreId],
+	)
+
+	const handleUpdateStoreSettings = useCallback(
+		async (settings: { defaultAspectRatio?: string; defaultImageCount?: number; watermarkEnabled?: boolean }) => {
+			if (!currentStoreId) {
+				throw new Error('No store selected')
+			}
+
+			setIsUpdating(true)
+			setUpdateError(null)
+
+			try {
+				await updateStoreSettingsFirestore(currentStoreId, settings)
+			} catch (err) {
+				const error = err instanceof Error ? err : new Error('Failed to update store settings')
+				setUpdateError(error)
+				throw error
+			} finally {
+				setIsUpdating(false)
+			}
+		},
+		[currentStoreId],
+	)
 
 	return (
 		<StoreContext.Provider
@@ -246,8 +369,13 @@ export function StoreProvider({ children, userId }: StoreProviderProps) {
 				currentStore,
 				stores,
 				isLoading,
+				isCurrentStoreLoading,
 				selectStore,
 				refresh,
+				updateStoreInfo: handleUpdateStoreInfo,
+				updateStoreSettings: handleUpdateStoreSettings,
+				isUpdating,
+				updateError,
 			}}>
 			{children}
 		</StoreContext.Provider>

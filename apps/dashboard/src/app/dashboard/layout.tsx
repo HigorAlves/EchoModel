@@ -8,7 +8,7 @@ import { AppSidebar } from '@/components/layout/dashboard/app-sidebar'
 import { DashboardHeader, DashboardHeaderProvider } from '@/components/layout/dashboard/dashboard-header'
 import { useAuth } from '@/components/providers'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import { StoreProvider } from '@/features/stores'
+import { CreateStoreDialog, StoreProvider, useCurrentStore } from '@/features/stores'
 
 function AuthGuard({ children }: { children: ReactNode }) {
 	const router = useRouter()
@@ -35,21 +35,36 @@ function AuthGuard({ children }: { children: ReactNode }) {
 	return <>{children}</>
 }
 
+function StoreGuard({ children, userId }: { children: ReactNode; userId: string }) {
+	const { stores, isLoading } = useCurrentStore()
+
+	const showCreateDialog = !isLoading && stores.length === 0
+
+	return (
+		<>
+			<CreateStoreDialog open={showCreateDialog} userId={userId} />
+			{children}
+		</>
+	)
+}
+
 export default function DashboardLayout({ children }: { children: ReactNode }) {
 	const { user } = useAuth()
 
 	return (
 		<AuthGuard>
 			<StoreProvider userId={user?.uid ?? null}>
-				<SidebarProvider>
-					<AppSidebar />
-					<SidebarInset>
-						<DashboardHeaderProvider>
-							<DashboardHeader />
-							{children}
-						</DashboardHeaderProvider>
-					</SidebarInset>
-				</SidebarProvider>
+				<StoreGuard userId={user?.uid ?? ''}>
+					<SidebarProvider>
+						<AppSidebar />
+						<SidebarInset>
+							<DashboardHeaderProvider>
+								<DashboardHeader />
+								{children}
+							</DashboardHeaderProvider>
+						</SidebarInset>
+					</SidebarProvider>
+				</StoreGuard>
 			</StoreProvider>
 		</AuthGuard>
 	)

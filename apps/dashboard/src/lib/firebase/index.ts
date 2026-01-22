@@ -23,7 +23,10 @@ export {
 	subscribeToAssets,
 	subscribeToGenerations,
 	subscribeToModels,
+	subscribeToStore,
 	subscribeToStores,
+	updateStoreInfo,
+	updateStoreSettingsFirestore,
 } from './firestore'
 // Cloud Functions
 export {

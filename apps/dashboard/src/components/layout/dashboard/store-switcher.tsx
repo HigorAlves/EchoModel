@@ -2,7 +2,6 @@
 
 import { ChevronsUpDown, Plus, Store } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import * as React from 'react'
 
 import {
 	DropdownMenu,
@@ -14,26 +13,56 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar'
+import { useCurrentStore } from '@/features/stores'
 
-export interface StoreData {
-	id: string
-	name: string
-	plan: 'free' | 'pro' | 'enterprise'
-}
-
-export function StoreSwitcher({ stores }: { stores: StoreData[] }) {
+export function StoreSwitcher() {
 	const { isMobile } = useSidebar()
-	const [activeStore, setActiveStore] = React.useState(stores[0])
+	const { currentStore, stores, selectStore, isLoading } = useCurrentStore()
 	const t = useTranslations('stores')
 
-	if (!activeStore) {
-		return null
+	// Show loading state while stores are being fetched
+	if (isLoading) {
+		return (
+			<SidebarMenu>
+				<SidebarMenuItem>
+					<SidebarMenuButton size='lg' className='animate-pulse'>
+						<div className='bg-muted flex aspect-square size-8 items-center justify-center rounded-lg'>
+							<Store className='size-4' />
+						</div>
+						<div className='grid flex-1 gap-1 text-left text-sm leading-tight'>
+							<span className='bg-muted h-4 w-24 rounded' />
+							<span className='bg-muted h-3 w-16 rounded' />
+						</div>
+					</SidebarMenuButton>
+				</SidebarMenuItem>
+			</SidebarMenu>
+		)
 	}
 
-	const planLabels = {
-		free: t('plans.free'),
-		pro: t('plans.pro'),
-		enterprise: t('plans.enterprise'),
+	// Show nothing if no stores (user might need to create one)
+	if (!currentStore || stores.length === 0) {
+		return (
+			<SidebarMenu>
+				<SidebarMenuItem>
+					<SidebarMenuButton size='lg' className='gap-2 p-2'>
+						<div className='flex size-8 items-center justify-center rounded-md border bg-transparent'>
+							<Plus className='size-4' />
+						</div>
+						<div className='text-muted-foreground text-sm font-medium'>{t('addStore')}</div>
+					</SidebarMenuButton>
+				</SidebarMenuItem>
+			</SidebarMenu>
+		)
+	}
+
+	// Determine plan based on store status (could be enhanced with actual plan data)
+	const getPlanLabel = (status: string) => {
+		switch (status) {
+			case 'ACTIVE':
+				return t('plans.free')
+			default:
+				return t('plans.free')
+		}
 	}
 
 	return (
@@ -51,8 +80,8 @@ export function StoreSwitcher({ stores }: { stores: StoreData[] }) {
 							<Store className='size-4' />
 						</div>
 						<div className='grid flex-1 text-left text-sm leading-tight'>
-							<span className='truncate font-medium'>{activeStore.name}</span>
-							<span className='truncate text-xs'>{planLabels[activeStore.plan]}</span>
+							<span className='truncate font-medium'>{currentStore.name}</span>
+							<span className='truncate text-xs'>{getPlanLabel(currentStore.status)}</span>
 						</div>
 						<ChevronsUpDown className='ml-auto' />
 					</DropdownMenuTrigger>
@@ -63,7 +92,10 @@ export function StoreSwitcher({ stores }: { stores: StoreData[] }) {
 						sideOffset={4}>
 						<DropdownMenuLabel className='text-muted-foreground text-xs'>{t('yourStores')}</DropdownMenuLabel>
 						{stores.map((store, index) => (
-							<DropdownMenuItem key={store.id} onClick={() => setActiveStore(store)} className='gap-2 p-2'>
+							<DropdownMenuItem
+								key={store.id}
+								onClick={() => selectStore(store.id)}
+								className={`gap-2 p-2 ${store.id === currentStore.id ? 'bg-accent' : ''}`}>
 								<div className='flex size-6 items-center justify-center rounded-md border'>
 									<Store className='size-3.5 shrink-0' />
 								</div>

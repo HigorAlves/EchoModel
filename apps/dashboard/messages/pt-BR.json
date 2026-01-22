@@ -173,6 +173,24 @@
 		"label": "Idioma",
 		"switchTo": "Mudar para {locale}"
 	},
+	"stores": {
+		"yourStores": "Suas Lojas",
+		"addStore": "Adicionar Loja",
+		"plans": {
+			"free": "Gratuito",
+			"pro": "Pro",
+			"enterprise": "Empresarial"
+		},
+		"createDialog": {
+			"title": "Crie Sua Loja",
+			"description": "Vamos comecar criando sua primeira loja. Voce pode alterar esses detalhes depois.",
+			"nameLabel": "Nome da Loja",
+			"namePlaceholder": "Digite o nome da sua loja",
+			"createButton": "Criar Loja",
+			"success": "Loja criada com sucesso!",
+			"error": "Falha ao criar loja. Por favor, tente novamente."
+		}
+	},
 	"accounts": {
 		"breadcrumbs": {
 			"accounts": "Contas",
@@ -532,6 +550,63 @@
 			"metadata": "Detalhes da Geracao",
 			"downloadSelected": "Baixar Selecionados",
 			"downloadAll": "Baixar Tudo"
+		}
+	},
+	"settings": {
+		"title": "Configuracoes",
+		"subtitle": "Gerencie as configuracoes da sua loja",
+		"saveChanges": "Salvar Alteracoes",
+		"saveSuccess": "Configuracoes salvas com sucesso",
+		"saveError": "Falha ao salvar configuracoes",
+		"breadcrumbs": {
+			"settings": "Configuracoes",
+			"store": "Configuracoes da Loja",
+			"branding": "Marca",
+			"billing": "Faturamento",
+			"team": "Equipe"
+		},
+		"store": {
+			"title": "Configuracoes da Loja",
+			"subtitle": "Configure as preferencias da sua loja",
+			"name": "Nome da Loja",
+			"namePlaceholder": "Digite o nome da sua loja",
+			"description": "Descricao da Loja",
+			"descriptionPlaceholder": "Descreva sua loja",
+			"defaultAspectRatio": "Proporcao Padrao",
+			"defaultImageCount": "Quantidade Padrao de Imagens",
+			"watermark": "Ativar Marca d'Agua",
+			"watermarkDescription": "Adicionar marca d'agua as imagens geradas"
+		},
+		"branding": {
+			"title": "Marca",
+			"subtitle": "Personalize a aparencia da sua marca",
+			"logo": "Logo da Loja",
+			"logoDescription": "Faca upload do logo da sua loja",
+			"defaultStyle": "Estilo Padrao",
+			"defaultStylePlaceholder": "Descreva o estilo visual da sua marca"
+		},
+		"billing": {
+			"title": "Faturamento",
+			"subtitle": "Gerencie sua assinatura e pagamentos",
+			"currentPlan": "Plano Atual",
+			"usage": "Uso Este Mes",
+			"generations": "Geracoes",
+			"storage": "Armazenamento",
+			"upgrade": "Atualizar Plano",
+			"viewInvoices": "Ver Faturas",
+			"emptyTitle": "Sem informacoes de faturamento",
+			"emptyDescription": "O gerenciamento de faturamento e assinaturas estara disponivel em breve. Fique atento as atualizacoes."
+		},
+		"team": {
+			"title": "Equipe",
+			"subtitle": "Gerencie membros da equipe e permissoes",
+			"members": "Membros da Equipe",
+			"invite": "Convidar Membro",
+			"roles": {
+				"owner": "Proprietario",
+				"admin": "Administrador",
+				"member": "Membro"
+			}
 		}
 	}
 }
