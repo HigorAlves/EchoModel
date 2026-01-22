@@ -19,10 +19,11 @@ import {
 	getPostProcessingByValue,
 	getProductCategoryByValue,
 } from '../_constants'
-import type { Step, UseModelFormReturn } from '../_hooks'
+import type { Step } from '../_hooks/use-model-wizard'
+import type { UseModelWizardReturn } from '../_hooks/use-model-wizard'
 
 interface StepReviewProps {
-	form: UseModelFormReturn['form']
+	wizard: UseModelWizardReturn
 	onEditStep: (step: Step) => void
 }
 
@@ -75,8 +76,8 @@ function ReviewField({ label, value }: { label: string; value: React.ReactNode }
 	)
 }
 
-export function StepReview({ form, onEditStep }: StepReviewProps) {
-	const values = form.state.values
+export function StepReview({ wizard, onEditStep }: StepReviewProps) {
+	const values = wizard.formData
 
 	// Helper functions to get labels
 	const getGenderLabel = (value: string) => GENDER_OPTIONS.find((o) => o.value === value)?.label || value
@@ -91,17 +92,6 @@ export function StepReview({ form, onEditStep }: StepReviewProps) {
 			exit={{ opacity: 0, x: -20 }}
 			transition={{ duration: 0.3 }}
 			className='space-y-6'>
-			{/* Header */}
-			<div className='flex items-center gap-3'>
-				<div className='flex h-10 w-10 items-center justify-center rounded-full bg-green-500/10'>
-					<CheckCircle className='h-5 w-5 text-green-500' />
-				</div>
-				<div>
-					<h3 className='font-semibold'>Review & Create</h3>
-					<p className='text-muted-foreground text-sm'>Review your configuration before creating the model</p>
-				</div>
-			</div>
-
 			{/* Review Sections */}
 			<Accordion defaultValue={[0, 1, 2, 3]} className='space-y-3'>
 				{/* Basic Info */}

@@ -5,16 +5,15 @@ import { Image, Info } from 'lucide-react'
 
 import { Field, FieldDescription, FieldLabel } from '@/components/ui/field'
 
-import type { UseModelFormReturn } from '../_hooks'
+import type { UseModelWizardReturn } from '../_hooks/use-model-wizard'
 import { ImageUploadZone } from './image-upload-zone'
 
 interface StepReferenceImagesProps {
-	form: UseModelFormReturn['form']
-	addReferenceImages: (files: File[]) => void
-	removeReferenceImage: (imageId: string) => void
+	wizard: UseModelWizardReturn
 }
 
-export function StepReferenceImages({ form, addReferenceImages, removeReferenceImage }: StepReferenceImagesProps) {
+export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
+	const { formData, addReferenceImages, removeReferenceImage } = wizard
 	return (
 		<motion.div
 			initial={{ opacity: 0, x: 20 }}
@@ -22,17 +21,6 @@ export function StepReferenceImages({ form, addReferenceImages, removeReferenceI
 			exit={{ opacity: 0, x: -20 }}
 			transition={{ duration: 0.3 }}
 			className='space-y-6'>
-			{/* Header */}
-			<div className='flex items-center gap-3'>
-				<div className='flex h-10 w-10 items-center justify-center rounded-full bg-orange-500/10'>
-					<Image className='h-5 w-5 text-orange-500' />
-				</div>
-				<div>
-					<h3 className='font-semibold'>Reference Images</h3>
-					<p className='text-muted-foreground text-sm'>Upload images to guide the AI model generation</p>
-				</div>
-			</div>
-
 			{/* Tips Section */}
 			<div className='rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/50'>
 				<div className='flex items-start gap-3'>
@@ -51,29 +39,25 @@ export function StepReferenceImages({ form, addReferenceImages, removeReferenceI
 			</div>
 
 			{/* Upload Area */}
-			<form.Field name='referenceImages'>
-				{(field) => (
-					<Field>
-						<FieldLabel className='gap-2'>
-							<Image className='h-4 w-4 text-muted-foreground' />
-							Reference Images
-						</FieldLabel>
-						<FieldDescription className='mb-4'>
-							Upload 3-5 reference images to help define your model&apos;s appearance. The AI will use these as guidance
-							for generating consistent results.
-						</FieldDescription>
-						<ImageUploadZone
-							images={field.state.value}
-							onAddImages={addReferenceImages}
-							onRemoveImage={removeReferenceImage}
-							maxImages={5}
-						/>
-						<FieldDescription className='mt-2'>
-							{field.state.value.length}/5 images uploaded (optional, but recommended)
-						</FieldDescription>
-					</Field>
-				)}
-			</form.Field>
+			<Field>
+				<FieldLabel className='gap-2'>
+					<Image className='h-4 w-4 text-muted-foreground' />
+					Reference Images
+				</FieldLabel>
+				<FieldDescription className='mb-4'>
+					Upload 3-5 reference images to help define your model&apos;s appearance. The AI will use these as guidance for
+					generating consistent results.
+				</FieldDescription>
+				<ImageUploadZone
+					images={formData.referenceImages}
+					onAddImages={addReferenceImages}
+					onRemoveImage={removeReferenceImage}
+					maxImages={5}
+				/>
+				<FieldDescription className='mt-2'>
+					{formData.referenceImages.length}/5 images uploaded (optional, but recommended)
+				</FieldDescription>
+			</Field>
 		</motion.div>
 	)
 }

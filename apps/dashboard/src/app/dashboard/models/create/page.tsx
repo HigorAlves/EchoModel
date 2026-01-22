@@ -3,13 +3,15 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { useEffect } from 'react'
+import { useActionState, useEffect } from 'react'
 import { toast } from 'sonner'
 
 import { useBreadcrumbs } from '@/components/layout/dashboard/dashboard-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { createModelAction } from '@/features/models/actions/model.actions'
 
 import {
 	StepAppearance,
@@ -19,8 +21,8 @@ import {
 	StepReview,
 	WizardProgress,
 } from './_components'
-import { useModelForm } from './_hooks'
-import type { CreateModelFormData } from './_schemas'
+import { StepBasicInfo as StepBasicInfoV2 } from './_components/step-basic-info-v2'
+import { useModelWizard } from './_hooks/use-model-wizard'
 
 const STEP_TITLES = ['Basic Info', 'Appearance', 'Fashion Configuration', 'Reference Images', 'Review & Create']
 
@@ -51,52 +53,45 @@ const stepVariants = {
 export default function CreateModelPage() {
 	const { setItems } = useBreadcrumbs()
 	const t = useTranslations('models')
-	const tCreate = useTranslations('models.create')
+	const router = useRouter()
 
-	// Initialize form with the custom hook
-	const {
-		form,
-		currentStep,
-		stepDirection,
-		goNext,
-		goBack,
-		goToStep,
-		checkCanGoNext,
-		textureInput,
-		setTextureInput,
-		addTexture,
-		removeTexture,
-		toggleProductCategory,
-		addReferenceImages,
-		removeReferenceImage,
-		isSubmitting,
-	} = useModelForm({
-		onSubmit: async (data: CreateModelFormData) => {
-			try {
-				// TODO: Implement actual model creation
-				console.log('Creating model with data:', data)
-				toast.success('Model creation started!', {
-					description: 'Your AI model is being generated. This may take a few minutes.',
-				})
-			} catch (error) {
-				console.error('Error creating model:', error)
-				toast.error('Failed to create model', {
-					description: 'Please try again or contact support if the problem persists.',
-				})
-			}
-		},
-	})
+	// Initialize wizard hook
+	const wizard = useModelWizard()
+	const { currentStep, stepDirection, goNext, goBack, goToStep, canGoNext, formData } = wizard
+
+	// Initialize action state for final submission
+	const [state, formAction, isPending] = useActionState(createModelAction, null)
 
 	// Set breadcrumbs
 	useEffect(() => {
 		setItems([{ label: t('breadcrumbs.models'), href: '/dashboard/models' }, { label: t('breadcrumbs.create') }])
 	}, [setItems, t])
 
+	// Handle success
+	useEffect(() => {
+		if (state?.success) {
+			toast.success('Model creation started!', {
+				description: 'Your AI model is being generated. This may take a few minutes.',
+			})
+			router.push('/dashboard/models')
+		} else if (state?.error) {
+			toast.error('Failed to create model', {
+				description: state.error,
+			})
+		}
+	}, [state, router])
+
 	// Handle form submission
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
+
 		if (currentStep === 5) {
-			await form.handleSubmit()
+			// Create a FormData object with the form data as JSON
+			const formDataObj = new FormData()
+			formDataObj.append('data', JSON.stringify(formData))
+
+			// Submit using the action
+			formAction(formDataObj)
 		} else {
 			goNext()
 		}
@@ -110,8 +105,8 @@ export default function CreateModelPage() {
 					<ArrowLeft className='h-4 w-4' />
 				</Button>
 				<div>
-					<h1 className='text-2xl font-bold tracking-tight'>{tCreate('title')}</h1>
-					<p className='text-muted-foreground'>{tCreate('subtitle')}</p>
+					<h1 className='text-2xl font-bold tracking-tight'>{t('breadcrumbs.create')}</h1>
+					<p className='text-muted-foreground'>Create a new AI model for your fashion content</p>
 				</div>
 			</div>
 
@@ -119,6 +114,13 @@ export default function CreateModelPage() {
 			<div className='mx-auto w-full max-w-3xl'>
 				<WizardProgress currentStep={currentStep} onStepClick={goToStep} />
 			</div>
+
+			{/* Global Error */}
+			{state?.error && !state?.fieldErrors && (
+				<div className='bg-destructive/10 text-destructive mx-auto w-full max-w-3xl rounded-md p-3 text-sm'>
+					{state.error}
+				</div>
+			)}
 
 			{/* Form Card */}
 			<form onSubmit={handleSubmit}>
@@ -137,35 +139,20 @@ export default function CreateModelPage() {
 								animate='center'
 								exit='exit'
 								transition={{ duration: 0.3, ease: 'easeInOut' }}>
-								{/* Step 1: Basic Information */}
-								{currentStep === 1 && <StepBasicInfo form={form} />}
+								{/* Step 1: Basic Information (New Version with InputGroup) */}
+								{currentStep === 1 && <StepBasicInfoV2 wizard={wizard} />}
 
 								{/* Step 2: Appearance */}
-								{currentStep === 2 && <StepAppearance form={form} />}
+								{currentStep === 2 && <StepAppearance wizard={wizard} />}
 
 								{/* Step 3: Fashion Configuration */}
-								{currentStep === 3 && (
-									<StepFashionConfig
-										form={form}
-										textureInput={textureInput}
-										setTextureInput={setTextureInput}
-										addTexture={addTexture}
-										removeTexture={removeTexture}
-										toggleProductCategory={toggleProductCategory}
-									/>
-								)}
+								{currentStep === 3 && <StepFashionConfig wizard={wizard} />}
 
 								{/* Step 4: Reference Images */}
-								{currentStep === 4 && (
-									<StepReferenceImages
-										form={form}
-										addReferenceImages={addReferenceImages}
-										removeReferenceImage={removeReferenceImage}
-									/>
-								)}
+								{currentStep === 4 && <StepReferenceImages wizard={wizard} />}
 
 								{/* Step 5: Review */}
-								{currentStep === 5 && <StepReview form={form} onEditStep={goToStep} />}
+								{currentStep === 5 && <StepReview wizard={wizard} onEditStep={goToStep} />}
 							</motion.div>
 						</AnimatePresence>
 					</CardContent>
@@ -177,17 +164,17 @@ export default function CreateModelPage() {
 							Back
 						</Button>
 						{currentStep < 5 ? (
-							<form.Subscribe selector={(state) => state.values}>
-								{(values) => (
-									<Button type='submit' disabled={!checkCanGoNext(values)}>
-										Next
-										<ArrowRight className='ml-2 h-4 w-4' />
-									</Button>
-								)}
-							</form.Subscribe>
+							<Button
+								type='button'
+								onClick={() => {
+									goNext()
+								}}>
+								Next
+								<ArrowRight className='ml-2 h-4 w-4' />
+							</Button>
 						) : (
-							<Button type='submit' disabled={isSubmitting}>
-								{isSubmitting ? (
+							<Button type='submit' disabled={isPending}>
+								{isPending ? (
 									<>
 										<Loader2 className='mr-2 h-4 w-4 animate-spin' />
 										Creating...
