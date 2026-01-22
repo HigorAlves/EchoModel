@@ -10,7 +10,7 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(({ classN
 	const [showPassword, setShowPassword] = useState(false)
 
 	return (
-		<div className='relative'>
+		<div className='relative w-full'>
 			<input
 				type={showPassword ? 'text' : 'password'}
 				data-slot='input'
