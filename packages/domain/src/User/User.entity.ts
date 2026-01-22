@@ -36,16 +36,6 @@ interface CreateUserDTO {
 }
 
 /**
- * DTO for creating a user from an Okta profile (JIT provisioning)
- */
-interface CreateUserFromOktaDTO {
-	readonly oktaSub: string
-	readonly email: string
-	readonly fullName: string
-	readonly locale?: string
-}
-
-/**
  * User Aggregate Root
  *
  * Represents a user in the domain with unique identity and business behavior.
@@ -85,36 +75,6 @@ export class User {
 			fullName,
 			locale,
 			status,
-			externalId,
-			createdAt: now,
-			updatedAt: now,
-			deletedAt: null,
-		})
-
-		// Add domain event for new user creation
-		user.addDomainEvent(createUserCreatedEvent(id.value, { userId: id.value }))
-
-		return user
-	}
-
-	/**
-	 * Factory method to create a User from an Okta profile (JIT provisioning)
-	 * @param dto - Okta profile data
-	 * @returns New User instance with externalId set to Okta sub
-	 */
-	static createFromOktaProfile(dto: CreateUserFromOktaDTO): User {
-		const now = new Date()
-
-		const id = UserId.create(randomUUID())
-		const fullName = FullName.create(dto.fullName)
-		const locale = Locale.create(dto.locale ?? 'en-US')
-		const externalId = ExternalId.create(dto.oktaSub)
-
-		const user = new User({
-			id,
-			fullName,
-			locale,
-			status: UserStatus.ACTIVE,
 			externalId,
 			createdAt: now,
 			updatedAt: now,
@@ -168,7 +128,7 @@ export class User {
 	}
 
 	/**
-	 * Get the user's external ID (e.g., Okta sub)
+	 * Get the user's external ID (e.g., Firebase Auth UID)
 	 * @returns ExternalId value object or null if not linked to external provider
 	 */
 	get externalId(): ExternalId | null {

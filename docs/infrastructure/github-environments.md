@@ -8,7 +8,6 @@ Configuration guide for GitHub Environments, secrets, and variables used in CI/C
 |----------|-------|
 | Location | GitHub Repository Settings > Environments |
 | Workflows | `.github/workflows/cd.yml`, `.github/workflows/ci.yml` |
-| Actions | `.github/actions/deploy/action.yml` |
 | Purpose | Environment-specific deployment configuration |
 
 ## GitHub Environments
@@ -24,12 +23,6 @@ Create these environments in **Repository Settings > Environments**:
 | `dev` | `develop` (optional) | None |
 | `staging` | `staging` (optional) | Optional: require approval |
 | `production` | `main` (recommended) | Recommended: require approval |
-| `dev-web` | `develop` (optional) | None |
-| `staging-web` | `staging` (optional) | Optional: require approval |
-| `production-web` | `main` (recommended) | Recommended: require approval |
-| `dev-lambdas` | `develop` (optional) | None |
-| `staging-lambdas` | `staging` (optional) | Optional: require approval |
-| `production-lambdas` | `main` (recommended) | Recommended: require approval |
 
 ## Environment Secrets
 
@@ -37,14 +30,15 @@ Secrets are encrypted and only exposed to workflows running in the specified env
 
 ### Per-Environment Secrets
 
-Each environment (`dev`, `staging`, `production` and their variants) needs these secrets:
+Each environment (`dev`, `staging`, `production`) needs these secrets:
 
 | Secret | Description | Example |
 |--------|-------------|---------|
-| `AWS_ACCESS_KEY_ID` | AWS IAM access key | `AKIAIOSFODNN7EXAMPLE` |
-| `AWS_SECRET_ACCESS_KEY` | AWS IAM secret key | `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY` |
-| `AWS_ACCOUNT_ID` | AWS account number | `123456789012` |
-| `FIREBASE_TOKEN` | Firebase CI token (if using Firebase) | `1//0eXXXX...` |
+| `FIREBASE_TOKEN` | Firebase CI token | `1//0eXXXX...` |
+| `FIREBASE_SERVICE_ACCOUNT` | Firebase service account JSON | `{"type": "service_account"...}` |
+| `VERCEL_TOKEN` | Vercel deployment token (if using Vercel) | `xxx` |
+| `VERCEL_ORG_ID` | Vercel organization ID | `xxx` |
+| `VERCEL_PROJECT_ID` | Vercel project ID | `xxx` |
 
 ### Repository-Level Secrets (Shared)
 
@@ -55,7 +49,6 @@ These secrets are shared across all environments and should be configured at the
 | `SLACK_WEBHOOK_URL` | Slack webhook for deployment notifications | Optional |
 | `SENTRY_AUTH_TOKEN` | Sentry authentication token | Optional |
 | `TURBO_TOKEN` | Turborepo remote cache token | Optional |
-| `NPM_TOKEN` | NPM publish token (for releases) | Optional |
 | `GITHUB_TOKEN` | Automatically provided by GitHub Actions | Auto |
 
 ## Environment Variables
@@ -68,15 +61,16 @@ Each environment needs these variables:
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `ENVIRONMENT_URL` | Base URL for the environment | `https://dev.foundry.com` |
+| `ENVIRONMENT_URL` | Base URL for the environment | `https://dev.echomodel.com` |
+| `FIREBASE_PROJECT_ID` | Firebase project ID | `echomodel-dev` |
 
 ### Repository-Level Variables (Shared)
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `TURBO_TEAM` | Turborepo team name | `foundry` |
-| `SENTRY_ORG` | Sentry organization | `foundry` |
-| `SENTRY_PROJECT` | Sentry project name | `foundry-api` |
+| `TURBO_TEAM` | Turborepo team name | `echomodel` |
+| `SENTRY_ORG` | Sentry organization | `echomodel` |
+| `SENTRY_PROJECT` | Sentry project name | `echomodel-dashboard` |
 
 ## Branch to Environment Mapping
 
@@ -95,11 +89,11 @@ The CD workflow automatically determines the target environment based on the bra
 
 1. Go to **Repository Settings** > **Environments**
 2. Click **New environment**
-3. Create each environment: `dev`, `staging`, `production`, `dev-web`, `staging-web`, `production-web`, `dev-lambdas`, `staging-lambdas`, `production-lambdas`
+3. Create each environment: `dev`, `staging`, `production`
 
 ### 2. Configure Protection Rules (Production)
 
-For `production`, `production-web`, and `production-lambdas`:
+For `production`:
 
 1. Click on the environment
 2. Enable **Required reviewers** and add approvers
@@ -113,18 +107,19 @@ For each environment (`dev`, `staging`, `production`):
 1. Click on the environment
 2. Under **Environment secrets**, click **Add secret**
 3. Add:
-   - `AWS_ACCESS_KEY_ID`
-   - `AWS_SECRET_ACCESS_KEY`
-   - `AWS_ACCOUNT_ID`
-   - `FIREBASE_TOKEN` (if applicable)
+   - `FIREBASE_TOKEN`
+   - `FIREBASE_SERVICE_ACCOUNT`
+   - `VERCEL_TOKEN` (if using Vercel)
+   - `VERCEL_ORG_ID` (if using Vercel)
+   - `VERCEL_PROJECT_ID` (if using Vercel)
 
 ### 4. Add Variables to Each Environment
 
 1. Under **Environment variables**, click **Add variable**
 2. Add `ENVIRONMENT_URL` with the appropriate URL:
-   - `dev`: `https://dev.foundry.com`
-   - `staging`: `https://staging.foundry.com`
-   - `production`: `https://foundry.com`
+   - `dev`: `https://dev.echomodel.com`
+   - `staging`: `https://staging.echomodel.com`
+   - `production`: `https://echomodel.com`
 
 ### 5. Add Repository-Level Secrets
 
@@ -141,73 +136,36 @@ For each environment (`dev`, `staging`, `production`):
    - `SENTRY_ORG`
    - `SENTRY_PROJECT`
 
-## AWS IAM Requirements
+## Firebase Setup
 
-Each environment's AWS credentials should have appropriate permissions:
+### Generate Firebase Token
 
-### Dev Environment
-- Full access to dev AWS account resources
-- CDK deployment permissions
-- Lambda management
-- API Gateway management
-- RDS/Database access
-
-### Staging Environment
-- Full access to staging AWS account resources
-- Same as dev with staging account
-
-### Production Environment
-- Full access to production AWS account resources
-- Same as dev with production account
-- Consider using AWS IAM roles with OIDC for enhanced security
-
-### Recommended IAM Policy
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "cloudformation:*",
-        "lambda:*",
-        "apigateway:*",
-        "iam:*",
-        "s3:*",
-        "logs:*",
-        "rds:*",
-        "ec2:*",
-        "secretsmanager:*",
-        "ssm:*"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
+```bash
+# Login and generate CI token
+firebase login:ci
 ```
 
-> **Note**: For production, consider using more restrictive policies based on the principle of least privilege.
+### Generate Service Account
+
+1. Go to [Firebase Console](https://console.firebase.google.com)
+2. Project Settings > Service accounts
+3. Generate new private key
+4. Copy the JSON content to `FIREBASE_SERVICE_ACCOUNT` secret
 
 ## Workflow Usage
 
 ### How Environments Are Used in CD Workflow
 
 ```yaml
-# Job declares the environment
-deploy-infrastructure:
+deploy:
   environment:
     name: ${{ needs.pre-deployment.outputs.environment }}
     url: ${{ vars.ENVIRONMENT_URL }}
   steps:
-    - name: Deploy
-      uses: ./.github/actions/deploy
-      with:
-        # Secrets are automatically scoped to the environment
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
-        environment-url: ${{ vars.ENVIRONMENT_URL }}
+    - name: Deploy to Firebase
+      env:
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      run: firebase deploy --project ${{ vars.FIREBASE_PROJECT_ID }}
 ```
 
 ### Manual Deployment
@@ -218,14 +176,13 @@ Trigger a manual deployment via GitHub Actions:
 2. Click **Run workflow**
 3. Select:
    - **Target environment**: `dev`, `staging`, or `production`
-   - **Component to deploy**: `all`, `web`, `lambdas`, or `infrastructure`
    - **Force deployment**: Check to skip change detection
 
 ## Troubleshooting
 
 ### Secrets Not Found
 
-If you see errors like `Error: Input required and not supplied: aws-access-key-id`:
+If you see errors like `Error: Input required and not supplied`:
 
 1. Verify the secret exists in the correct environment
 2. Check the job has `environment: <name>` declared
@@ -239,25 +196,23 @@ If deployment fails with environment errors:
 2. Check branch protection rules allow the current branch
 3. Verify required reviewers have approved (for protected environments)
 
-### Permission Denied
+### Firebase Deployment Fails
 
-If AWS operations fail:
+If Firebase deployment fails:
 
-1. Verify the AWS credentials are valid
-2. Check IAM policy has required permissions
-3. Verify the credentials belong to the correct AWS account
+1. Verify `FIREBASE_TOKEN` is valid
+2. Check Firebase project exists
+3. Verify user has deployment permissions
 
 ## Security Best Practices
 
-1. **Rotate credentials regularly**: Update AWS access keys every 90 days
+1. **Rotate credentials regularly**: Update Firebase tokens periodically
 2. **Use environment protection**: Require approvals for production
 3. **Limit branch access**: Restrict which branches can deploy to production
 4. **Audit access**: Review who has access to modify secrets
-5. **Consider OIDC**: Use AWS OIDC provider instead of long-lived credentials
-6. **Separate accounts**: Use different AWS accounts for each environment
+5. **Separate projects**: Use different Firebase projects for each environment
 
 ## Related Documentation
 
 - [Deployment Guide](./deployment.md)
-- [LocalStack Development](./localstack.md)
 - [Environment Variables (App)](../configuration/environment.md)

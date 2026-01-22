@@ -1,248 +1,140 @@
-# Deployment Infrastructure (@foundry/cdk)
+# Deployment Infrastructure
 
-AWS CDK infrastructure for deploying Foundry to AWS with support for local development via LocalStack.
+Firebase infrastructure for deploying EchoModel.
 
 ## Overview
 
 | Property | Value |
 |----------|-------|
-| Package | `@foundry/cdk` |
-| Location | `infra/cdk` |
-| Purpose | Infrastructure as Code (IaC) |
-| Dependencies | `aws-cdk-lib`, `@foundry/api-user`, `@foundry/api-feature-flag` |
+| Platform | Firebase |
+| Location | `infra/firebase` |
+| Purpose | Cloud infrastructure configuration |
+| Services | Firestore, Firebase Storage, Cloud Functions, Firebase Auth |
 
 ## Architecture
 
 ```mermaid
 graph TB
-    APIGW["API Gateway<br/>(HTTP API v2)"]
-
-    subgraph Lambdas["Lambda Functions"]
-        UserLambda["User Lambda<br/>(@foundry/api-user)"]
-        FlagLambda["FeatureFlag Lambda<br/>(@foundry/api-feature-flag)"]
-        AuthLambda["Auth Lambda<br/>(@foundry/api-auth)"]
+    subgraph "Frontend"
+        NextJS["Next.js Dashboard<br/>(Vercel/Firebase Hosting)"]
     end
 
-    RDSProxy["RDS Proxy<br/>(Connection Pooling)"]
-    RDS["PostgreSQL (RDS)<br/>(Multi-AZ in prod)"]
+    subgraph "Firebase"
+        Auth["Firebase Auth"]
+        Firestore["Firestore<br/>(Database)"]
+        Storage["Firebase Storage<br/>(Assets)"]
+        Functions["Cloud Functions<br/>(Backend APIs)"]
+    end
 
-    APIGW --> UserLambda
-    APIGW --> FlagLambda
-    APIGW --> AuthLambda
-    UserLambda --> RDSProxy
-    FlagLambda --> RDSProxy
-    AuthLambda --> RDSProxy
-    RDSProxy --> RDS
+    subgraph "External"
+        Sentry["Sentry<br/>(Error Tracking)"]
+        Seedream["Seedream 4.5<br/>(AI Generation)"]
+    end
+
+    NextJS --> Auth
+    NextJS --> Firestore
+    NextJS --> Storage
+    NextJS --> Functions
+    NextJS --> Sentry
+    Functions --> Firestore
+    Functions --> Storage
+    Functions --> Seedream
 ```
 
-## Environments
+## Firebase Configuration
 
-| Environment | VPC CIDR | Database | Lambda Memory | API Throttling |
-|-------------|----------|----------|---------------|----------------|
-| `dev` | 10.0.0.0/16 | t4g.micro, 20GB | 256MB | 100 req/s |
-| `staging` | 10.1.0.0/16 | t4g.small, 50GB | 512MB | 500 req/s |
-| `prod` | 10.2.0.0/16 | Configurable, Multi-AZ | 1024MB | Configurable |
+Configuration files in `infra/firebase/`:
 
-## CDK Stacks
-
-### Production Stacks
-
-```
-infra/cdk/lib/stacks/
-├── network-stack.ts        # VPC, NAT, Subnets
-├── database-stack.ts       # RDS PostgreSQL, Proxy, Secrets
-├── lambda-stack.ts         # Lambda functions
-└── api-gateway-stack.ts    # HTTP API Gateway
-```
-
-### LocalStack Stacks
-
-```
-infra/cdk/lib/stacks/
-├── lambda-stack-local.ts       # Simplified Lambda (no VPC)
-└── api-gateway-stack-local.ts  # Simplified API Gateway
-```
-
-## Package Resolution
-
-Lambda code paths are resolved using Turborepo package references:
-
-```typescript
-// infra/cdk/lib/utils/package-resolver.ts
-import { createRequire } from 'node:module'
-
-export const LambdaPackages = {
-  USER: '@foundry/api-user',
-  FEATURE_FLAG: '@foundry/api-feature-flag',
-} as const
-
-export function getLambdaCodePath(packageName: LambdaPackageName): string {
-  const require = createRequire(import.meta.url)
-  const packageJsonPath = require.resolve(`${packageName}/package.json`)
-  return join(dirname(packageJsonPath), 'dist')
-}
-```
-
-This approach:
-- Respects Turborepo dependency graph
-- Ensures packages build before CDK deployment
-- Works regardless of file structure changes
-- Provides clear error messages if packages aren't built
+| File | Purpose |
+|------|---------|
+| `firebase.json` | Project configuration |
+| `firestore.rules` | Firestore security rules |
+| `firestore.indexes.json` | Firestore indexes |
+| `storage.rules` | Firebase Storage security rules |
+| `.firebaserc` | Project aliases |
 
 ## Deployment Commands
 
-### Production/Staging
+```bash
+# Deploy all Firebase services
+firebase deploy
+
+# Deploy only Firestore rules
+firebase deploy --only firestore:rules
+
+# Deploy only Storage rules
+firebase deploy --only storage
+
+# Deploy only Cloud Functions
+firebase deploy --only functions
+
+# Deploy to specific project
+firebase deploy --project production
+```
+
+## Environment Configuration
+
+### Firebase Project Setup
+
+1. Create Firebase project in [Firebase Console](https://console.firebase.google.com)
+2. Enable required services:
+   - Authentication (Email/Password, Google)
+   - Firestore Database
+   - Firebase Storage
+3. Generate service account key for backend operations
+
+### Environment Variables
+
+Dashboard app (`apps/dashboard/.env.local`):
 
 ```bash
-# Deploy to development
-yarn workspace @foundry/cdk run deploy:dev
+# Firebase
+NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
 
-# Deploy to staging
-yarn workspace @foundry/cdk run deploy:staging
-
-# Deploy to production
-yarn workspace @foundry/cdk run deploy:prod
-
-# Preview changes
-yarn workspace @foundry/cdk run diff
-
-# Synthesize CloudFormation (dry run)
-yarn workspace @foundry/cdk run synth
+# Sentry
+NEXT_PUBLIC_SENTRY_DSN=your-sentry-dsn
+SENTRY_AUTH_TOKEN=your-sentry-auth-token
 ```
 
-### LocalStack
+## Security Rules
 
-```bash
-# Bootstrap CDK for LocalStack
-yarn cdk:local:bootstrap
+### Firestore Rules
 
-# Deploy to LocalStack
-yarn cdk:local:deploy
+```javascript
+// infra/firebase/firestore.rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can only access their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
 
-# Destroy LocalStack stacks
-yarn cdk:local:destroy
-
-# Synthesize CloudFormation for LocalStack
-yarn cdk:local:synth
-```
-
-## Lambda Configuration
-
-### BoundedContextLambda Construct
-
-Reusable construct for Lambda functions:
-
-```typescript
-import { BoundedContextLambda } from '../constructs/bounded-context-lambda.js'
-
-this.userLambda = new BoundedContextLambda(this, 'UserLambda', {
-  config,
-  boundedContext: 'user',
-  description: 'User bounded context Lambda',
-  codePath: getUserLambdaCodePath(),  // Package-based resolution
-  vpc,
-  securityGroup: lambdaSecurityGroup,
-  databaseProxy,
-  databaseSecret,
-})
-```
-
-### Lambda Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| `NODE_ENV` | `development` or `production` |
-| `LOG_LEVEL` | `debug` (dev) or `info` (prod) |
-| `DB_PROXY_ENDPOINT` | RDS Proxy endpoint |
-| `DB_SECRET_ARN` | Secrets Manager ARN for DB credentials |
-| `DB_NAME` | Database name |
-| `BOUNDED_CONTEXT` | Context identifier (user, feature-flag) |
-
-## API Gateway Routes
-
-### User API
-
-| Method | Path | Handler |
-|--------|------|---------|
-| GET | `/users` | List users |
-| POST | `/users` | Create user |
-| GET | `/users/{id}` | Get user by ID |
-| PUT | `/users/{id}` | Update user |
-| DELETE | `/users/{id}` | Delete user |
-| GET | `/users/health` | Health check |
-| GET | `/users/live` | Liveness probe |
-| GET | `/users/ready` | Readiness probe |
-
-### Feature Flag API
-
-| Method | Path | Handler |
-|--------|------|---------|
-| GET | `/feature-flags` | List flags |
-| POST | `/feature-flags` | Create flag |
-| GET | `/feature-flags/{key}` | Get flag by key |
-| POST | `/feature-flags/{key}/enable` | Enable flag |
-| POST | `/feature-flags/{key}/disable` | Disable flag |
-| POST | `/feature-flags/{key}/evaluate` | Evaluate flag |
-| GET | `/feature-flags/health` | Health check |
-
-### Documentation Routes (non-prod only)
-
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/docs` | Swagger UI |
-| GET | `/openapi.json` | OpenAPI specification |
-
-## Secrets Management
-
-### Production
-
-Database credentials stored in AWS Secrets Manager:
-
-```json
-{
-  "host": "rds-proxy-endpoint.amazonaws.com",
-  "port": 5432,
-  "username": "foundry_admin",
-  "password": "****",
-  "database": "foundry"
-}
-```
-
-Lambda retrieves credentials during cold start:
-
-```typescript
-// packages/lambda/src/database/dataSourceFactory.ts
-export async function getDatabaseConfig(): Promise<DatabaseEnvConfig> {
-  const secretArn = process.env.DB_SECRET_ARN
-
-  if (isLambda() && secretArn) {
-    const credentials = await getDatabaseCredentials(secretArn)
-    return {
-      host: credentials.host,
-      port: credentials.port,
-      // ...
+    // Store data is scoped to authenticated users
+    match /stores/{storeId} {
+      allow read, write: if request.auth != null;
     }
   }
-
-  return getDatabaseEnvConfig()  // Fallback to env vars
 }
 ```
 
-### LocalStack
+### Storage Rules
 
-Secrets created by Docker init script:
-
-```bash
-# infra/docker/init-scripts/01-create-secrets.sh
-awslocal secretsmanager create-secret \
-  --name "local/foundry/database" \
-  --secret-string '{
-    "host": "host.docker.internal",
-    "port": 5432,
-    "username": "dev_local",
-    "password": "dev_local",
-    "database": "dev_local"
-  }'
+```javascript
+// infra/firebase/storage.rules
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /users/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
 ```
 
 ## CI/CD Integration
@@ -254,167 +146,28 @@ Deployment triggered on:
 - Push to `staging` → Staging
 - Manual dispatch → Any environment
 
-```yaml
-# .github/workflows/cd.yml
-- name: Deploy Infrastructure
-  run: |
-    yarn cdk:deploy:${{ env.ENVIRONMENT }}
-```
-
 ### Required Secrets
 
 | Secret | Description |
 |--------|-------------|
-| `AWS_ACCESS_KEY_ID_STAGING` | AWS credentials for staging |
-| `AWS_ACCESS_KEY_ID_PRODUCTION` | AWS credentials for production |
-| `AWS_SECRET_ACCESS_KEY_STAGING` | AWS secret for staging |
-| `AWS_SECRET_ACCESS_KEY_PRODUCTION` | AWS secret for production |
-| `AWS_ACCOUNT_ID_STAGING` | AWS account ID for staging |
-| `AWS_ACCOUNT_ID_PRODUCTION` | AWS account ID for production |
-| `GITHUB_TOKEN` | Auto-provided by GitHub Actions |
-| `NPM_TOKEN` | For private package access (if needed) |
-| `SLACK_WEBHOOK_URL` | Deployment notifications |
-| `FIREBASE_TOKEN` | Web app deployment (if using Firebase) |
-| `SENTRY_AUTH_TOKEN` | Error tracking (optional) |
+| `FIREBASE_TOKEN` | Firebase CLI token for deployment |
+| `FIREBASE_SERVICE_ACCOUNT` | Service account JSON for backend |
+| `SENTRY_AUTH_TOKEN` | Sentry release tracking |
+| `VERCEL_TOKEN` | Vercel deployment (if using Vercel) |
 
-### Required Repository Variables
+## Monitoring
 
-Configure these in **GitHub Settings → Variables → Repository variables**:
+### Sentry Integration
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `PRODUCTION_URL` | Production environment URL | `https://foundry.com` |
-| `STAGING_URL` | Staging environment URL | `https://staging.foundry.com` |
-| `TURBO_TEAM` | Turborepo remote cache team | `foundry` |
-| `SENTRY_ORG` | Sentry organization (optional) | `foundry` |
-| `SENTRY_PROJECT` | Sentry project (optional) | `foundry-api` |
+Error tracking configured in:
+- `apps/dashboard/sentry.client.config.ts`
+- `apps/dashboard/sentry.server.config.ts`
+- `apps/dashboard/sentry.edge.config.ts`
 
-### Environment Protection Rules
+### Firebase Console
 
-Configure GitHub Environment protection for production safety:
-
-**Steps to configure:**
-
-1. Go to **GitHub → Settings → Environments**
-2. Create or edit the `production` environment
-3. Configure:
-   - **Required reviewers**: Add 2+ team members
-   - **Wait timer**: 10 minutes (optional)
-   - **Deployment branches**: Restrict to `main` only
-   - **Allow administrators to bypass**: Unchecked for max safety
-
-**Protection workflow:**
-```
-Push to main → CI runs → Pre-deployment checks →
-⏸️ Approval required → Reviewers approve → Deploy to production
-```
-
-### Deployment Windows
-
-Production deployments are restricted to:
-- **Days**: Monday - Friday
-- **Hours**: 9:00 AM - 5:00 PM UTC
-
-To override (emergencies only):
-```bash
-# Use workflow_dispatch with force-deploy=true
-gh workflow run cd.yml -f environment=production -f force-deploy=true
-```
-
-### Automatic Rollback
-
-If post-deployment tests fail in production:
-1. Rollback job automatically triggers
-2. Deploys previous release tag
-3. Creates GitHub issue for incident tracking
-4. Notifies team via Slack
-
-## Testing Infrastructure
-
-### LocalStack E2E Tests
-
-```typescript
-// apps/lambdas/user/src/testing/setup-e2e.ts
-import { PostgreSqlContainer } from '@testcontainers/postgresql'
-
-beforeAll(async () => {
-  // Start PostgreSQL container
-  const container = await new PostgreSqlContainer()
-    .withDatabase('test_db')
-    .start()
-
-  // Run migrations
-  await dataSource.runMigrations()
-})
-```
-
-### Infrastructure Tests
-
-```bash
-# Test CDK synthesis
-yarn workspace @foundry/cdk run synth
-
-# Compare with deployed infrastructure
-yarn workspace @foundry/cdk run diff
-```
-
-## Troubleshooting
-
-### Common Issues
-
-**Package not found during deployment**
-
-```
-Error: Failed to resolve Lambda package "@foundry/api-user"
-```
-
-Solution: Build Lambda packages first:
-```bash
-yarn lambda:build
-```
-
-**LocalStack connection issues**
-
-```
-Error: connect ECONNREFUSED 127.0.0.1:4566
-```
-
-Solution: Start LocalStack:
-```bash
-yarn localstack:up
-```
-
-**Database connection timeout**
-
-Check:
-1. Security group allows Lambda → RDS
-2. Lambda is in VPC private subnet
-3. RDS Proxy is healthy
-
-### Useful Commands
-
-```bash
-# View LocalStack logs
-yarn localstack:logs
-
-# Reset LocalStack (removes all data)
-yarn localstack:reset
-
-# Check deployed Lambda configuration
-awslocal lambda get-function-configuration --function-name foundry-local-user
-
-# Invoke Lambda directly
-awslocal lambda invoke --function-name foundry-local-user \
-  --payload '{"path": "/users", "httpMethod": "GET"}' \
-  output.json
-```
-
-## Cost Optimization
-
-| Resource | Dev | Staging | Prod |
-|----------|-----|---------|------|
-| NAT Gateway | 1 | 2 | 2 |
-| RDS Instance | t4g.micro | t4g.small | t4g.medium+ |
-| Lambda Memory | 256MB | 512MB | 1024MB |
-| Log Retention | 7 days | 7 days | 90 days |
-| Deletion Protection | No | Yes | Yes |
+Monitor in [Firebase Console](https://console.firebase.google.com):
+- Authentication usage
+- Firestore reads/writes
+- Storage bandwidth
+- Cloud Functions invocations

@@ -4,7 +4,7 @@ import { UserValidationError } from '../user.error'
 /**
  * @fileoverview External ID Value Object
  *
- * Represents an external identity provider's user ID (e.g., Okta sub claim).
+ * Represents an external identity provider's user ID (e.g., Firebase Auth UID).
  * Used for linking users authenticated via external identity providers
  * to internal user records.
  */
@@ -12,7 +12,7 @@ import { UserValidationError } from '../user.error'
 /**
  * External ID Value Object
  *
- * Represents a unique identifier from an external identity provider (e.g., Okta).
+ * Represents a unique identifier from an external identity provider (e.g., Firebase Auth).
  * Encapsulates validation rules and ensures type safety for external IDs.
  */
 export class ExternalId {

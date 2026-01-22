@@ -1,6 +1,6 @@
 # Architecture Overview
 
-Foundry is an enterprise-grade TypeScript monorepo implementing **Domain-Driven Design (DDD)**, **Hexagonal Architecture (Ports & Adapters)**, and **CQRS (Command Query Responsibility Segregation)** patterns.
+EchoModel is an enterprise-grade TypeScript monorepo implementing **Domain-Driven Design (DDD)**, **Hexagonal Architecture (Ports & Adapters)**, and **CQRS (Command Query Responsibility Segregation)** patterns.
 
 ## High-Level Architecture
 
@@ -57,10 +57,10 @@ graph TB
             Err[Error]
             FF[FeatureFlags]
         end
-        subgraph Database["Database"]
-            ORM[TypeORM]
-            Repos[Repositories]
-            Mig[Migrations]
+        subgraph Firebase["Firebase"]
+            Firestore[Firestore]
+            Storage[Firebase Storage]
+            FBAuth[Firebase Auth]
         end
         subgraph Config["Configuration"]
             Env[Environment]
@@ -112,7 +112,7 @@ The system is organized into bounded contexts, each with its own:
 Current bounded contexts:
 - **User**: User management and lifecycle
 - **FeatureFlag**: Feature toggle management with A/B testing
-- **Auth**: Authentication, refresh token management, and SSO integration
+- **Auth**: Authentication via Firebase Auth (email/password, Google SSO)
 
 #### Aggregate Pattern
 
@@ -157,7 +157,6 @@ graph LR
     end
 
     subgraph Infrastructure["Infrastructure"]
-        db["@foundry/database"]
         env["@foundry/enviroment"]
     end
 
@@ -170,10 +169,6 @@ graph LR
     app --> domain
     app --> error
     domain --> error
-
-    db --> domain
-    db --> env
-    db --> error
 
     auth --> error
     enc --> error
@@ -248,12 +243,10 @@ Standardized via the `@foundry/error` kernel package:
 ## Monorepo Structure
 
 ```
-foundry/
+echomodel/
 ├── apps/                    # Deployable applications
-│   └── lambdas/             # AWS Lambda APIs
-│       ├── auth/            # Authentication API
-│       ├── user/            # User management API
-│       └── feature-flag/    # Feature flag API
+│   ├── dashboard/           # Next.js web dashboard
+│   └── functions/           # Firebase Cloud Functions (planned)
 ├── packages/                # Core business packages
 │   ├── application/         # Use cases (CQRS)
 │   └── domain/              # Domain model (DDD)
@@ -264,14 +257,13 @@ foundry/
 │   ├── feature-flags/       # Feature management
 │   ├── logger/              # Structured logging
 │   └── testing/             # Test utilities and in-memory repositories
-├── infra/                   # Infrastructure adapters
-│   └── database/            # PostgreSQL + TypeORM
+├── infra/                   # Infrastructure configuration
+│   └── firebase/            # Firebase rules and configuration
 ├── config/                  # Shared configurations
 │   ├── enviroment/          # Environment management
 │   ├── typescript-config/   # TypeScript settings
 │   └── vitest-config/       # Testing configuration
-├── tools/                   # Development tools
-└── scripts/                 # Build and deployment scripts
+└── docs/                    # Documentation
 ```
 
 ## Build System

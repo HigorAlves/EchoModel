@@ -1,6 +1,6 @@
-# Foundry Documentation
+# EchoModel Documentation
 
-Welcome to the Foundry monorepo documentation. This guide provides comprehensive coverage of the architecture, packages, and patterns used throughout the project.
+Welcome to the EchoModel monorepo documentation. This guide provides comprehensive coverage of the architecture, packages, and patterns used throughout the project.
 
 ## Table of Contents
 
@@ -18,13 +18,6 @@ Welcome to the Foundry monorepo documentation. This guide provides comprehensive
 - [Authorization](./kernel/authorization.md) - RBAC/ABAC access control system
 - [Encryption](./kernel/encryption.md) - Data encryption and compliance
 - [Feature Flags](./kernel/feature-flags.md) - Dynamic feature management
-
-### Infrastructure
-- [Database](./infrastructure/database.md) - PostgreSQL, TypeORM, migrations
-- [Deployment](./infrastructure/deployment.md) - AWS CDK, environments, CI/CD
-- [GitHub Environments](./infrastructure/github-environments.md) - CI/CD secrets, variables, and environment setup
-- [LocalStack](./infrastructure/localstack.md) - Local development with AWS emulation
-- [Lambda APIs](./infrastructure/lambda-apis.md) - Hono-based API Lambdas
 
 ### Configuration
 - [Environment](./configuration/environment.md) - Environment variable management
@@ -47,72 +40,26 @@ yarn test
 yarn dev
 ```
 
-## Local Development with LocalStack
-
-Run the complete AWS infrastructure locally:
-
-```bash
-# Option 1: Automated setup
-./scripts/setup-local-env.sh
-
-# Option 2: Step by step
-yarn system:up              # Start PostgreSQL + LocalStack
-yarn lambda:build           # Build Lambda packages
-yarn cdk:local:bootstrap    # Bootstrap CDK
-yarn cdk:local:deploy       # Deploy to LocalStack
-```
-
-After deployment, access:
-- **API**: `http://localhost:4566/restapis/<api-id>/local/_user_request_/users`
-- **Swagger UI**: `http://localhost:4566/restapis/<api-id>/local/_user_request_/docs`
-- **Health Check**: `http://localhost:4566/restapis/<api-id>/local/_user_request_/users/health`
-
-See [LocalStack documentation](./infrastructure/localstack.md) for detailed instructions.
-
-## Deployment
-
-Deploy to AWS environments:
-
-```bash
-# Development
-yarn workspace @foundry/cdk run deploy:dev
-
-# Staging
-yarn workspace @foundry/cdk run deploy:staging
-
-# Production
-yarn workspace @foundry/cdk run deploy:prod
-```
-
-See [Deployment documentation](./infrastructure/deployment.md) for CI/CD and environment details.
-
 ## Project Structure
 
 ```
-foundry/
+echomodel/
 ├── apps/                    # Application deployables
-│   └── lambdas/             # AWS Lambda functions
-│       ├── user/            # User API (@foundry/api-user)
-│       └── feature-flag/    # Feature Flag API (@foundry/api-feature-flag)
+│   ├── dashboard/           # Next.js web dashboard
+│   └── functions/           # Firebase Cloud Functions (planned)
 ├── packages/                # Core business logic
 │   ├── application/         # CQRS commands, queries, events
-│   ├── domain/              # Domain entities and value objects
-│   └── lambda/              # Lambda utilities and factories
+│   └── domain/              # Domain entities and value objects
 ├── kernel/                  # Shared infrastructure
-│   ├── authorization/       # RBAC/ABAC access control
-│   ├── encryption/          # Data encryption
 │   ├── error/               # Error handling foundation
-│   ├── feature-flags/       # Feature flag management
-│   └── logger/              # Structured logging with Pino
-├── infra/                   # Infrastructure adapters
-│   ├── cdk/                 # AWS CDK (Infrastructure as Code)
-│   ├── database/            # PostgreSQL with TypeORM
-│   └── docker/              # Docker initialization scripts
+│   ├── logger/              # Structured logging with Pino
+│   └── testing/             # Test utilities and factories
+├── infra/                   # Infrastructure configuration
+│   └── firebase/            # Firebase configuration (Firestore, Storage rules)
 ├── config/                  # Shared configurations
 │   ├── enviroment/          # Environment variables
 │   ├── typescript-config/   # TypeScript settings
 │   └── vitest-config/       # Test configuration
-├── scripts/                 # Build and deployment scripts
 └── docs/                    # This documentation
 ```
 
@@ -124,14 +71,15 @@ foundry/
 | Language | TypeScript 5.9+ |
 | Package Manager | Yarn 4 (Berry) |
 | Build System | Turbo + tsdown |
-| API Framework | Hono |
-| Cloud | AWS (Lambda, API Gateway, RDS) |
-| Infrastructure | AWS CDK |
-| Local Dev | LocalStack + Docker Compose |
-| ORM | TypeORM 0.3+ |
-| Database | PostgreSQL 18 |
+| Frontend | Next.js 15 with App Router |
+| UI Components | shadcn/ui + Tailwind CSS |
+| Backend | Firebase Cloud Functions |
+| Database | Firestore |
+| Storage | Firebase Storage |
+| Authentication | Firebase Auth |
+| Monitoring | Sentry |
 | Validation | Zod |
 | Logging | Pino + pino-pretty |
-| Testing | Vitest + Testcontainers |
+| Testing | Vitest |
 | Linting | Biome |
 | CI/CD | GitHub Actions |

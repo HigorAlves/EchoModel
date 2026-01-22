@@ -382,17 +382,16 @@ const result = await query.execute({
 
 ## Auth Bounded Context
 
-The Auth bounded context handles authentication operations (login, register, logout, token refresh, SSO).
+The Auth bounded context handles authentication operations (login, register, logout, token refresh).
 
-**Architecture Note:** Unlike User and FeatureFlag, Auth operations are implemented directly in the Lambda handlers (`apps/lambdas/auth/`) rather than through CQRS commands/queries in this package. This design choice reflects that:
+**Architecture Note:** Auth operations are handled by Firebase Authentication, which provides:
 
-1. Auth operations are tightly coupled to HTTP request/response handling
-2. JWT generation and validation are infrastructure concerns
-3. SSO integration (Okta) requires direct HTTP interaction
+1. Email/password authentication
+2. Google SSO integration
+3. Token generation and validation
+4. Session management
 
-The domain layer (`@foundry/domain`) still defines the Auth aggregate and repository interface for refresh token management.
-
-See [Lambda APIs - Auth API](../infrastructure/lambda-apis.md#auth-api-foundryapi-auth) for handler implementation details.
+The domain layer (`@foundry/domain`) defines the User aggregate with external ID support for linking Firebase Auth users to internal records.
 
 ## Shared Infrastructure
 

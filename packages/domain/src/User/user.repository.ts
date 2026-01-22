@@ -133,7 +133,7 @@ export interface IUserRepository {
 	findByStatus(status: UserStatus): Promise<User[]>
 
 	/**
-	 * Finds a user by their external ID (e.g., Okta sub)
+	 * Finds a user by their external ID (e.g., Firebase Auth UID)
 	 * @param externalId - The external identity provider's user ID
 	 * @returns Promise with the user entity or null if not found
 	 */
