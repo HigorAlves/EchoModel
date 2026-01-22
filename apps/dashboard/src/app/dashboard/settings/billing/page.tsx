@@ -21,7 +21,7 @@ export default function BillingPage() {
 	}, [setItems, t])
 
 	return (
-		<div className='flex flex-1 flex-col gap-6 p-4 pt-0'>
+		<div className='flex flex-1 flex-col gap-6'>
 			{/* Header */}
 			<div>
 				<h1 className='text-2xl font-bold tracking-tight'>{tBilling('title')}</h1>

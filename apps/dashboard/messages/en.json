@@ -520,6 +520,10 @@
 		"saveChanges": "Save Changes",
 		"saveSuccess": "Settings saved successfully",
 		"saveError": "Failed to save settings",
+		"nav": {
+			"general": "General",
+			"billing": "Billing"
+		},
 		"breadcrumbs": {
 			"settings": "Settings",
 			"store": "Store Settings",

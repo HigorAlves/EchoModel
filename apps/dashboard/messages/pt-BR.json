@@ -558,6 +558,10 @@
 		"saveChanges": "Salvar Alteracoes",
 		"saveSuccess": "Configuracoes salvas com sucesso",
 		"saveError": "Falha ao salvar configuracoes",
+		"nav": {
+			"general": "Geral",
+			"billing": "Faturamento"
+		},
 		"breadcrumbs": {
 			"settings": "Configuracoes",
 			"store": "Configuracoes da Loja",

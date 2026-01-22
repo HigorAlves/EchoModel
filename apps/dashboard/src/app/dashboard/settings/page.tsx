@@ -120,18 +120,18 @@ export default function SettingsPage() {
 	}
 
 	return (
-		<div className='flex flex-1 flex-col gap-6 p-4 pt-0'>
+		<div className='flex flex-1 flex-col gap-6'>
 			{/* Header */}
 			<div>
-				<h1 className='text-2xl font-bold tracking-tight'>{t('title')}</h1>
-				<p className='text-muted-foreground'>{t('subtitle')}</p>
+				<h1 className='text-2xl font-bold tracking-tight'>{tStore('title')}</h1>
+				<p className='text-muted-foreground'>{tStore('subtitle')}</p>
 			</div>
 
 			{/* Main Content */}
 			{isCurrentStoreLoading || !currentStore ? (
 				<SettingsFormSkeleton />
 			) : (
-				<div className='max-w-2xl space-y-6'>
+				<div className='space-y-6'>
 					<Card>
 						<CardHeader>
 							<CardTitle>{tStore('title')}</CardTitle>
