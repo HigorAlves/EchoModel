@@ -35,6 +35,8 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 		}
 
 		try {
+			console.log('[DEBUG] handleUpload called for:', file.name, 'with ID:', imageId)
+
 			// Update progress: Starting
 			updateImageProgress(imageId, 10)
 
@@ -74,6 +76,8 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 
 			// Get download URL
 			const downloadUrl = await getDownloadURL(storageRef)
+
+			console.log('[DEBUG] Upload complete for:', file.name, 'ID:', imageId, 'assetId:', assetId)
 
 			// Update progress: Complete and store storagePath
 			updateImageProgress(imageId, 100)
