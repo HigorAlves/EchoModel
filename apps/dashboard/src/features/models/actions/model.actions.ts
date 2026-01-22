@@ -6,8 +6,8 @@
  * Client-side actions for model creation with useActionState
  */
 
-import type { CreateModelFormData } from '@/app/dashboard/models/create/_schemas'
-import { CreateModelFormSchema } from '@/app/dashboard/models/create/_schemas'
+import type { CreateModelInput } from '@/lib/firebase/functions'
+import { createModel } from '@/lib/firebase/functions'
 
 export interface ModelActionState {
 	success: boolean
@@ -20,7 +20,7 @@ export async function createModelAction(
 	_prevState: ModelActionState | null,
 	formData: FormData,
 ): Promise<ModelActionState> {
-	// Extract JSON data from FormData (we'll send as JSON string)
+	// Extract JSON data from FormData
 	const dataJson = formData.get('data') as string
 
 	if (!dataJson) {
@@ -30,9 +30,9 @@ export async function createModelAction(
 		}
 	}
 
-	let rawData: unknown
+	let parsedData: any
 	try {
-		rawData = JSON.parse(dataJson)
+		parsedData = JSON.parse(dataJson)
 	} catch {
 		return {
 			success: false,
@@ -40,35 +40,57 @@ export async function createModelAction(
 		}
 	}
 
-	// Validate with Zod
-	const result = CreateModelFormSchema.safeParse(rawData)
-
-	if (!result.success) {
-		const fieldErrors: Record<string, string[]> = {}
-		for (const issue of result.error.issues) {
-			const field = issue.path.join('.')
-			if (!fieldErrors[field]) {
-				fieldErrors[field] = []
-			}
-			fieldErrors[field].push(issue.message)
-		}
-		return { success: false, fieldErrors }
-	}
-
-	// TODO: Implement actual model creation API call
-	// For now, simulate a successful creation
-	try {
-		await new Promise((resolve) => setTimeout(resolve, 2000))
-
-		// Simulate success
-		return {
-			success: true,
-			modelId: `model-${Date.now()}`,
-		}
-	} catch {
+	// Validate required fields
+	if (!parsedData.storeId) {
 		return {
 			success: false,
-			error: 'An unexpected error occurred while creating the model. Please try again.',
+			error: 'Store ID is required',
+		}
+	}
+
+	if (!parsedData.referenceImageIds) {
+		return {
+			success: false,
+			error: 'Reference images must be uploaded first',
+		}
+	}
+
+	try {
+		// Map to CreateModelInput
+		const modelInput: CreateModelInput = {
+			storeId: parsedData.storeId,
+			name: parsedData.name,
+			description: parsedData.description,
+			gender: parsedData.gender,
+			ageRange: parsedData.ageRange,
+			ethnicity: parsedData.ethnicity,
+			bodyType: parsedData.bodyType,
+			prompt: parsedData.prompt,
+			referenceImageIds: parsedData.referenceImageIds,
+
+			// Fashion config
+			lightingPreset: parsedData.lightingPreset,
+			cameraFraming: parsedData.cameraFraming,
+			backgroundType: parsedData.backgroundType,
+			poseStyle: parsedData.poseStyle,
+			expression: parsedData.expression,
+			postProcessingStyle: parsedData.postProcessingStyle,
+			texturePreferences: parsedData.texturePreferences,
+			productCategories: parsedData.productCategories,
+			supportOutfitSwapping: parsedData.supportOutfitSwapping,
+		}
+
+		// Call Cloud Function
+		const result = await createModel(modelInput)
+
+		return {
+			success: true,
+			modelId: result.data.modelId,
+		}
+	} catch (error) {
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Failed to create model',
 		}
 	}
 }

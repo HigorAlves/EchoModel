@@ -10,9 +10,21 @@ import { app } from './config'
 // Initialize Firebase Functions
 const functions = getFunctions(app)
 
-// Connect to emulator in development
-if (process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_USE_EMULATOR === 'true') {
-	connectFunctionsEmulator(functions, 'localhost', 5001)
+// Connect to emulator in development (must be called before any function calls)
+// This works on both server and client side in Next.js
+if (process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === 'true') {
+	try {
+		connectFunctionsEmulator(functions, 'localhost', 5001)
+		if (typeof window !== 'undefined') {
+			console.log('[Firebase Functions] Connected to emulator at localhost:5001')
+		}
+	} catch (error) {
+		// Ignore if already connected
+		const errorMessage = error instanceof Error ? error.message : String(error)
+		if (typeof window !== 'undefined' && !errorMessage.includes('already been called')) {
+			console.error('[Firebase Functions] Failed to connect to emulator:', error)
+		}
+	}
 }
 
 // ==================== Type Definitions ====================

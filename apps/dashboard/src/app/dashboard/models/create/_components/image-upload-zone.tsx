@@ -197,12 +197,30 @@ export function ImageUploadZone({ images, onAddImages, onRemoveImage, maxImages 
 									</div>
 								</div>
 
-								{/* Upload Progress */}
-								{image.uploadProgress !== undefined && image.uploadProgress < 100 && (
+								{/* Upload Progress or Status */}
+								{image.uploadProgress !== undefined && image.uploadProgress > 0 && image.uploadProgress < 100 && (
 									<div className='absolute inset-0 flex items-center justify-center bg-black/50'>
 										<div className='w-3/4'>
 											<Progress value={image.uploadProgress} className='h-2' />
 											<p className='mt-2 text-center text-xs text-white'>{image.uploadProgress}%</p>
+										</div>
+									</div>
+								)}
+
+								{/* Ready to Upload Badge */}
+								{image.uploadProgress === 0 && !image.assetId && (
+									<div className='absolute bottom-2 left-2 right-2'>
+										<div className='rounded bg-blue-500/90 px-2 py-1 text-center text-xs text-white'>
+											Ready to upload
+										</div>
+									</div>
+								)}
+
+								{/* Uploaded Badge */}
+								{image.assetId && image.uploadProgress === 100 && (
+									<div className='absolute bottom-2 left-2 right-2'>
+										<div className='rounded bg-green-500/90 px-2 py-1 text-center text-xs text-white'>
+											✓ Uploaded
 										</div>
 									</div>
 								)}

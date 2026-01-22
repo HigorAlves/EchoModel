@@ -5,13 +5,15 @@ import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { useActionState, useEffect } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { useBreadcrumbs } from '@/components/layout/dashboard/dashboard-header'
+import { useAuth } from '@/components/providers'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createModelAction } from '@/features/models/actions/model.actions'
+import { useCurrentStore } from '@/features/stores'
 
 import {
 	StepAppearance,
@@ -23,6 +25,7 @@ import {
 } from './_components'
 import { StepBasicInfo as StepBasicInfoV2 } from './_components/step-basic-info-v2'
 import { useModelWizard } from './_hooks/use-model-wizard'
+import { clearUploadedImages, getUploadedImages } from './_utils/upload-storage'
 
 const STEP_TITLES = ['Basic Info', 'Appearance', 'Fashion Configuration', 'Reference Images', 'Review & Create']
 
@@ -54,10 +57,12 @@ export default function CreateModelPage() {
 	const { setItems } = useBreadcrumbs()
 	const t = useTranslations('models')
 	const router = useRouter()
+	const { user } = useAuth()
+	const { currentStore, stores, isLoading: isLoadingStores } = useCurrentStore()
 
 	// Initialize wizard hook
 	const wizard = useModelWizard()
-	const { currentStep, stepDirection, goNext, goBack, goToStep, canGoNext, formData } = wizard
+	const { currentStep, stepDirection, goNext, goBack, goToStep, canGoNext, formData, setImageAssetId } = wizard
 
 	// Initialize action state for final submission
 	const [state, formAction, isPending] = useActionState(createModelAction, null)
@@ -67,9 +72,40 @@ export default function CreateModelPage() {
 		setItems([{ label: t('breadcrumbs.models'), href: '/dashboard/models' }, { label: t('breadcrumbs.create') }])
 	}, [setItems, t])
 
+	// Restore uploaded images from localStorage on mount
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	useEffect(() => {
+		const savedUploads = getUploadedImages()
+		if (savedUploads.length > 0) {
+			for (const upload of savedUploads) {
+				setImageAssetId(upload.imageId, upload.assetId)
+			}
+			toast.info('Restored previous uploads', {
+				description: `${savedUploads.length} image(s) ready to use`,
+			})
+		}
+		// Note: Empty deps array is intentional - we only want to restore uploads once on mount
+		// Adding setImageAssetId would cause infinite loop since it recreates on every formData.referenceImages change
+	}, [])
+
+	// FIXME: Re-enable store validation once stores are implemented
+	// Check for store availability
+	// useEffect(() => {
+	// 	if (!isLoadingStores && stores.length === 0) {
+	// 		toast.warning('No store available', {
+	// 			description: 'Using temporary store ID for development',
+	// 			duration: 3000,
+	// 		})
+	// 		console.warn('[CreateModel] No stores available, will use random UUID')
+	// 	}
+	// }, [isLoadingStores, stores, router])
+
 	// Handle success
 	useEffect(() => {
 		if (state?.success) {
+			// Clear saved uploads after successful model creation
+			clearUploadedImages()
+
 			toast.success('Model creation started!', {
 				description: 'Your AI model is being generated. This may take a few minutes.',
 			})
@@ -85,13 +121,72 @@ export default function CreateModelPage() {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 
-		if (currentStep === 5) {
-			// Create a FormData object with the form data as JSON
-			const formDataObj = new FormData()
-			formDataObj.append('data', JSON.stringify(formData))
+		console.log('[CreateModel] ========================================')
+		console.log('[CreateModel] handleSubmit called, currentStep:', currentStep)
+		console.log('[CreateModel] user:', user?.uid)
+		console.log('[CreateModel] currentStore:', currentStore?.id)
+		console.log('[CreateModel] formData.referenceImages:', formData.referenceImages.length)
+		console.log('[CreateModel] ========================================')
+		console.log('[CreateModel] Reference Images Details:', formData.referenceImages.map(img => ({
+			name: img.name,
+			hasFile: !!img.file,
+			uploadProgress: img.uploadProgress,
+			assetId: img.assetId
+		})))
 
-			// Submit using the action
-			formAction(formDataObj)
+		if (currentStep === 5) {
+			// Validate user authentication
+			if (!user?.uid) {
+				console.error('[CreateModel] No user authenticated')
+				toast.error('Authentication required', {
+					description: 'Please log in to create a model',
+				})
+				return
+			}
+
+			// FIXME: Replace with real store from StoreProvider once stores are implemented
+			const storeId = currentStore?.id || crypto.randomUUID()
+			console.log('[CreateModel] Creating model with storeId:', storeId)
+			console.log('[CreateModel] Using', currentStore?.id ? 'real store' : 'random UUID (FIXME)')
+
+			try {
+				// Collect assetIds from already-uploaded images
+				const referenceImageIds = formData.referenceImages
+					.filter((img) => img.assetId)
+					.map((img) => img.assetId!)
+
+				console.log('[CreateModel] Collected', referenceImageIds.length, 'uploaded asset IDs:', referenceImageIds)
+
+				// Check if any images are still uploading
+				const stillUploading = formData.referenceImages.filter(
+					(img) => img.uploadProgress !== undefined && img.uploadProgress > 0 && img.uploadProgress < 100,
+				)
+
+				if (stillUploading.length > 0) {
+					toast.warning('Images still uploading', {
+						description: 'Please wait for all images to finish uploading',
+					})
+					return
+				}
+
+				// Submit to server action
+				console.log('[CreateModel] Submitting to server action')
+				const formDataObj = new FormData()
+				formDataObj.append(
+					'data',
+					JSON.stringify({
+						...formData,
+						referenceImageIds,
+						storeId,
+					}),
+				)
+
+				formAction(formDataObj)
+			} catch (error) {
+				toast.error('Failed to create model', {
+					description: error instanceof Error ? error.message : 'Unknown error',
+				})
+			}
 		} else {
 			goNext()
 		}
@@ -123,7 +218,11 @@ export default function CreateModelPage() {
 			)}
 
 			{/* Form Card */}
-			<form onSubmit={handleSubmit}>
+			<form
+				onSubmit={(e) => {
+					console.log('[CreateModel] Form onSubmit event fired!')
+					handleSubmit(e)
+				}}>
 				<Card className='mx-auto w-full max-w-3xl'>
 					<CardHeader>
 						<CardTitle>{STEP_TITLES[currentStep - 1]}</CardTitle>
@@ -159,7 +258,7 @@ export default function CreateModelPage() {
 
 					{/* Navigation */}
 					<div className='flex justify-between border-t px-6 py-4'>
-						<Button type='button' variant='outline' onClick={goBack} disabled={currentStep === 1}>
+						<Button type='button' variant='outline' onClick={goBack} disabled={currentStep === 1 || isPending}>
 							<ArrowLeft className='mr-2 h-4 w-4' />
 							Back
 						</Button>
@@ -173,11 +272,11 @@ export default function CreateModelPage() {
 								<ArrowRight className='ml-2 h-4 w-4' />
 							</Button>
 						) : (
-							<Button type='submit' disabled={isPending}>
+							<Button render={<button type='submit' />} disabled={isPending}>
 								{isPending ? (
 									<>
 										<Loader2 className='mr-2 h-4 w-4 animate-spin' />
-										Creating...
+										Creating model...
 									</>
 								) : (
 									'Create Model'

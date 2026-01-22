@@ -8,6 +8,7 @@ import { AppSidebar } from '@/components/layout/dashboard/app-sidebar'
 import { DashboardHeader, DashboardHeaderProvider } from '@/components/layout/dashboard/dashboard-header'
 import { useAuth } from '@/components/providers'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import { StoreProvider } from '@/features/stores'
 
 function AuthGuard({ children }: { children: ReactNode }) {
 	const router = useRouter()
@@ -35,17 +36,21 @@ function AuthGuard({ children }: { children: ReactNode }) {
 }
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
+	const { user } = useAuth()
+
 	return (
 		<AuthGuard>
-			<SidebarProvider>
-				<AppSidebar />
-				<SidebarInset>
-					<DashboardHeaderProvider>
-						<DashboardHeader />
-						{children}
-					</DashboardHeaderProvider>
-				</SidebarInset>
-			</SidebarProvider>
+			<StoreProvider userId={user?.uid ?? null}>
+				<SidebarProvider>
+					<AppSidebar />
+					<SidebarInset>
+						<DashboardHeaderProvider>
+							<DashboardHeader />
+							{children}
+						</DashboardHeaderProvider>
+					</SidebarInset>
+				</SidebarProvider>
+			</StoreProvider>
 		</AuthGuard>
 	)
 }

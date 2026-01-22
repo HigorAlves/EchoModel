@@ -31,6 +31,26 @@ export class FirebaseStorageService implements IStorageService {
 		const file = this.bucket.file(storagePath)
 		const expiresAt = new Date(Date.now() + expiresInSeconds * 1000)
 
+		// Check if running in emulator mode
+		const isEmulator = process.env.FUNCTIONS_EMULATOR === 'true' || process.env.FIREBASE_STORAGE_EMULATOR_HOST
+
+		if (isEmulator) {
+			// In emulator mode, use the emulator upload endpoint
+			const bucketName = this.bucket.name
+			const encodedPath = encodeURIComponent(storagePath)
+			const emulatorHost = process.env.FIREBASE_STORAGE_EMULATOR_HOST || 'localhost:9199'
+			const uploadUrl = `http://${emulatorHost}/v0/b/${bucketName}/o?name=${encodedPath}`
+
+			return {
+				uploadUrl,
+				headers: {
+					'Content-Type': mimeType,
+				},
+				expiresAt,
+			}
+		}
+
+		// Production mode: use signed URLs
 		const [uploadUrl] = await file.getSignedUrl({
 			version: 'v4',
 			action: 'write',

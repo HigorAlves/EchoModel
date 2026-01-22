@@ -132,45 +132,60 @@ export function useModelWizard() {
 	// Texture preferences management
 	const addTexture = useCallback(() => {
 		const trimmed = textureInput.trim()
-		const currentTextures = formData.texturePreferences
 
-		if (trimmed && currentTextures.length < 5 && !currentTextures.includes(trimmed)) {
-			updateField('texturePreferences', [...currentTextures, trimmed])
+		if (trimmed) {
+			setFormData((prev) => {
+				const currentTextures = prev.texturePreferences
+				if (currentTextures.length < 5 && !currentTextures.includes(trimmed)) {
+					return {
+						...prev,
+						texturePreferences: [...currentTextures, trimmed],
+					}
+				}
+				return prev
+			})
+			setTouchedFields((prev) => new Set(prev).add('texturePreferences'))
 			setTextureInput('')
 		}
-	}, [textureInput, formData.texturePreferences, updateField])
+	}, [textureInput])
 
-	const removeTexture = useCallback(
-		(texture: string) => {
-			updateField(
-				'texturePreferences',
-				formData.texturePreferences.filter((t) => t !== texture),
-			)
-		},
-		[formData.texturePreferences, updateField],
-	)
+	const removeTexture = useCallback((texture: string) => {
+		setFormData((prev) => ({
+			...prev,
+			texturePreferences: prev.texturePreferences.filter((t) => t !== texture),
+		}))
+		setTouchedFields((prev) => new Set(prev).add('texturePreferences'))
+	}, [])
 
 	// Product categories management
-	const toggleProductCategory = useCallback(
-		(category: CreateModelFormData['productCategories'][number]) => {
-			const currentCategories = formData.productCategories
+	const toggleProductCategory = useCallback((category: CreateModelFormData['productCategories'][number]) => {
+		setFormData((prev) => {
+			const currentCategories = prev.productCategories
 
 			if (currentCategories.includes(category)) {
-				updateField(
-					'productCategories',
-					currentCategories.filter((c) => c !== category),
-				)
-			} else if (currentCategories.length < 3) {
-				updateField('productCategories', [...currentCategories, category])
+				return {
+					...prev,
+					productCategories: currentCategories.filter((c) => c !== category),
+				}
 			}
-		},
-		[formData.productCategories, updateField],
-	)
+			if (currentCategories.length < 3) {
+				return {
+					...prev,
+					productCategories: [...currentCategories, category],
+				}
+			}
+			return prev
+		})
+		setTouchedFields((prev) => new Set(prev).add('productCategories'))
+	}, [])
 
 	// Reference images management
-	const addReferenceImages = useCallback(
-		(files: File[]) => {
-			const currentImages = formData.referenceImages
+	const addReferenceImages = useCallback((files: File[], uploadFn?: (file: File, imageId: string) => Promise<void>) => {
+		// Create new images first (outside of setFormData to avoid recreating them)
+		const newImagesList: ReferenceImage[] = []
+
+		setFormData((prev) => {
+			const currentImages = prev.referenceImages
 			const availableSlots = 5 - currentImages.length
 			const filesToAdd = files.slice(0, availableSlots)
 
@@ -180,52 +195,77 @@ export function useModelWizard() {
 				preview: URL.createObjectURL(file),
 				name: file.name,
 				size: file.size,
-				uploadProgress: 0,
+				uploadProgress: 0, // Initial state - will update to 10, 40, 70, 100 during upload
 			}))
 
-			updateField('referenceImages', [...currentImages, ...newImages])
-		},
-		[formData.referenceImages, updateField],
-	)
+			// Store for upload triggering
+			newImagesList.push(...newImages)
+
+			return {
+				...prev,
+				referenceImages: [...currentImages, ...newImages],
+			}
+		})
+
+		setTouchedFields((prev) => new Set(prev).add('referenceImages'))
+
+		// Trigger upload immediately if uploadFn provided
+		if (uploadFn) {
+			for (const image of newImagesList) {
+				if (image.file) {
+					uploadFn(image.file, image.id).catch((error) => {
+						console.error('[useModelWizard] Upload failed for', image.name, ':', error)
+					})
+				}
+			}
+		}
+	}, [])
 
 	const removeReferenceImage = useCallback(
-		(imageId: string) => {
-			const currentImages = formData.referenceImages
-			const imageToRemove = currentImages.find((img) => img.id === imageId)
+		(imageId: string, deleteFn?: (imageId: string, assetId: string) => Promise<void>) => {
+			setFormData((prev) => {
+				const imageToRemove = prev.referenceImages.find((img) => img.id === imageId)
 
-			if (imageToRemove?.preview) {
-				URL.revokeObjectURL(imageToRemove.preview)
-			}
+				if (imageToRemove?.preview) {
+					URL.revokeObjectURL(imageToRemove.preview)
+				}
 
-			updateField(
-				'referenceImages',
-				currentImages.filter((img) => img.id !== imageId),
-			)
+				// Delete from storage if assetId exists
+				if (imageToRemove?.assetId && deleteFn) {
+					deleteFn(imageId, imageToRemove.assetId).catch((error) => {
+						console.error('[useModelWizard] Delete failed for', imageToRemove.name, ':', error)
+					})
+				}
+
+				return {
+					...prev,
+					referenceImages: prev.referenceImages.filter((img) => img.id !== imageId),
+				}
+			})
+			setTouchedFields((prev) => new Set(prev).add('referenceImages'))
 		},
-		[formData.referenceImages, updateField],
+		[],
 	)
 
-	const updateImageProgress = useCallback(
-		(imageId: string, progress: number) => {
-			updateField(
-				'referenceImages',
-				formData.referenceImages.map((img) => (img.id === imageId ? { ...img, uploadProgress: progress } : img)),
-			)
-		},
-		[formData.referenceImages, updateField],
-	)
+	const updateImageProgress = useCallback((imageId: string, progress: number) => {
+		setFormData((prev) => ({
+			...prev,
+			referenceImages: prev.referenceImages.map((img) =>
+				img.id === imageId ? { ...img, uploadProgress: progress } : img,
+			),
+		}))
+		setTouchedFields((prev) => new Set(prev).add('referenceImages'))
+	}, [])
 
-	const setImageAssetId = useCallback(
-		(imageId: string, assetId: string) => {
-			updateField(
-				'referenceImages',
-				formData.referenceImages.map((img) =>
-					img.id === imageId ? { ...img, assetId, uploadProgress: 100 } : img,
-				),
-			)
-		},
-		[formData.referenceImages, updateField],
-	)
+	const setImageAssetId = useCallback((imageId: string, assetId: string) => {
+		setFormData((prev) => ({
+			...prev,
+			referenceImages: prev.referenceImages.map((img) =>
+				img.id === imageId ? { ...img, assetId, uploadProgress: 100 } : img,
+			),
+		}))
+		setTouchedFields((prev) => new Set(prev).add('referenceImages'))
+	}, [])
 
 	return {
 		// Form data

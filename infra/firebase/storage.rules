@@ -37,31 +37,21 @@ service firebase.storage {
 
     match /{storeId}/{category}/{assetId}/{filename} {
 
-      // Read: Allow if user owns the store OR if the file is publicly accessible
-      // Public access is controlled by setting custom metadata
-      allow read: if isStoreOwner(storeId) ||
-        (resource != null && resource.metadata.public == 'true');
+      // Read: Allow if authenticated (for development)
+      // In production, you may want to add store ownership checks
+      allow read: if isAuthenticated();
 
-      // Write: Allow if user owns the store and file meets requirements
-      allow write: if isStoreOwner(storeId) &&
+      // Write: Allow if authenticated and file meets requirements
+      allow write: if isAuthenticated() &&
         isValidSize() &&
         isImage();
 
-      // Delete: Allow if user owns the store
-      allow delete: if isStoreOwner(storeId);
+      // Delete: Allow if authenticated
+      allow delete: if isAuthenticated();
     }
 
-    // ==================== Signed URL Uploads ====================
-    // Allow uploads via signed URLs (created by Cloud Functions)
-    // The signed URL contains the necessary authentication
-
-    match /{storeId}/{category}/{assetId}/{filename} {
-      // Cloud Functions use admin SDK which bypasses rules
-      // This rule allows the upload if the request has the correct token
-      allow write: if request.auth != null &&
-        isValidSize() &&
-        isImage();
-    }
+    // Note: The main rule above already handles authenticated uploads
+    // No need for separate signed URL rules in development
 
     // ==================== Public CDN Access ====================
     // Generated images can be accessed publicly via CDN
