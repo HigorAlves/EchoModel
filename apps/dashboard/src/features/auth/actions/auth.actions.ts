@@ -1,7 +1,7 @@
 'use client'
 
-import { signInWithEmail, signUpWithEmail } from '@/lib/firebase'
-import { LoginSchema, SignupSchema } from '../schemas/auth.schema'
+import { sendPasswordReset, signInWithEmail, signUpWithEmail } from '@/lib/firebase'
+import { ForgotPasswordSchema, LoginSchema, SignupSchema } from '../schemas/auth.schema'
 
 export interface AuthActionState {
 	success: boolean
@@ -108,4 +108,43 @@ function mapFirebaseError(error: Error): string {
 	}
 
 	return errorMessages[errorCode] || error.message || 'An unexpected error occurred.'
+}
+
+export async function forgotPasswordAction(
+	_prevState: AuthActionState | null,
+	formData: FormData,
+): Promise<AuthActionState> {
+	const rawData = {
+		email: formData.get('email') as string,
+	}
+
+	const result = ForgotPasswordSchema.safeParse(rawData)
+
+	if (!result.success) {
+		const fieldErrors: Record<string, string[]> = {}
+		result.error.issues.forEach((issue) => {
+			const field = issue.path[0] as string
+			if (!fieldErrors[field]) fieldErrors[field] = []
+			fieldErrors[field].push(issue.message)
+		})
+		return { success: false, fieldErrors }
+	}
+
+	try {
+		const resetResult = await sendPasswordReset(result.data.email)
+
+		if (resetResult.error) {
+			return {
+				success: false,
+				error: mapFirebaseError(resetResult.error),
+			}
+		}
+
+		return { success: true }
+	} catch {
+		return {
+			success: false,
+			error: 'An unexpected error occurred. Please try again.',
+		}
+	}
 }

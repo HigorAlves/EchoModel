@@ -1,5 +1,6 @@
 export {
 	type AuthResult,
+	sendPasswordReset,
 	signInWithEmail,
 	signInWithGoogle,
 	signOut,

@@ -64,6 +64,18 @@
 			"termsAgreementStart": "Ao clicar em continuar, voce concorda com nossos",
 			"termsAgreementMiddle": "e"
 		},
+		"forgotPassword": {
+			"title": "Redefinir sua senha",
+			"subtitle": "Digite seu endereco de e-mail e enviaremos um link para redefinir sua senha",
+			"emailDescription": "Enviaremos instrucoes de redefinicao de senha para este endereco de e-mail.",
+			"sendResetLink": "Enviar Link de Redefinicao",
+			"sendingLink": "Enviando...",
+			"backToLogin": "Voltar para o Login",
+			"successTitle": "Verifique seu e-mail",
+			"successMessage": "Enviamos um link de redefinicao de senha para seu endereco de e-mail. Verifique sua caixa de entrada e siga as instrucoes.",
+			"termsAgreementStart": "Ao clicar em continuar, voce concorda com nossos",
+			"termsAgreementMiddle": "e"
+		},
 		"validation": {
 			"emailRequired": "E-mail e obrigatorio",
 			"emailInvalid": "Por favor, insira um e-mail valido",

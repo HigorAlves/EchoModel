@@ -3,6 +3,7 @@ import {
 	signOut as firebaseSignOut,
 	GoogleAuthProvider,
 	onAuthStateChanged,
+	sendPasswordResetEmail,
 	signInWithEmailAndPassword,
 	signInWithPopup,
 	type User,
@@ -49,6 +50,16 @@ export async function signOut(): Promise<{ error: Error | null }> {
 	try {
 		const auth = getFirebaseAuth()
 		await firebaseSignOut(auth)
+		return { error: null }
+	} catch (error) {
+		return { error: error as Error }
+	}
+}
+
+export async function sendPasswordReset(email: string): Promise<{ error: Error | null }> {
+	try {
+		const auth = getFirebaseAuth()
+		await sendPasswordResetEmail(auth, email)
 		return { error: null }
 	} catch (error) {
 		return { error: error as Error }

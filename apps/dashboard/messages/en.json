@@ -75,6 +75,18 @@
 			"termsAgreementStart": "By clicking continue, you agree to our",
 			"termsAgreementMiddle": "and"
 		},
+		"forgotPassword": {
+			"title": "Reset your password",
+			"subtitle": "Enter your email address and we'll send you a link to reset your password",
+			"emailDescription": "We'll send password reset instructions to this email address.",
+			"sendResetLink": "Send Reset Link",
+			"sendingLink": "Sending...",
+			"backToLogin": "Back to Login",
+			"successTitle": "Check your email",
+			"successMessage": "We've sent a password reset link to your email address. Please check your inbox and follow the instructions.",
+			"termsAgreementStart": "By clicking continue, you agree to our",
+			"termsAgreementMiddle": "and"
+		},
 		"validation": {
 			"emailRequired": "Email is required",
 			"emailInvalid": "Please enter a valid email",
