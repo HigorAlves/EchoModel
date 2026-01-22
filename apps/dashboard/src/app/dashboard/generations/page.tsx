@@ -309,7 +309,7 @@ function EmptyState({ t }: { t: ReturnType<typeof useTranslations> }) {
 			</div>
 			<h3 className='mb-2 text-xl font-semibold'>{t('empty.title')}</h3>
 			<p className='text-muted-foreground mb-6 max-w-md text-center text-sm'>{t('empty.description')}</p>
-			<Button render={<Link href='/dashboard/generations/new' />} size='lg'>
+			<Button render={<Link href='/dashboard/generations/new' />} nativeButton={false} size='lg'>
 				<Plus className='mr-2 h-4 w-4' />
 				{t('empty.createButton')}
 			</Button>
@@ -399,7 +399,7 @@ export default function GenerationsPage() {
 					<h1 className='text-2xl font-bold tracking-tight'>{t('title')}</h1>
 					<p className='text-muted-foreground'>{t('subtitle')}</p>
 				</div>
-				<Button render={<Link href='/dashboard/generations/new' />} size='default'>
+				<Button render={<Link href='/dashboard/generations/new' />} nativeButton={false} size='default'>
 					<Plus className='mr-2 h-4 w-4' />
 					New Generation
 				</Button>

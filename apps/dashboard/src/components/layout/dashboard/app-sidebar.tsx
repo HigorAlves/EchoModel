@@ -3,18 +3,11 @@
 import { Cog, FolderOpen, LayoutDashboard, Sparkles, Users } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import type * as React from 'react'
-
 import { NavMain } from '@/components/layout/dashboard/nav-main'
 import { NavUser } from '@/components/layout/dashboard/nav-user'
 import { type StoreData, StoreSwitcher } from '@/components/layout/dashboard/store-switcher'
+import { useAuth } from '@/components/providers'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar'
-
-// Sample user data - will be replaced with real auth data
-const userData = {
-	name: 'Store Owner',
-	email: 'owner@example.com',
-	avatar: '/avatars/default.jpg',
-}
 
 // Sample stores data - will be replaced with real store data
 const storesData: StoreData[] = [
@@ -32,6 +25,14 @@ const storesData: StoreData[] = [
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const t = useTranslations('sidebar')
+	const { user } = useAuth()
+
+	// Get user display name and email from Firebase user
+	const userData = {
+		name: user?.displayName || user?.email?.split('@')[0] || 'User',
+		email: user?.email || '',
+		avatar: user?.photoURL || '',
+	}
 
 	const navMain = [
 		{

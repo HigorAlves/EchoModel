@@ -321,7 +321,7 @@ export default function ModelsPage() {
 					<h1 className='text-2xl font-bold tracking-tight'>{t('title')}</h1>
 					<p className='text-muted-foreground'>{t('subtitle')}</p>
 				</div>
-				<Button render={<Link href='/dashboard/models/create' />} size='default'>
+				<Button render={<Link href='/dashboard/models/create' />} nativeButton={false} size='default'>
 					<Plus className='mr-2 h-4 w-4' />
 					{t('actions.create')}
 				</Button>

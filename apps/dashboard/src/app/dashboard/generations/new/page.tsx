@@ -86,7 +86,7 @@ export default function NewGenerationPage() {
 		<div className='flex flex-1 flex-col gap-6 p-4 pt-0'>
 			{/* Header */}
 			<div className='flex items-center gap-4'>
-				<Button variant='ghost' size='icon' render={<Link href='/dashboard/generations' />}>
+				<Button variant='ghost' size='icon' render={<Link href='/dashboard/generations' />} nativeButton={false}>
 					<ArrowLeft className='h-4 w-4' />
 				</Button>
 				<div>
