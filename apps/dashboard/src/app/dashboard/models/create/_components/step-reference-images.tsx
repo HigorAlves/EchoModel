@@ -83,12 +83,12 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 
 			console.log('[StepReferenceImages] Upload complete, download URL:', downloadUrl)
 
-			// Update progress: Complete
+			// Update progress: Complete and store storagePath
 			updateImageProgress(imageId, 100)
-			setImageAssetId(imageId, assetId)
+			setImageAssetId(imageId, assetId, storagePath)
 
-			// Save to localStorage
-			saveUploadedImage(imageId, assetId)
+			// Save to localStorage with storagePath
+			saveUploadedImage(imageId, assetId, storagePath)
 
 			toast.success('Image uploaded', {
 				description: `${file.name} uploaded successfully`,
@@ -109,14 +109,19 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 		try {
 			console.log('[StepReferenceImages] Deleting asset:', assetId)
 
-			// Get the image file name from the imageId (stored in formData)
+			// Get the image from state
 			const image = formData.referenceImages.find((img) => img.id === imageId)
 			if (!image) {
-				throw new Error('Image not found')
+				console.warn('[StepReferenceImages] Image not found in state, skipping storage delete')
+				clearUploadedImage(imageId)
+				return
 			}
 
-			// Reconstruct storage path: {storeId}/MODEL_REFERENCE/{assetId}/{filename}
-			const storagePath = `${storeId}/MODEL_REFERENCE/${assetId}/${image.file.name}`
+			// Use storagePath from state if available, otherwise reconstruct it
+			// (storagePath is saved during upload for consistency across page refreshes)
+			const storagePath =
+				image.storagePath ||
+				`${storeId}/MODEL_REFERENCE/${assetId}/${image.file?.name || image.name}`
 
 			console.log('[StepReferenceImages] Deleting from path:', storagePath)
 
@@ -138,9 +143,25 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 			console.log('[StepReferenceImages] Successfully deleted asset:', assetId)
 		} catch (error) {
 			console.error('[StepReferenceImages] Delete failed:', error)
-			toast.error('Delete failed', {
-				description: error instanceof Error ? error.message : 'Failed to delete image',
-			})
+
+			// Check if it's a 404 error (file already deleted or doesn't exist)
+			const isNotFound =
+				error instanceof Error &&
+				(error.message.includes('object-not-found') || error.message.includes('does not exist'))
+
+			if (isNotFound) {
+				// File doesn't exist, just remove from localStorage silently
+				console.log('[StepReferenceImages] File not found in storage, clearing from localStorage')
+				clearUploadedImage(imageId)
+				toast.info('Image removed', {
+					description: 'File was already deleted from storage',
+				})
+			} else {
+				// Real error, show error toast
+				toast.error('Delete failed', {
+					description: error instanceof Error ? error.message : 'Failed to delete image',
+				})
+			}
 		}
 	}
 

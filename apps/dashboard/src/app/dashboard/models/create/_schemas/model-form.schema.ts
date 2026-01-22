@@ -126,6 +126,7 @@ export const ReferenceImagesSchema = z.object({
 				size: z.number(),
 				uploadProgress: z.number().min(0).max(100).optional(),
 				assetId: z.string().optional(),
+				storagePath: z.string().optional(),
 			}),
 		)
 		.max(5, 'Maximum 5 reference images'),
@@ -169,6 +170,7 @@ export const CreateModelFormSchema = z.object({
 				size: z.number(),
 				uploadProgress: z.number().min(0).max(100).optional(),
 				assetId: z.string().optional(),
+				storagePath: z.string().optional(),
 			}),
 		)
 		.max(5),

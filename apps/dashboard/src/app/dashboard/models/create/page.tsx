@@ -78,7 +78,7 @@ export default function CreateModelPage() {
 		const savedUploads = getUploadedImages()
 		if (savedUploads.length > 0) {
 			for (const upload of savedUploads) {
-				setImageAssetId(upload.imageId, upload.assetId)
+				setImageAssetId(upload.imageId, upload.assetId, upload.storagePath)
 			}
 			toast.info('Restored previous uploads', {
 				description: `${savedUploads.length} image(s) ready to use`,

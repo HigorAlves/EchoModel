@@ -18,6 +18,7 @@ interface ImageUploadZoneProps {
 		size: number
 		uploadProgress?: number
 		assetId?: string
+		storagePath?: string
 	}>
 	onAddImages: (files: File[]) => void
 	onRemoveImage: (imageId: string) => void

@@ -21,6 +21,7 @@ export interface ReferenceImage {
 	size: number
 	uploadProgress?: number
 	assetId?: string
+	storagePath?: string
 }
 
 // Helper to get fields for each step
@@ -181,16 +182,22 @@ export function useModelWizard() {
 
 	// Reference images management
 	const addReferenceImages = useCallback((files: File[], uploadFn?: (file: File, imageId: string) => Promise<void>) => {
-		// Create new images first (outside of setFormData to avoid recreating them)
-		const newImagesList: ReferenceImage[] = []
+		console.log('[useModelWizard] addReferenceImages called with', files.length, 'files:', files.map(f => f.name))
+
+		// Pre-compute images to upload synchronously, before setFormData
+		let newImages: ReferenceImage[] = []
 
 		setFormData((prev) => {
 			const currentImages = prev.referenceImages
+			console.log('[useModelWizard] Current images count:', currentImages.length)
 			const availableSlots = 5 - currentImages.length
+			console.log('[useModelWizard] Available slots:', availableSlots)
 			const filesToAdd = files.slice(0, availableSlots)
+			console.log('[useModelWizard] Files to add:', filesToAdd.length)
 
-			const newImages: ReferenceImage[] = filesToAdd.map((file) => ({
-				id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+			// Create new image objects
+			newImages = filesToAdd.map((file, index) => ({
+				id: `${Date.now()}-${index}-${Math.random().toString(36).substring(2, 9)}`,
 				file,
 				preview: URL.createObjectURL(file),
 				name: file.name,
@@ -198,8 +205,7 @@ export function useModelWizard() {
 				uploadProgress: 0, // Initial state - will update to 10, 40, 70, 100 during upload
 			}))
 
-			// Store for upload triggering
-			newImagesList.push(...newImages)
+			console.log('[useModelWizard] Created', newImages.length, 'new images:', newImages.map(i => ({ id: i.id, name: i.name })))
 
 			return {
 				...prev,
@@ -210,15 +216,21 @@ export function useModelWizard() {
 		setTouchedFields((prev) => new Set(prev).add('referenceImages'))
 
 		// Trigger upload immediately if uploadFn provided
-		if (uploadFn) {
-			for (const image of newImagesList) {
-				if (image.file) {
-					uploadFn(image.file, image.id).catch((error) => {
-						console.error('[useModelWizard] Upload failed for', image.name, ':', error)
-					})
+		// Use queueMicrotask to ensure state update completes first
+		queueMicrotask(() => {
+			console.log('[useModelWizard] About to trigger uploads for', newImages.length, 'images')
+			if (uploadFn && newImages.length > 0) {
+				for (const image of newImages) {
+					if (image.file) {
+						console.log('[useModelWizard] Triggering upload for:', image.name, 'id:', image.id)
+						uploadFn(image.file, image.id).catch((error) => {
+							console.error('[useModelWizard] Upload failed for', image.name, ':', error)
+						})
+					}
 				}
 			}
-		}
+			console.log('[useModelWizard] Finished triggering all uploads')
+		})
 	}, [])
 
 	const removeReferenceImage = useCallback(
@@ -257,11 +269,11 @@ export function useModelWizard() {
 		setTouchedFields((prev) => new Set(prev).add('referenceImages'))
 	}, [])
 
-	const setImageAssetId = useCallback((imageId: string, assetId: string) => {
+	const setImageAssetId = useCallback((imageId: string, assetId: string, storagePath?: string) => {
 		setFormData((prev) => ({
 			...prev,
 			referenceImages: prev.referenceImages.map((img) =>
-				img.id === imageId ? { ...img, assetId, uploadProgress: 100 } : img,
+				img.id === imageId ? { ...img, assetId, storagePath, uploadProgress: 100 } : img,
 			),
 		}))
 		setTouchedFields((prev) => new Set(prev).add('referenceImages'))

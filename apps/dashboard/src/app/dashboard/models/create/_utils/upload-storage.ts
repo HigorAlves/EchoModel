@@ -8,6 +8,7 @@
 export interface UploadedImageState {
 	imageId: string
 	assetId: string
+	storagePath: string
 	timestamp: number
 }
 
@@ -17,14 +18,14 @@ const EXPIRY_MS = 24 * 60 * 60 * 1000 // 24 hours
 /**
  * Save uploaded image state to localStorage
  */
-export function saveUploadedImage(imageId: string, assetId: string): void {
+export function saveUploadedImage(imageId: string, assetId: string, storagePath: string): void {
 	if (typeof window === 'undefined') return
 
 	try {
 		const existing = getUploadedImages()
 		const updated: UploadedImageState[] = [
 			...existing.filter((img) => img.imageId !== imageId),
-			{ imageId, assetId, timestamp: Date.now() },
+			{ imageId, assetId, storagePath, timestamp: Date.now() },
 		]
 
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
@@ -61,6 +62,15 @@ export function getUploadedImageAssetId(imageId: string): string | null {
 	const uploads = getUploadedImages()
 	const upload = uploads.find((u) => u.imageId === imageId)
 	return upload?.assetId ?? null
+}
+
+/**
+ * Get storage path for a specific imageId
+ */
+export function getUploadedImageStoragePath(imageId: string): string | null {
+	const uploads = getUploadedImages()
+	const upload = uploads.find((u) => u.imageId === imageId)
+	return upload?.storagePath ?? null
 }
 
 /**
