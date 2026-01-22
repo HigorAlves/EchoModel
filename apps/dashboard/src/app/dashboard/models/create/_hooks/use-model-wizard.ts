@@ -260,22 +260,38 @@ export function useModelWizard() {
 	)
 
 	const updateImageProgress = useCallback((imageId: string, progress: number) => {
-		setFormData((prev) => ({
-			...prev,
-			referenceImages: prev.referenceImages.map((img) =>
-				img.id === imageId ? { ...img, uploadProgress: progress } : img,
-			),
-		}))
+		setFormData((prev) => {
+			const imageExists = prev.referenceImages.some(img => img.id === imageId)
+			console.log('[useModelWizard] updateImageProgress:', imageId, 'progress:', progress, 'exists:', imageExists)
+			if (!imageExists) {
+				console.warn('[useModelWizard] Image not found in state:', imageId)
+				console.log('[useModelWizard] Available images:', prev.referenceImages.map(img => img.id))
+			}
+			return {
+				...prev,
+				referenceImages: prev.referenceImages.map((img) =>
+					img.id === imageId ? { ...img, uploadProgress: progress } : img,
+				),
+			}
+		})
 		setTouchedFields((prev) => new Set(prev).add('referenceImages'))
 	}, [])
 
 	const setImageAssetId = useCallback((imageId: string, assetId: string, storagePath?: string) => {
-		setFormData((prev) => ({
-			...prev,
-			referenceImages: prev.referenceImages.map((img) =>
-				img.id === imageId ? { ...img, assetId, storagePath, uploadProgress: 100 } : img,
-			),
-		}))
+		setFormData((prev) => {
+			const imageExists = prev.referenceImages.some(img => img.id === imageId)
+			console.log('[useModelWizard] setImageAssetId:', imageId, 'assetId:', assetId, 'exists:', imageExists)
+			if (!imageExists) {
+				console.warn('[useModelWizard] Image not found in state:', imageId)
+				console.log('[useModelWizard] Available images:', prev.referenceImages.map(img => img.id))
+			}
+			return {
+				...prev,
+				referenceImages: prev.referenceImages.map((img) =>
+					img.id === imageId ? { ...img, assetId, storagePath, uploadProgress: 100 } : img,
+				),
+			}
+		})
 		setTouchedFields((prev) => new Set(prev).add('referenceImages'))
 	}, [])
 

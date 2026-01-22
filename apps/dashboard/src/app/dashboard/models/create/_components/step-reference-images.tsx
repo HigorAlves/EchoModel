@@ -36,7 +36,12 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 		}
 
 		try {
-			console.log('[StepReferenceImages] Starting immediate upload for:', file.name)
+			console.log('[StepReferenceImages] Starting immediate upload for:', file.name, 'imageId:', imageId)
+			console.log('[StepReferenceImages] Current images in state:', formData.referenceImages.map(img => ({
+				id: img.id,
+				name: img.name,
+				uploadProgress: img.uploadProgress,
+			})))
 
 			// Update progress: Starting
 			updateImageProgress(imageId, 10)
