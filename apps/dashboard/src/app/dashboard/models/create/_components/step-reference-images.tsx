@@ -10,7 +10,6 @@ import { Field, FieldDescription, FieldLabel } from '@/components/ui/field'
 import { useCurrentStore } from '@/features/stores'
 
 import type { UseModelWizardReturn } from '../_hooks/use-model-wizard'
-import { clearUploadedImage, saveUploadedImage } from '../_utils/upload-storage'
 import { ImageUploadZone } from './image-upload-zone'
 
 interface StepReferenceImagesProps {
@@ -36,13 +35,6 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 		}
 
 		try {
-			console.log('[StepReferenceImages] Starting immediate upload for:', file.name, 'imageId:', imageId)
-			console.log('[StepReferenceImages] Current images in state:', formData.referenceImages.map(img => ({
-				id: img.id,
-				name: img.name,
-				uploadProgress: img.uploadProgress,
-			})))
-
 			// Update progress: Starting
 			updateImageProgress(imageId, 10)
 
@@ -51,8 +43,6 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 
 			// Create storage path: {storeId}/MODEL_REFERENCE/{assetId}/{filename}
 			const storagePath = `${storeId}/MODEL_REFERENCE/${assetId}/${file.name}`
-
-			console.log('[StepReferenceImages] Uploading to path:', storagePath)
 
 			// Import Firebase Storage functions
 			const { ref, uploadBytesResumable, getDownloadURL } = await import('firebase/storage')
@@ -72,7 +62,6 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 				(snapshot) => {
 					const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
 					updateImageProgress(imageId, Math.round(progress))
-					console.log('[StepReferenceImages] Upload progress:', Math.round(progress), '%')
 				},
 				(error) => {
 					console.error('[StepReferenceImages] Upload error:', error)
@@ -86,20 +75,13 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 			// Get download URL
 			const downloadUrl = await getDownloadURL(storageRef)
 
-			console.log('[StepReferenceImages] Upload complete, download URL:', downloadUrl)
-
 			// Update progress: Complete and store storagePath
 			updateImageProgress(imageId, 100)
 			setImageAssetId(imageId, assetId, storagePath)
 
-			// Save to localStorage with storagePath
-			saveUploadedImage(imageId, assetId, storagePath)
-
 			toast.success('Image uploaded', {
 				description: `${file.name} uploaded successfully`,
 			})
-
-			console.log('[StepReferenceImages] Successfully uploaded:', file.name)
 		} catch (error) {
 			console.error('[StepReferenceImages] Upload failed:', error)
 			updateImageProgress(imageId, 0)
@@ -112,23 +94,16 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 	// Delete function for removing images using Firebase Storage SDK
 	const handleDelete = async (imageId: string, assetId: string) => {
 		try {
-			console.log('[StepReferenceImages] Deleting asset:', assetId)
-
 			// Get the image from state
 			const image = formData.referenceImages.find((img) => img.id === imageId)
 			if (!image) {
-				console.warn('[StepReferenceImages] Image not found in state, skipping storage delete')
-				clearUploadedImage(imageId)
 				return
 			}
 
 			// Use storagePath from state if available, otherwise reconstruct it
-			// (storagePath is saved during upload for consistency across page refreshes)
 			const storagePath =
 				image.storagePath ||
 				`${storeId}/MODEL_REFERENCE/${assetId}/${image.file?.name || image.name}`
-
-			console.log('[StepReferenceImages] Deleting from path:', storagePath)
 
 			// Import Firebase Storage functions
 			const { ref, deleteObject } = await import('firebase/storage')
@@ -138,31 +113,22 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 			const storageRef = ref(storage, storagePath)
 			await deleteObject(storageRef)
 
-			// Clear from localStorage
-			clearUploadedImage(imageId)
-
 			toast.success('Image deleted', {
 				description: 'Image removed from storage',
 			})
-
-			console.log('[StepReferenceImages] Successfully deleted asset:', assetId)
 		} catch (error) {
-			console.error('[StepReferenceImages] Delete failed:', error)
-
 			// Check if it's a 404 error (file already deleted or doesn't exist)
 			const isNotFound =
 				error instanceof Error &&
 				(error.message.includes('object-not-found') || error.message.includes('does not exist'))
 
 			if (isNotFound) {
-				// File doesn't exist, just remove from localStorage silently
-				console.log('[StepReferenceImages] File not found in storage, clearing from localStorage')
-				clearUploadedImage(imageId)
-				toast.info('Image removed', {
-					description: 'File was already deleted from storage',
-				})
+				// File doesn't exist, silently succeed
+				// This is expected when storeId changes on page refresh or file was manually deleted
+				// Silent success - no toast needed for expected 404
 			} else {
-				// Real error, show error toast
+				// Real error, log and show error toast
+				console.error('[StepReferenceImages] Delete failed:', error)
 				toast.error('Delete failed', {
 					description: error instanceof Error ? error.message : 'Failed to delete image',
 				})

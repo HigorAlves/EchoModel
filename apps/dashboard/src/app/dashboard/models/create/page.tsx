@@ -25,7 +25,6 @@ import {
 } from './_components'
 import { StepBasicInfo as StepBasicInfoV2 } from './_components/step-basic-info-v2'
 import { useModelWizard } from './_hooks/use-model-wizard'
-import { clearUploadedImages, getUploadedImages } from './_utils/upload-storage'
 
 const STEP_TITLES = ['Basic Info', 'Appearance', 'Fashion Configuration', 'Reference Images', 'Review & Create']
 
@@ -72,22 +71,6 @@ export default function CreateModelPage() {
 		setItems([{ label: t('breadcrumbs.models'), href: '/dashboard/models' }, { label: t('breadcrumbs.create') }])
 	}, [setItems, t])
 
-	// Restore uploaded images from localStorage on mount
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	useEffect(() => {
-		const savedUploads = getUploadedImages()
-		if (savedUploads.length > 0) {
-			for (const upload of savedUploads) {
-				setImageAssetId(upload.imageId, upload.assetId, upload.storagePath)
-			}
-			toast.info('Restored previous uploads', {
-				description: `${savedUploads.length} image(s) ready to use`,
-			})
-		}
-		// Note: Empty deps array is intentional - we only want to restore uploads once on mount
-		// Adding setImageAssetId would cause infinite loop since it recreates on every formData.referenceImages change
-	}, [])
-
 	// FIXME: Re-enable store validation once stores are implemented
 	// Check for store availability
 	// useEffect(() => {
@@ -103,9 +86,6 @@ export default function CreateModelPage() {
 	// Handle success
 	useEffect(() => {
 		if (state?.success) {
-			// Clear saved uploads after successful model creation
-			clearUploadedImages()
-
 			toast.success('Model creation started!', {
 				description: 'Your AI model is being generated. This may take a few minutes.',
 			})

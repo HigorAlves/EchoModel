@@ -182,34 +182,33 @@ export function useModelWizard() {
 
 	// Reference images management
 	const addReferenceImages = useCallback((files: File[], uploadFn?: (file: File, imageId: string) => Promise<void>) => {
-		console.log('[useModelWizard] addReferenceImages called with', files.length, 'files:', files.map(f => f.name))
-
-		// Pre-compute images to upload synchronously, before setFormData
-		let newImages: ReferenceImage[] = []
+		// Generate timestamp OUTSIDE setFormData to ensure stability across Fast Refresh/Strict Mode
+		const timestamp = Date.now()
+		const imagesRef = { current: [] as ReferenceImage[] }
 
 		setFormData((prev) => {
 			const currentImages = prev.referenceImages
-			console.log('[useModelWizard] Current images count:', currentImages.length)
 			const availableSlots = 5 - currentImages.length
-			console.log('[useModelWizard] Available slots:', availableSlots)
 			const filesToAdd = files.slice(0, availableSlots)
-			console.log('[useModelWizard] Files to add:', filesToAdd.length)
 
-			// Create new image objects
-			newImages = filesToAdd.map((file, index) => ({
-				id: `${Date.now()}-${index}-${Math.random().toString(36).substring(2, 9)}`,
-				file,
-				preview: URL.createObjectURL(file),
-				name: file.name,
-				size: file.size,
-				uploadProgress: 0, // Initial state - will update to 10, 40, 70, 100 during upload
-			}))
-
-			console.log('[useModelWizard] Created', newImages.length, 'new images:', newImages.map(i => ({ id: i.id, name: i.name })))
+			// Only create images if not already created (prevents duplicate creation on re-render)
+			if (imagesRef.current.length === 0) {
+				imagesRef.current = filesToAdd.map((file, index) => ({
+					id: `${timestamp}-${index}-${Math.random().toString(36).substring(2, 9)}`,
+					file,
+					preview: URL.createObjectURL(file),
+					name: file.name,
+					size: file.size,
+					uploadProgress: 0,
+				}))
+				console.log('[DEBUG] Created images with IDs:', imagesRef.current.map(img => img.id))
+			} else {
+				console.log('[DEBUG] Reusing images (Fast Refresh), IDs:', imagesRef.current.map(img => img.id))
+			}
 
 			return {
 				...prev,
-				referenceImages: [...currentImages, ...newImages],
+				referenceImages: [...currentImages, ...imagesRef.current],
 			}
 		})
 
@@ -218,18 +217,17 @@ export function useModelWizard() {
 		// Trigger upload immediately if uploadFn provided
 		// Use queueMicrotask to ensure state update completes first
 		queueMicrotask(() => {
-			console.log('[useModelWizard] About to trigger uploads for', newImages.length, 'images')
-			if (uploadFn && newImages.length > 0) {
-				for (const image of newImages) {
+			const imagesToUpload = imagesRef.current
+			console.log('[DEBUG] Triggering uploads for IDs:', imagesToUpload.map(img => img.id))
+			if (uploadFn && imagesToUpload.length > 0) {
+				for (const image of imagesToUpload) {
 					if (image.file) {
-						console.log('[useModelWizard] Triggering upload for:', image.name, 'id:', image.id)
 						uploadFn(image.file, image.id).catch((error) => {
 							console.error('[useModelWizard] Upload failed for', image.name, ':', error)
 						})
 					}
 				}
 			}
-			console.log('[useModelWizard] Finished triggering all uploads')
 		})
 	}, [])
 
@@ -260,38 +258,22 @@ export function useModelWizard() {
 	)
 
 	const updateImageProgress = useCallback((imageId: string, progress: number) => {
-		setFormData((prev) => {
-			const imageExists = prev.referenceImages.some(img => img.id === imageId)
-			console.log('[useModelWizard] updateImageProgress:', imageId, 'progress:', progress, 'exists:', imageExists)
-			if (!imageExists) {
-				console.warn('[useModelWizard] Image not found in state:', imageId)
-				console.log('[useModelWizard] Available images:', prev.referenceImages.map(img => img.id))
-			}
-			return {
-				...prev,
-				referenceImages: prev.referenceImages.map((img) =>
-					img.id === imageId ? { ...img, uploadProgress: progress } : img,
-				),
-			}
-		})
+		setFormData((prev) => ({
+			...prev,
+			referenceImages: prev.referenceImages.map((img) =>
+				img.id === imageId ? { ...img, uploadProgress: progress } : img,
+			),
+		}))
 		setTouchedFields((prev) => new Set(prev).add('referenceImages'))
 	}, [])
 
 	const setImageAssetId = useCallback((imageId: string, assetId: string, storagePath?: string) => {
-		setFormData((prev) => {
-			const imageExists = prev.referenceImages.some(img => img.id === imageId)
-			console.log('[useModelWizard] setImageAssetId:', imageId, 'assetId:', assetId, 'exists:', imageExists)
-			if (!imageExists) {
-				console.warn('[useModelWizard] Image not found in state:', imageId)
-				console.log('[useModelWizard] Available images:', prev.referenceImages.map(img => img.id))
-			}
-			return {
-				...prev,
-				referenceImages: prev.referenceImages.map((img) =>
-					img.id === imageId ? { ...img, assetId, storagePath, uploadProgress: 100 } : img,
-				),
-			}
-		})
+		setFormData((prev) => ({
+			...prev,
+			referenceImages: prev.referenceImages.map((img) =>
+				img.id === imageId ? { ...img, assetId, storagePath, uploadProgress: 100 } : img,
+			),
+		}))
 		setTouchedFields((prev) => new Set(prev).add('referenceImages'))
 	}, [])
 
