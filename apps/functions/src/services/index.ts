@@ -4,10 +4,7 @@
  * Exports all service implementations.
  */
 
-// ==================== Queue & Rate Limiting ====================
-export { type EnqueueOptions, type QueueConfig, QueueService, type QueueStatus } from './queue.service'
-export { type RateLimiterConfig, RateLimiterService, type RateLimitResult } from './rate-limiter.service'
-// ==================== Seedream 4.5 (Recommended) ====================
+// ==================== Seedream 4.5 ====================
 export { Seedream45Service } from './seedream45.service'
 export {
 	type AllowedImageFormat,
@@ -34,24 +31,6 @@ export {
 	type Seedream45StreamEvent,
 	type Seedream45StreamEventType,
 } from './seedream45.types'
+
+// ==================== Storage ====================
 export { FirebaseStorageService } from './storage.service'
-
-// ==================== Legacy Services (Deprecated) ====================
-
-/**
- * @deprecated Use `Seedream45Service` instead. This service will be removed in a future version.
- */
-export {
-	type BytePlusConfig,
-	BytePlusService,
-	type GeneratedImage,
-	type GenerateImageRequest,
-	type GenerateImageResponse,
-	ImageSize,
-	ResponseFormat,
-	SeedreamModel,
-} from './byteplus.service'
-/**
- * @deprecated Use `Seedream45Service` instead. This service will be removed in a future version.
- */
-export { SeedreamService } from './seedream.service'

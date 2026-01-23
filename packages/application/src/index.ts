@@ -5,7 +5,7 @@
  *
  * @example
  * ```typescript
- * import { User, FeatureFlag, createContext } from '@foundry/application'
+ * import { User, createContext } from '@foundry/application'
  *
  * // Create a user
  * const createUser = new User.CreateUserCommand(userRepository, eventBus)
@@ -20,8 +20,6 @@
  * ```
  */
 
-export * as Asset from './Asset'
-export * as Generation from './Generation'
 export * as Model from './Model'
 export * as Store from './Store'
 export * from './shared'

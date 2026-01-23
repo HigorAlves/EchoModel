@@ -3,9 +3,8 @@
  *
  * This module exports all Cloud Functions for the EchoModel platform.
  * Functions are organized by bounded context:
+ * - Auth: User authentication events
  * - Models: AI influencer creation and calibration
- * - Generations: Image generation requests
- * - Assets: File upload and management
  * - Stores: Multi-tenant store management
  *
  * @see https://firebase.google.com/docs/functions
@@ -17,45 +16,14 @@ import { setGlobalOptions } from 'firebase-functions'
 // maxInstances helps control costs by limiting concurrent function executions
 setGlobalOptions({ maxInstances: 10 })
 
-// ==================== Asset Functions ====================
-// Handle file uploads and asset management
-export {
-	confirmUpload,
-	deleteAsset,
-	getDownloadUrl,
-	onAssetUploaded,
-	requestUploadUrl,
-} from './handlers/assets'
 // ==================== Auth Functions ====================
 // Handle Firebase Authentication events
 export { onUserCreated } from './handlers/auth'
-// ==================== Generation Functions ====================
-// Handle image generation requests and processing
-export {
-	createGeneration,
-	handleGenerationCallback,
-	processGeneration,
-	processGenerationPubSub,
-} from './handlers/generations'
+
 // ==================== Model Functions ====================
 // Handle AI influencer creation and calibration workflow
-export {
-	approveCalibration,
-	createModel,
-	rejectCalibration,
-	startCalibration,
-} from './handlers/models'
-// ==================== Queue Functions ====================
-// Handle rate-limited queue processing and retries
-export {
-	cleanupExpiredGenerations,
-	processScheduledRetries,
-} from './handlers/queue'
+export { approveCalibration, createModel, rejectCalibration, startCalibration } from './handlers/models'
+
 // ==================== Store Functions ====================
 // Handle multi-tenant store management
-export {
-	createStore,
-	getMyStores,
-	getStore,
-	updateStoreSettings,
-} from './handlers/stores'
+export { createStore, getMyStores, getStore, updateStoreSettings } from './handlers/stores'
