@@ -46,9 +46,9 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 			// Generate a unique asset ID for the file
 			const assetId = crypto.randomUUID()
 
-			// Create storage path: stores/{storeId}/MODEL_REFERENCE/{modelId}/{filename}
-			// Note: "stores/" prefix matches domain layer StoragePath expectations
-			const storagePath = `stores/${storeId}/MODEL_REFERENCE/${modelId}/${file.name}`
+			// Create storage path: stores/{storeId}/model-references/{modelId}/{filename}
+			// Note: "stores/" prefix and "model-references" folder name match domain layer expectations
+			const storagePath = `stores/${storeId}/model-references/${modelId}/${file.name}`
 
 			// Import Firebase Storage functions
 			const { ref, uploadBytesResumable, getDownloadURL } = await import('firebase/storage')

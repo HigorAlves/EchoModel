@@ -39,6 +39,10 @@ export class FirestoreModelRepository implements IModelRepository {
 	 * Convert domain Model to Firestore document data
 	 */
 	private toFirestore(model: Model): PersistenceModel {
+		// Use toJSON() to properly serialize configs without undefined values
+		const lightingConfig = model.lightingConfig.toJSON()
+		const cameraConfig = model.cameraConfig.toJSON()
+
 		return {
 			id: model.id.value,
 			storeId: model.storeId,
@@ -54,15 +58,9 @@ export class FirestoreModelRepository implements IModelRepository {
 			calibrationImages: [...model.calibrationImages],
 			lockedIdentityUrl: model.lockedIdentityUrl,
 			failureReason: model.failureReason,
-			// Fashion configuration
-			lightingConfig: {
-				preset: model.lightingConfig.preset,
-				customSettings: model.lightingConfig.customSettings,
-			},
-			cameraConfig: {
-				framing: model.cameraConfig.framing,
-				customSettings: model.cameraConfig.customSettings,
-			},
+			// Fashion configuration - use toJSON() to exclude undefined values
+			lightingConfig,
+			cameraConfig,
 			backgroundType: model.backgroundType,
 			poseStyle: model.poseStyle,
 			expression: model.expression,

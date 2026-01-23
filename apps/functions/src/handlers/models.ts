@@ -43,8 +43,12 @@ export const createModel = onCall<CreateModelInput>({ maxInstances: 10, timeoutS
 	// Validate input
 	const parseResult = CreateModelInputSchema.safeParse(request.data)
 	if (!parseResult.success) {
-		logger.warn('Invalid input', { errors: parseResult.error.errors })
-		throw new HttpsError('invalid-argument', parseResult.error?.errors[0]?.message ?? 'Invalid input')
+		const firstError = parseResult.error.errors[0]
+		logger.warn('Invalid input', {
+			errors: parseResult.error.errors,
+			receivedData: request.data,
+		})
+		throw new HttpsError('invalid-argument', firstError?.message ?? 'Invalid input')
 	}
 
 	const input = parseResult.data
@@ -59,6 +63,13 @@ export const createModel = onCall<CreateModelInput>({ maxInstances: 10, timeoutS
 			logger.warn('Unauthorized store access attempt', { userId, storeId: input.storeId, storeOwnerId: store.ownerId })
 			throw new HttpsError('permission-denied', 'You do not have access to this store')
 		}
+
+		logger.info('Creating model with DTO', {
+			hasId: !!input.id,
+			hasPrompt: !!input.prompt,
+			hasReferenceImages: !!input.referenceImageIds,
+			referenceImageCount: input.referenceImageIds?.length || 0,
+		})
 
 		// Create the model with Seedream 4.5 Fashion configuration
 		const model = Model.createFromDTO({
@@ -86,6 +97,8 @@ export const createModel = onCall<CreateModelInput>({ maxInstances: 10, timeoutS
 			supportOutfitSwapping: input.supportOutfitSwapping,
 		})
 
+		logger.info('Model entity created', { modelId: model.id.value })
+
 		// Persist the model
 		const modelId = await modelRepository.create(model)
 
@@ -104,8 +117,18 @@ export const createModel = onCall<CreateModelInput>({ maxInstances: 10, timeoutS
 			status: model.status,
 		}
 	} catch (error) {
-		logger.error('Failed to create model', { error })
-		throw new HttpsError('internal', 'Failed to create model')
+		logger.error('Failed to create model', {
+			error,
+			errorMessage: error instanceof Error ? error.message : String(error),
+			errorStack: error instanceof Error ? error.stack : undefined,
+			errorName: error instanceof Error ? error.constructor.name : typeof error,
+		})
+
+		if (error instanceof HttpsError) {
+			throw error
+		}
+
+		throw new HttpsError('internal', `Failed to create model: ${error instanceof Error ? error.message : String(error)}`)
 	}
 })
 

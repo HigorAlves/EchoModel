@@ -48,38 +48,43 @@ export async function createModelAction(
 		}
 	}
 
-	if (!parsedData.referenceImageIds) {
-		return {
-			success: false,
-			error: 'Reference images must be uploaded first',
-		}
-	}
-
 	try {
-		// Map to CreateModelInput
+		// Map to CreateModelInput - only include fields that exist to avoid sending null
 		const modelInput: CreateModelInput = {
-			id: parsedData.id, // Pre-generated modelId from client
+			id: parsedData.id,
 			storeId: parsedData.storeId,
 			name: parsedData.name,
-			description: parsedData.description,
 			gender: parsedData.gender,
 			ageRange: parsedData.ageRange,
 			ethnicity: parsedData.ethnicity,
 			bodyType: parsedData.bodyType,
-			prompt: parsedData.prompt,
-			referenceImageIds: parsedData.referenceImageIds,
-
-			// Fashion config
 			lightingPreset: parsedData.lightingPreset,
 			cameraFraming: parsedData.cameraFraming,
 			backgroundType: parsedData.backgroundType,
 			poseStyle: parsedData.poseStyle,
 			expression: parsedData.expression,
 			postProcessingStyle: parsedData.postProcessingStyle,
-			texturePreferences: parsedData.texturePreferences,
-			productCategories: parsedData.productCategories,
 			supportOutfitSwapping: parsedData.supportOutfitSwapping,
 		}
+
+		// Only include optional fields if they exist in parsedData
+		if (parsedData.description) {
+			modelInput.description = parsedData.description
+		}
+		if (parsedData.prompt) {
+			modelInput.prompt = parsedData.prompt
+		}
+		if (parsedData.referenceImageIds) {
+			modelInput.referenceImageIds = parsedData.referenceImageIds
+		}
+		if (parsedData.texturePreferences) {
+			modelInput.texturePreferences = parsedData.texturePreferences
+		}
+		if (parsedData.productCategories) {
+			modelInput.productCategories = parsedData.productCategories
+		}
+
+		console.log('Sending to Firebase Function:', JSON.stringify(modelInput, null, 2))
 
 		// Call Cloud Function
 		const result = await createModel(modelInput)

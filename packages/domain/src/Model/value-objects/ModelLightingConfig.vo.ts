@@ -143,6 +143,10 @@ export class ModelLightingConfig {
 	}
 
 	toJSON(): LightingConfigData {
+		// Only include customSettings if it's defined (Firestore doesn't allow undefined)
+		if (this.data.customSettings === undefined) {
+			return { preset: this.data.preset }
+		}
 		return this.data
 	}
 }

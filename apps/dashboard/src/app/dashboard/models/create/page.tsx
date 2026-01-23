@@ -5,7 +5,7 @@ import { AlertTriangle, ArrowLeft, ArrowRight, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { useActionState, useEffect } from 'react'
+import { startTransition, useActionState, useEffect } from 'react'
 import { toast } from 'sonner'
 
 import { useBreadcrumbs } from '@/components/layout/dashboard/dashboard-header'
@@ -88,66 +88,87 @@ export default function CreateModelPage() {
 		}
 	}, [state, router])
 
-	// Handle form submission
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault()
-
-		if (currentStep === 5) {
-			// Validate user authentication
-			if (!user?.uid) {
-				toast.error('Authentication required', {
-					description: 'Please log in to create a model',
-				})
-				return
-			}
-
-			// Validate store exists
-			if (!currentStore?.id) {
-				toast.error('No store selected', {
-					description: 'Please select a store before creating a model',
-				})
-				return
-			}
-
-			try {
-				// Collect assetIds from already-uploaded images
-				const referenceImageIds = formData.referenceImages
-					.map((img) => img.assetId)
-					.filter((assetId): assetId is string => assetId !== undefined)
-
-				// Check if any images are still uploading
-				const stillUploading = formData.referenceImages.filter(
-					(img) => img.uploadProgress !== undefined && img.uploadProgress > 0 && img.uploadProgress < 100,
-				)
-
-				if (stillUploading.length > 0) {
-					toast.warning('Images still uploading', {
-						description: 'Please wait for all images to finish uploading',
-					})
-					return
-				}
-
-				// Submit to server action
-				const formDataObj = new FormData()
-				formDataObj.append(
-					'data',
-					JSON.stringify({
-						id: modelId, // Pre-generated modelId
-						...formData,
-						referenceImageIds,
-						storeId: currentStore.id,
-					}),
-				)
-
-				formAction(formDataObj)
-			} catch (error) {
-				toast.error('Failed to create model', {
-					description: error instanceof Error ? error.message : 'Unknown error',
-				})
-			}
-		} else {
-			goNext()
+	// Handle final submit button click
+	const handleFinalSubmit = () => {
+		// Validate user authentication
+		if (!user?.uid) {
+			toast.error('Authentication required', {
+				description: 'Please log in to create a model',
+			})
+			return
 		}
+
+		if (!currentStore?.id) {
+			toast.error('No store selected', {
+				description: 'Please select a store before creating a model',
+			})
+			return
+		}
+
+		// Check if any images are still uploading
+		const stillUploading = formData.referenceImages.filter(
+			(img) => img.uploadProgress !== undefined && img.uploadProgress > 0 && img.uploadProgress < 100,
+		)
+
+		if (stillUploading.length > 0) {
+			toast.warning('Images still uploading', {
+				description: 'Please wait for all images to finish uploading',
+			})
+			return
+		}
+
+		// Collect assetIds from already-uploaded images
+		const referenceImageIds = formData.referenceImages
+			.map((img) => img.assetId)
+			.filter((assetId): assetId is string => assetId !== undefined)
+
+		// Clean up the data - only include fields with valid values
+		const cleanedData: any = {
+			id: modelId, // Pre-generated modelId
+			storeId: currentStore.id,
+			name: formData.name,
+			gender: formData.gender,
+			ageRange: formData.ageRange,
+			ethnicity: formData.ethnicity,
+			bodyType: formData.bodyType,
+			lightingPreset: formData.lightingPreset,
+			cameraFraming: formData.cameraFraming,
+			backgroundType: formData.backgroundType,
+			poseStyle: formData.poseStyle,
+			expression: formData.expression,
+			postProcessingStyle: formData.postProcessingStyle,
+			supportOutfitSwapping: formData.supportOutfitSwapping,
+		}
+
+		// Only include optional arrays if they have items
+		if (referenceImageIds.length > 0) {
+			cleanedData.referenceImageIds = referenceImageIds
+		}
+		if (formData.texturePreferences.length > 0) {
+			cleanedData.texturePreferences = formData.texturePreferences
+		}
+		if (formData.productCategories.length > 0) {
+			cleanedData.productCategories = formData.productCategories
+		}
+
+		// Only include optional string fields if they have valid values
+		if (formData.description && formData.description.trim()) {
+			cleanedData.description = formData.description.trim()
+		}
+		if (formData.prompt && formData.prompt.trim().length >= 10) {
+			cleanedData.prompt = formData.prompt.trim()
+		}
+
+		console.log('Submitting model data:', JSON.stringify(cleanedData, null, 2))
+
+		// Create FormData and submit
+		const formDataObj = new FormData()
+		formDataObj.append('data', JSON.stringify(cleanedData))
+
+		// Submit using the form action wrapped in startTransition
+		startTransition(() => {
+			formAction(formDataObj)
+		})
 	}
 
 	return (
@@ -190,7 +211,7 @@ export default function CreateModelPage() {
 			)}
 
 			{/* Form Card */}
-			<form onSubmit={handleSubmit}>
+			<div>
 				<Card className='mx-auto w-full max-w-3xl'>
 					<CardHeader>
 						<CardTitle>{STEP_TITLES[currentStep - 1]}</CardTitle>
@@ -231,16 +252,12 @@ export default function CreateModelPage() {
 							Back
 						</Button>
 						{currentStep < 5 ? (
-							<Button
-								type='button'
-								onClick={() => {
-									goNext()
-								}}>
+							<Button type='button' onClick={goNext}>
 								Next
 								<ArrowRight className='ml-2 h-4 w-4' />
 							</Button>
 						) : (
-							<Button render={<button type='submit' />} disabled={isPending || !hasStore}>
+							<Button type='button' onClick={handleFinalSubmit} disabled={isPending || !hasStore}>
 								{isPending ? (
 									<>
 										<Loader2 className='mr-2 h-4 w-4 animate-spin' />
@@ -253,7 +270,7 @@ export default function CreateModelPage() {
 						)}
 					</div>
 				</Card>
-			</form>
+			</div>
 		</div>
 	)
 }

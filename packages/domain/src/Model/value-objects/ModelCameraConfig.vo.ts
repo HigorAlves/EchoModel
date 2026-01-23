@@ -168,6 +168,10 @@ export class ModelCameraConfig {
 	}
 
 	toJSON(): CameraConfigData {
+		// Only include customSettings if it's defined (Firestore doesn't allow undefined)
+		if (this.data.customSettings === undefined) {
+			return { framing: this.data.framing }
+		}
 		return this.data
 	}
 }
