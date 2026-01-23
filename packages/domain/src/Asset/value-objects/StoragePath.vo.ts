@@ -40,6 +40,15 @@ export class StoragePath {
 		return StoragePath.create(path)
 	}
 
+	/**
+	 * Build a storage path using a resourceId (modelId for MODEL_REFERENCE, assetId for others)
+	 * Maintains stores/ prefix as per domain requirements
+	 */
+	static buildWithResourceId(storeId: string, category: string, resourceId: string, filename: string): StoragePath {
+		const path = `stores/${storeId}/${category}/${resourceId}/${filename}`
+		return StoragePath.create(path)
+	}
+
 	get value(): string {
 		return this.data
 	}
@@ -77,19 +86,27 @@ export class StoragePath {
 	}
 
 	/**
-	 * Extract the asset ID from the path
+	 * Extract the resource ID from the path (assetId or modelId depending on category)
 	 */
-	get assetId(): string {
+	get resourceId(): string {
 		const parts = this.data.split('/')
-		const assetId = parts[3]
-		// Safe: create() validates path format
-		if (!assetId) {
-			throw new AssetValidationError(['Invalid storage path: missing assetId'], {
+		const resourceId = parts[3]
+		// Safe: create() validates path format stores/{storeId}/{category}/{resourceId}/{filename}
+		if (!resourceId) {
+			throw new AssetValidationError(['Invalid storage path: missing resourceId'], {
 				field: 'storagePath',
 				value: this.data,
 			})
 		}
-		return assetId
+		return resourceId
+	}
+
+	/**
+	 * Extract the asset ID from the path
+	 * @deprecated Use resourceId instead. Kept for backward compatibility.
+	 */
+	get assetId(): string {
+		return this.resourceId
 	}
 
 	/**

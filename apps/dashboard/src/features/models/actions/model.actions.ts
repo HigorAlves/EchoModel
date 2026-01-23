@@ -58,6 +58,7 @@ export async function createModelAction(
 	try {
 		// Map to CreateModelInput
 		const modelInput: CreateModelInput = {
+			id: parsedData.id, // Pre-generated modelId from client
 			storeId: parsedData.storeId,
 			name: parsedData.name,
 			description: parsedData.description,

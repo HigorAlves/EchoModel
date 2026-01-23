@@ -33,9 +33,10 @@ service firebase.storage {
     }
 
     // ==================== Store Assets ====================
-    // Path format: {storeId}/{category}/{assetId}/{filename}
+    // Path format: stores/{storeId}/{category}/{resourceId}/{filename}
+    // resourceId is modelId for MODEL_REFERENCE category, assetId for other categories
 
-    match /{storeId}/{category}/{assetId}/{filename} {
+    match /stores/{storeId}/{category}/{resourceId}/{filename} {
 
       // Read: Allow if authenticated (for development)
       // In production, you may want to add store ownership checks
@@ -56,14 +57,14 @@ service firebase.storage {
     // ==================== Public CDN Access ====================
     // Generated images can be accessed publicly via CDN
 
-    match /{storeId}/generated/{assetId}/{filename} {
+    match /stores/{storeId}/generated/{assetId}/{filename} {
       // Allow public read for generated images (for sharing)
       allow read: if true;
     }
 
     // ==================== Thumbnail Access ====================
 
-    match /{storeId}/{category}/{assetId}/thumbnails/{thumbnailName} {
+    match /stores/{storeId}/{category}/{assetId}/thumbnails/{thumbnailName} {
       // Allow read if user owns the store or the parent is public
       allow read: if isStoreOwner(storeId) ||
         (resource != null && resource.metadata.public == 'true');

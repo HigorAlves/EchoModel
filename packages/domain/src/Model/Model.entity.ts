@@ -80,6 +80,7 @@ export interface ModelProps {
 }
 
 interface CreateModelDTO {
+	readonly id?: string // Pre-generated modelId from client
 	readonly storeId: string
 	readonly name: string
 	readonly description?: string
@@ -142,7 +143,8 @@ export class Model {
 		}
 
 		const now = new Date()
-		const id = ModelId.create(randomUUID())
+		// Use provided id or generate new one
+		const id = dto.id ? ModelId.create(dto.id) : ModelId.create(randomUUID())
 		const name = ModelName.create(dto.name)
 		const description = dto.description ? ModelDescription.create(dto.description) : null
 		const prompt = dto.prompt ? ModelPrompt.create(dto.prompt) : null

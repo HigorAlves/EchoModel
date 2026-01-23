@@ -16,7 +16,7 @@ interface StepReferenceImagesProps {
 }
 
 export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
-	const { formData, addReferenceImages, removeReferenceImage, updateImageProgress, setImageAssetId } = wizard
+	const { modelId, formData, addReferenceImages, removeReferenceImage, updateImageProgress, setImageAssetId } = wizard
 	const { user } = useAuth()
 	const { currentStore } = useCurrentStore()
 
@@ -46,8 +46,9 @@ export function StepReferenceImages({ wizard }: StepReferenceImagesProps) {
 			// Generate a unique asset ID for the file
 			const assetId = crypto.randomUUID()
 
-			// Create storage path: {storeId}/MODEL_REFERENCE/{assetId}/{filename}
-			const storagePath = `${storeId}/MODEL_REFERENCE/${assetId}/${file.name}`
+			// Create storage path: stores/{storeId}/MODEL_REFERENCE/{modelId}/{filename}
+			// Note: "stores/" prefix matches domain layer StoragePath expectations
+			const storagePath = `stores/${storeId}/MODEL_REFERENCE/${modelId}/${file.name}`
 
 			// Import Firebase Storage functions
 			const { ref, uploadBytesResumable, getDownloadURL } = await import('firebase/storage')

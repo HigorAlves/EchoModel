@@ -61,7 +61,7 @@ export default function CreateModelPage() {
 
 	// Initialize wizard hook
 	const wizard = useModelWizard()
-	const { currentStep, stepDirection, goNext, goBack, goToStep, formData } = wizard
+	const { modelId, currentStep, stepDirection, goNext, goBack, goToStep, formData } = wizard
 
 	// Initialize action state for final submission
 	const [state, formAction, isPending] = useActionState(createModelAction, null)
@@ -132,6 +132,7 @@ export default function CreateModelPage() {
 				formDataObj.append(
 					'data',
 					JSON.stringify({
+						id: modelId, // Pre-generated modelId
 						...formData,
 						referenceImageIds,
 						storeId: currentStore.id,

@@ -62,6 +62,7 @@ export const createModel = onCall<CreateModelInput>({ maxInstances: 10, timeoutS
 
 		// Create the model with Seedream 4.5 Fashion configuration
 		const model = Model.createFromDTO({
+			id: input.id, // Pass pre-generated modelId if provided
 			storeId: input.storeId,
 			name: input.name,
 			description: input.description,
@@ -91,6 +92,7 @@ export const createModel = onCall<CreateModelInput>({ maxInstances: 10, timeoutS
 		logger.info('Model created successfully', {
 			modelId,
 			storeId: input.storeId,
+			preGeneratedId: input.id !== undefined,
 			lightingPreset: model.lightingConfig.preset,
 			cameraFraming: model.cameraConfig.framing,
 			supportOutfitSwapping: model.supportOutfitSwapping,

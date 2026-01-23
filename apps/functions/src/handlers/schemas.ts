@@ -36,6 +36,7 @@ export const CustomCameraSettingsSchema = z.object({
 // ==================== Model Schemas ====================
 
 export const CreateModelInputSchema = z.object({
+	id: z.string().uuid().optional(), // Pre-generated modelId from client
 	storeId: z.string().min(1, 'Store ID is required'),
 	name: z.string().min(1, 'Name is required').max(100),
 	description: z.string().max(500).optional(),

@@ -51,6 +51,9 @@ function getStepFields(step: number): Array<keyof CreateModelFormData> {
 }
 
 export function useModelWizard() {
+	// Generate modelId once on wizard initialization
+	const [modelId] = useState(() => crypto.randomUUID())
+
 	// Form data state
 	const [formData, setFormData] = useState<CreateModelFormData>(defaultFormValues)
 
@@ -274,6 +277,9 @@ export function useModelWizard() {
 	}, [])
 
 	return {
+		// Model ID
+		modelId,
+
 		// Form data
 		formData,
 		updateField,

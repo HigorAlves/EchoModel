@@ -48,6 +48,7 @@ interface RequestUploadDTO {
 	readonly sizeBytes: number
 	readonly uploadedBy: string
 	readonly metadata?: Partial<AssetMetadata>
+	readonly modelId?: string // Used for MODEL_REFERENCE assets
 }
 
 /**
@@ -74,7 +75,16 @@ export class Asset {
 		const filename = Filename.create(dto.filename)
 		const mimeType = MimeType.create(dto.mimeType)
 		const categoryFolder = getAssetCategoryFolder(dto.category)
-		const storagePath = StoragePath.build(dto.storeId, categoryFolder, id.value, filename.value)
+
+		// For MODEL_REFERENCE, use modelId as path segment; otherwise use assetId
+		const resourceId = dto.category === 'MODEL_REFERENCE' && dto.modelId ? dto.modelId : id.value
+		const storagePath = StoragePath.buildWithResourceId(dto.storeId, categoryFolder, resourceId, filename.value)
+
+		// Include modelId in metadata if provided
+		const metadata = { ...dto.metadata }
+		if (dto.modelId) {
+			metadata.modelId = dto.modelId
+		}
 
 		const asset = new Asset({
 			id,
@@ -87,7 +97,7 @@ export class Asset {
 			storagePath,
 			cdnUrl: null,
 			thumbnailUrl: null,
-			metadata: dto.metadata ?? {},
+			metadata,
 			uploadedBy: dto.uploadedBy,
 			status: AssetStatus.PENDING_UPLOAD,
 			failureReason: null,

@@ -91,6 +91,7 @@ export interface CustomCameraSettings {
 
 // Model types
 export interface CreateModelInput {
+	id?: string // Pre-generated modelId from client
 	storeId: string
 	name: string
 	description?: string
