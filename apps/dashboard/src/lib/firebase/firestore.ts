@@ -1,7 +1,7 @@
 /**
  * @fileoverview Firestore Client
  *
- * Provides Firestore database access for real-time data fetching.
+ * Provides Firestore database access for real-time data fetching and writes.
  */
 
 import {
@@ -17,6 +17,7 @@ import {
 	type QueryConstraint,
 	query,
 	serverTimestamp,
+	setDoc,
 	type Unsubscribe,
 	updateDoc,
 	where,
@@ -47,6 +48,76 @@ export const Collections = {
 
 // ==================== Type Definitions ====================
 
+// Fashion configuration types
+export type LightingPreset =
+	| 'SOFT_STUDIO'
+	| 'EDITORIAL_CONTRAST'
+	| 'NATURAL_DAYLIGHT'
+	| 'RING_LIGHT'
+	| 'GOLDEN_HOUR'
+	| 'DRAMATIC_SHADOW'
+	| 'BUTTERFLY'
+	| 'REMBRANDT'
+	| 'CUSTOM'
+
+export type CameraFraming =
+	| 'WAIST_UP_50MM'
+	| 'FULL_BODY_35MM'
+	| 'PORTRAIT_85MM'
+	| 'CLOSE_UP'
+	| 'THREE_QUARTER'
+	| 'BACK_VIEW'
+	| 'KNEE_UP'
+	| 'CUSTOM'
+
+export type BackgroundType =
+	| 'STUDIO_WHITE'
+	| 'STUDIO_GRAY'
+	| 'GRADIENT'
+	| 'OUTDOOR_URBAN'
+	| 'OUTDOOR_NATURE'
+	| 'TRANSPARENT'
+
+export type PoseStyle = 'STATIC_FRONT' | 'STATIC_SIDE' | 'WALKING' | 'EDITORIAL' | 'CASUAL' | 'DYNAMIC'
+
+export type Expression = 'NEUTRAL' | 'SMILE' | 'SERIOUS' | 'CONFIDENT' | 'SOFT'
+
+export type PostProcessingStyle = 'NATURAL' | 'VIBRANT' | 'MUTED' | 'HIGH_CONTRAST' | 'WARM' | 'COOL'
+
+export type ProductCategory =
+	| 'TOPS'
+	| 'BOTTOMS'
+	| 'DRESSES'
+	| 'OUTERWEAR'
+	| 'ACCESSORIES'
+	| 'FOOTWEAR'
+	| 'SWIMWEAR'
+	| 'ACTIVEWEAR'
+	| 'FORMAL'
+	| 'JEWELRY'
+
+export interface CustomLightingSettings {
+	intensity: number
+	warmth: number
+	contrast: number
+}
+
+export interface CustomCameraSettings {
+	focalLength: number
+	cropRatio: string
+	angle: string
+}
+
+export interface ModelLightingConfig {
+	preset: LightingPreset
+	customSettings?: CustomLightingSettings
+}
+
+export interface ModelCameraConfig {
+	framing: CameraFraming
+	customSettings?: CustomCameraSettings
+}
+
 export interface ModelDocument {
 	id: string
 	storeId: string
@@ -63,6 +134,16 @@ export interface ModelDocument {
 	generatedImages: string[]
 	lockedIdentityUrl: string | null
 	failureReason: string | null
+	// Fashion configuration
+	lightingConfig?: ModelLightingConfig
+	cameraConfig?: ModelCameraConfig
+	backgroundType?: BackgroundType
+	poseStyle?: PoseStyle
+	expression?: Expression
+	postProcessingStyle?: PostProcessingStyle
+	texturePreferences?: string[]
+	productCategories?: ProductCategory[]
+	supportOutfitSwapping?: boolean
 	createdAt: Date
 	updatedAt: Date
 	deletedAt: Date | null
@@ -104,6 +185,32 @@ export interface StoreDocument {
 	createdAt: Date
 	updatedAt: Date
 	deletedAt: Date | null
+}
+
+// ==================== Create Model Types ====================
+
+export interface CreateModelInput {
+	id?: string
+	storeId: string
+	name: string
+	description?: string
+	gender: 'FEMALE' | 'MALE' | 'NON_BINARY'
+	ageRange: 'YOUNG_ADULT' | 'ADULT' | 'MIDDLE_AGED' | 'MATURE'
+	ethnicity: string
+	bodyType: string
+	prompt?: string
+	referenceImageIds?: string[]
+	lightingPreset?: LightingPreset
+	customLightingSettings?: CustomLightingSettings
+	cameraFraming?: CameraFraming
+	customCameraSettings?: CustomCameraSettings
+	backgroundType?: BackgroundType
+	poseStyle?: PoseStyle
+	expression?: Expression
+	postProcessingStyle?: PostProcessingStyle
+	texturePreferences?: string[]
+	productCategories?: ProductCategory[]
+	supportOutfitSwapping?: boolean
 }
 
 // ==================== Helper Functions ====================
@@ -296,6 +403,102 @@ export function subscribeToStore(storeId: string, callback: (store: StoreDocumen
 }
 
 // ==================== Write Functions ====================
+
+/**
+ * Create a new model
+ */
+export async function createModel(input: CreateModelInput): Promise<{ modelId: string }> {
+	const modelId = input.id ?? crypto.randomUUID()
+	const now = new Date()
+
+	// Build lighting config
+	const lightingConfig: ModelLightingConfig = {
+		preset: input.lightingPreset ?? 'SOFT_STUDIO',
+		...(input.customLightingSettings && { customSettings: input.customLightingSettings }),
+	}
+
+	// Build camera config
+	const cameraConfig: ModelCameraConfig = {
+		framing: input.cameraFraming ?? 'WAIST_UP_50MM',
+		...(input.customCameraSettings && { customSettings: input.customCameraSettings }),
+	}
+
+	const modelData: Record<string, unknown> = {
+		id: modelId,
+		storeId: input.storeId,
+		name: input.name,
+		description: input.description ?? null,
+		status: 'DRAFT',
+		gender: input.gender,
+		ageRange: input.ageRange,
+		ethnicity: input.ethnicity,
+		bodyType: input.bodyType,
+		prompt: input.prompt ?? null,
+		referenceImages: input.referenceImageIds ?? [],
+		calibrationImages: [],
+		generatedImages: [],
+		lockedIdentityUrl: null,
+		failureReason: null,
+		// Fashion configuration
+		lightingConfig,
+		cameraConfig,
+		backgroundType: input.backgroundType ?? 'STUDIO_WHITE',
+		poseStyle: input.poseStyle ?? 'STATIC_FRONT',
+		expression: input.expression ?? 'NEUTRAL',
+		postProcessingStyle: input.postProcessingStyle ?? 'NATURAL',
+		texturePreferences: input.texturePreferences ?? [],
+		productCategories: input.productCategories ?? [],
+		supportOutfitSwapping: input.supportOutfitSwapping ?? true,
+		createdAt: now,
+		updatedAt: now,
+		deletedAt: null,
+	}
+
+	const docRef = doc(db, Collections.MODELS, modelId)
+	await setDoc(docRef, modelData)
+
+	return { modelId }
+}
+
+// ==================== Create Store Types ====================
+
+export interface CreateStoreInput {
+	name: string
+	description?: string
+	defaultStyle?: string
+	ownerId: string
+}
+
+/**
+ * Create a new store
+ */
+export async function createStore(input: CreateStoreInput): Promise<{ storeId: string }> {
+	const storeId = crypto.randomUUID()
+	const now = new Date()
+
+	const storeData: Record<string, unknown> = {
+		id: storeId,
+		ownerId: input.ownerId,
+		name: input.name,
+		description: input.description ?? null,
+		defaultStyle: input.defaultStyle ?? null,
+		logoAssetId: null,
+		status: 'ACTIVE',
+		settings: {
+			defaultAspectRatio: '1:1',
+			defaultImageCount: 4,
+			watermarkEnabled: false,
+		},
+		createdAt: now,
+		updatedAt: now,
+		deletedAt: null,
+	}
+
+	const docRef = doc(db, Collections.STORES, storeId)
+	await setDoc(docRef, storeData)
+
+	return { storeId }
+}
 
 /**
  * Update store basic information

@@ -29,97 +29,6 @@ if (process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_USE_FIREBA
 
 // ==================== Type Definitions ====================
 
-// Fashion configuration types
-export type LightingPreset =
-	| 'SOFT_STUDIO'
-	| 'EDITORIAL_CONTRAST'
-	| 'NATURAL_DAYLIGHT'
-	| 'RING_LIGHT'
-	| 'GOLDEN_HOUR'
-	| 'DRAMATIC_SHADOW'
-	| 'BUTTERFLY'
-	| 'REMBRANDT'
-	| 'CUSTOM'
-
-export type CameraFraming =
-	| 'WAIST_UP_50MM'
-	| 'FULL_BODY_35MM'
-	| 'PORTRAIT_85MM'
-	| 'CLOSE_UP'
-	| 'THREE_QUARTER'
-	| 'BACK_VIEW'
-	| 'KNEE_UP'
-	| 'CUSTOM'
-
-export type BackgroundType =
-	| 'STUDIO_WHITE'
-	| 'STUDIO_GRAY'
-	| 'GRADIENT'
-	| 'OUTDOOR_URBAN'
-	| 'OUTDOOR_NATURE'
-	| 'TRANSPARENT'
-
-export type PoseStyle = 'STATIC_FRONT' | 'STATIC_SIDE' | 'WALKING' | 'EDITORIAL' | 'CASUAL' | 'DYNAMIC'
-
-export type Expression = 'NEUTRAL' | 'SMILE' | 'SERIOUS' | 'CONFIDENT' | 'SOFT'
-
-export type PostProcessingStyle = 'NATURAL' | 'VIBRANT' | 'MUTED' | 'HIGH_CONTRAST' | 'WARM' | 'COOL'
-
-export type ProductCategory =
-	| 'TOPS'
-	| 'BOTTOMS'
-	| 'DRESSES'
-	| 'OUTERWEAR'
-	| 'ACCESSORIES'
-	| 'FOOTWEAR'
-	| 'SWIMWEAR'
-	| 'ACTIVEWEAR'
-	| 'FORMAL'
-	| 'JEWELRY'
-
-export interface CustomLightingSettings {
-	intensity: number
-	warmth: number
-	contrast: number
-}
-
-export interface CustomCameraSettings {
-	focalLength: number
-	cropRatio: string
-	angle: string
-}
-
-// Model types
-export interface CreateModelInput {
-	id?: string // Pre-generated modelId from client
-	storeId: string
-	name: string
-	description?: string
-	gender: 'FEMALE' | 'MALE' | 'NON_BINARY'
-	ageRange: 'YOUNG_ADULT' | 'ADULT' | 'MIDDLE_AGED' | 'MATURE'
-	ethnicity: 'ASIAN' | 'BLACK' | 'CAUCASIAN' | 'HISPANIC' | 'MIDDLE_EASTERN' | 'MIXED' | 'SOUTH_ASIAN'
-	bodyType: 'SLIM' | 'ATHLETIC' | 'AVERAGE' | 'CURVY' | 'PLUS_SIZE'
-	prompt?: string
-	referenceImageIds?: string[]
-	lightingPreset?: LightingPreset
-	customLightingSettings?: CustomLightingSettings
-	cameraFraming?: CameraFraming
-	customCameraSettings?: CustomCameraSettings
-	backgroundType?: BackgroundType
-	poseStyle?: PoseStyle
-	expression?: Expression
-	postProcessingStyle?: PostProcessingStyle
-	texturePreferences?: string[]
-	productCategories?: ProductCategory[]
-	supportOutfitSwapping?: boolean
-}
-
-export interface CreateModelResult {
-	success: boolean
-	modelId: string
-	status: string
-}
-
 // Asset types
 export interface RequestUploadUrlInput {
 	storeId: string
@@ -152,62 +61,7 @@ export interface ConfirmUploadResult {
 	cdnUrl?: string
 }
 
-// Store types
-export interface CreateStoreInput {
-	name: string
-	description?: string
-	defaultStyle?: string
-	ownerId: string
-}
-
-export interface CreateStoreResult {
-	success: boolean
-	storeId: string
-	status: string
-}
-
-export interface GetMyStoresResult {
-	success: boolean
-	stores: Array<{
-		id: string
-		name: string
-		description: string | null
-		defaultStyle: string | null
-		logoAssetId: string | null
-		status: string
-		settings: {
-			defaultAspectRatio: string
-			defaultImageCount: number
-			watermarkEnabled: boolean
-		}
-		createdAt: string
-		updatedAt: string
-	}>
-}
-
-export interface GetStoreResult {
-	success: boolean
-	store: {
-		id: string
-		name: string
-		description: string | null
-		defaultStyle: string | null
-		logoAssetId: string | null
-		status: string
-		settings: {
-			defaultAspectRatio: string
-			defaultImageCount: number
-			watermarkEnabled: boolean
-		}
-		createdAt: string
-		updatedAt: string
-	}
-}
-
 // ==================== Callable Functions ====================
-
-// Model functions
-export const createModel = httpsCallable<CreateModelInput, CreateModelResult>(functions, 'createModel')
 
 // Asset functions
 export const requestUploadUrl = httpsCallable<RequestUploadUrlInput, RequestUploadUrlResult>(
@@ -215,21 +69,5 @@ export const requestUploadUrl = httpsCallable<RequestUploadUrlInput, RequestUplo
 	'requestUploadUrl',
 )
 export const confirmUpload = httpsCallable<ConfirmUploadInput, ConfirmUploadResult>(functions, 'confirmUpload')
-
-// Store functions
-export const createStore = httpsCallable<CreateStoreInput, CreateStoreResult>(functions, 'createStore')
-export const getMyStores = httpsCallable<void, GetMyStoresResult>(functions, 'getMyStores')
-export const getStore = httpsCallable<{ storeId: string }, GetStoreResult>(functions, 'getStore')
-export const updateStoreSettings = httpsCallable<
-	{
-		storeId: string
-		settings: {
-			defaultAspectRatio?: string
-			defaultImageCount?: number
-			watermarkEnabled?: boolean
-		}
-	},
-	{ success: boolean; storeId: string; settings: object }
->(functions, 'updateStoreSettings')
 
 export { functions }

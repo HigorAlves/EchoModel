@@ -3,11 +3,10 @@
 /**
  * @fileoverview Model Actions
  *
- * Client-side actions for model creation with useActionState
+ * Client-side actions for model creation using Firestore directly
  */
 
-import type { CreateModelInput } from '@/lib/firebase/functions'
-import { createModel } from '@/lib/firebase/functions'
+import { createModel, type CreateModelInput } from '@/lib/firebase/firestore'
 
 export interface ModelActionState {
 	success: boolean
@@ -49,7 +48,7 @@ export async function createModelAction(
 	}
 
 	try {
-		// Map to CreateModelInput - only include fields that exist to avoid sending null
+		// Build model input
 		const modelInput: CreateModelInput = {
 			id: parsedData.id,
 			storeId: parsedData.storeId,
@@ -67,7 +66,7 @@ export async function createModelAction(
 			supportOutfitSwapping: parsedData.supportOutfitSwapping,
 		}
 
-		// Only include optional fields if they exist in parsedData
+		// Only include optional fields if they exist
 		if (parsedData.description) {
 			modelInput.description = parsedData.description
 		}
@@ -84,14 +83,12 @@ export async function createModelAction(
 			modelInput.productCategories = parsedData.productCategories
 		}
 
-		console.log('Sending to Firebase Function:', JSON.stringify(modelInput, null, 2))
-
-		// Call Cloud Function
+		// Create model directly in Firestore
 		const result = await createModel(modelInput)
 
 		return {
 			success: true,
-			modelId: result.data.modelId,
+			modelId: result.modelId,
 		}
 	} catch (error) {
 		return {

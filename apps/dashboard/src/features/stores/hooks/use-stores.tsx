@@ -140,7 +140,7 @@ export function useCreateStore(userId: string | null): UseCreateStoreResult {
 
 			try {
 				const result = await createStore({ ...input, ownerId: userId })
-				return { storeId: result.data.storeId }
+				return { storeId: result.storeId }
 			} catch (err) {
 				const error = err instanceof Error ? err : new Error('Failed to create store')
 				setError(error)

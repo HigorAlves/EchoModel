@@ -4,7 +4,5 @@
  * Exports all Firestore repository implementations.
  */
 
-export { FirestoreAssetRepository } from './asset.repository'
-export { FirestoreModelRepository } from './model.repository'
 export { FirestoreStoreRepository } from './store.repository'
 export { FirestoreUserRepository } from './user.repository'
