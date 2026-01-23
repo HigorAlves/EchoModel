@@ -1,8 +1,4 @@
 {
-	"metadata": {
-		"title": "Foundry Dashboard",
-		"description": "Aplicacao Foundry Dashboard"
-	},
 	"common": {
 		"login": "Entrar",
 		"signup": "Cadastrar",
@@ -19,159 +15,83 @@
 		"loading": "Carregando...",
 		"error": "Erro",
 		"success": "Sucesso",
-		"termsOfService": "Termos de Servico",
-		"privacyPolicy": "Politica de Privacidade"
-	},
-	"home": {
-		"getStarted": "Para comecar, edite o arquivo page.tsx.",
-		"lookingForStart": "Procurando um ponto de partida ou mais instrucoes? Acesse os",
-		"lookingForMiddle": "ou o centro de",
-		"lookingForEnd": ".",
-		"templates": "Modelos",
-		"learning": "Aprendizado",
-		"deployNow": "Publicar Agora",
-		"documentation": "Documentacao"
+		"termsOfService": "Termos de Serviço",
+		"privacyPolicy": "Política de Privacidade",
+		"create": "Criar",
+		"view": "Visualizar",
+		"download": "Baixar",
+		"upload": "Enviar",
+		"search": "Buscar",
+		"filter": "Filtrar",
+		"sort": "Ordenar",
+		"refresh": "Atualizar",
+		"back": "Voltar",
+		"next": "Próximo",
+		"previous": "Anterior"
 	},
 	"auth": {
 		"login": {
 			"title": "Bem-vindo de volta",
-			"subtitle": "Entre na sua conta Acme Inc",
+			"subtitle": "Entre na sua conta EchoModel",
 			"forgotPassword": "Esqueceu sua senha?",
 			"loggingIn": "Entrando...",
 			"loginButton": "Entrar",
 			"orContinueWith": "Ou continue com",
-			"noAccount": "Nao tem uma conta?",
+			"noAccount": "Não tem uma conta?",
 			"signupLink": "Cadastre-se",
 			"loginWithApple": "Entrar com Apple",
 			"loginWithGoogle": "Entrar com Google",
 			"loginWithMeta": "Entrar com Meta",
-			"termsAgreementStart": "Ao clicar em continuar, voce concorda com nossos",
+			"termsAgreementStart": "Ao clicar em continuar, você concorda com nossos",
 			"termsAgreementMiddle": "e"
 		},
 		"signup": {
 			"title": "Crie sua conta",
-			"subtitle": "Digite seu e-mail abaixo para criar sua conta",
-			"emailDescription": "Usaremos isso para entrar em contato com voce. Nao compartilharemos seu e-mail com terceiros.",
+			"subtitle": "Comece a criar modelos para sua loja",
+			"emailDescription": "Usaremos isso para entrar em contato com você. Não compartilharemos seu e-mail com terceiros.",
 			"passwordMinLength": "Deve ter pelo menos 8 caracteres.",
 			"creatingAccount": "Criando Conta...",
 			"createAccountButton": "Criar Conta",
 			"orContinueWith": "Ou continue com",
-			"hasAccount": "Ja tem uma conta?",
+			"hasAccount": "Já tem uma conta?",
 			"signinLink": "Entrar",
 			"signupWithApple": "Cadastrar com Apple",
 			"signupWithGoogle": "Cadastrar com Google",
 			"signupWithMeta": "Cadastrar com Meta",
-			"termsAgreementStart": "Ao clicar em continuar, voce concorda com nossos",
+			"termsAgreementStart": "Ao clicar em continuar, você concorda com nossos",
 			"termsAgreementMiddle": "e"
 		},
 		"forgotPassword": {
 			"title": "Redefinir sua senha",
-			"subtitle": "Digite seu endereco de e-mail e enviaremos um link para redefinir sua senha",
-			"emailDescription": "Enviaremos instrucoes de redefinicao de senha para este endereco de e-mail.",
-			"sendResetLink": "Enviar Link de Redefinicao",
+			"subtitle": "Digite seu endereço de e-mail e enviaremos um link para redefinir sua senha",
+			"emailDescription": "Enviaremos instruções de redefinição de senha para este endereço de e-mail.",
+			"sendResetLink": "Enviar Link",
 			"sendingLink": "Enviando...",
 			"backToLogin": "Voltar para o Login",
 			"successTitle": "Verifique seu e-mail",
-			"successMessage": "Enviamos um link de redefinicao de senha para seu endereco de e-mail. Verifique sua caixa de entrada e siga as instrucoes.",
-			"termsAgreementStart": "Ao clicar em continuar, voce concorda com nossos",
+			"successMessage": "Enviamos um link de redefinição de senha para seu endereço de e-mail. Verifique sua caixa de entrada e siga as instruções.",
+			"termsAgreementStart": "Ao clicar em continuar, você concorda com nossos",
 			"termsAgreementMiddle": "e"
 		},
 		"validation": {
-			"emailRequired": "E-mail e obrigatorio",
-			"emailInvalid": "Por favor, insira um e-mail valido",
-			"passwordRequired": "Senha e obrigatoria",
+			"emailRequired": "E-mail é obrigatório",
+			"emailInvalid": "Por favor, insira um e-mail válido",
+			"passwordRequired": "Senha é obrigatória",
 			"passwordMinLength": "A senha deve ter pelo menos 8 caracteres",
 			"confirmPasswordRequired": "Por favor, confirme sua senha",
-			"passwordsDoNotMatch": "As senhas nao coincidem"
+			"passwordsDoNotMatch": "As senhas não coincidem"
 		}
 	},
 	"passwordStrength": {
-		"label": "Forca da senha:",
+		"label": "Força da senha:",
 		"veryWeak": "Muito fraca",
 		"weak": "Fraca",
-		"fair": "Razoavel",
+		"fair": "Razoável",
 		"strong": "Forte",
 		"veryStrong": "Muito forte"
 	},
 	"navigation": {
-		"finance": "Financas",
-		"management": "Gerenciamento",
-		"platform": "Plataforma",
-		"projects": "Projetos",
-		"teams": "Equipes",
-		"addTeam": "Adicionar equipe"
-	},
-	"sidebar": {
-		"dashboard": "Painel",
-		"overview": "Visao Geral",
-		"netWorth": "Patrimonio Liquido",
-		"monthlySummary": "Resumo Mensal",
-		"accounts": "Contas",
-		"allAccounts": "Todas as Contas",
-		"bankAccounts": "Contas Bancarias",
-		"creditCards": "Cartoes de Credito",
-		"cashWallets": "Dinheiro e Carteiras",
-		"addAccount": "Adicionar Conta",
-		"transactions": "Transacoes",
-		"allTransactions": "Todas as Transacoes",
-		"income": "Receitas",
-		"expenses": "Despesas",
-		"transfers": "Transferencias",
-		"import": "Importar",
-		"budget": "Orcamento",
-		"categories": "Categorias",
-		"planning": "Planejamento",
-		"alerts": "Alertas",
-		"investments": "Investimentos",
-		"portfolio": "Portfolio",
-		"stocksEtfs": "Acoes e ETFs",
-		"crypto": "Cripto",
-		"fixedIncome": "Renda Fixa",
-		"realEstate": "Imoveis",
-		"funds": "Fundos",
-		"goals": "Metas",
-		"allGoals": "Todas as Metas",
-		"emergencyFund": "Reserva de Emergencia",
-		"savings": "Poupanca",
-		"milestones": "Marcos",
-		"bills": "Contas a Pagar",
-		"upcoming": "Proximas",
-		"subscriptions": "Assinaturas",
-		"recurring": "Recorrentes",
-		"history": "Historico",
-		"reports": "Relatorios",
-		"cashFlow": "Fluxo de Caixa",
-		"byCategory": "Por Categoria",
-		"taxReport": "Relatorio Fiscal",
-		"settings": "Configuracoes",
-		"general": "Geral",
-		"currencies": "Moedas",
-		"importExport": "Importar/Exportar",
-		"notifications": "Notificacoes"
-	},
-	"projects": {
-		"designEngineering": "Engenharia de Design",
-		"salesMarketing": "Vendas e Marketing",
-		"travel": "Viagem",
-		"viewProject": "Ver Projeto",
-		"shareProject": "Compartilhar Projeto",
-		"deleteProject": "Excluir Projeto"
-	},
-	"user": {
-		"upgradeToPro": "Upgrade para Pro",
-		"account": "Conta",
-		"billing": "Cobranca",
-		"notifications": "Notificacoes"
-	},
-	"dashboard": {
-		"breadcrumbs": {
-			"buildingYourApplication": "Construindo Sua Aplicacao",
-			"dataFetching": "Busca de Dados"
-		}
-	},
-	"localeSwitcher": {
-		"label": "Idioma",
-		"switchTo": "Mudar para {locale}"
+		"platform": "Plataforma"
 	},
 	"stores": {
 		"yourStores": "Suas Lojas",
@@ -183,7 +103,7 @@
 		},
 		"createDialog": {
 			"title": "Crie Sua Loja",
-			"description": "Vamos comecar criando sua primeira loja. Voce pode alterar esses detalhes depois.",
+			"description": "Vamos começar criando sua primeira loja. Você pode alterar esses detalhes depois.",
 			"nameLabel": "Nome da Loja",
 			"namePlaceholder": "Digite o nome da sua loja",
 			"createButton": "Criar Loja",
@@ -191,149 +111,38 @@
 			"error": "Falha ao criar loja. Por favor, tente novamente."
 		}
 	},
-	"accounts": {
+	"sidebar": {
+		"dashboard": "Painel",
+		"overview": "Visão Geral",
+		"models": "Modelos",
+		"allModels": "Todos os Modelos",
+		"createModel": "Criar Modelo",
+		"settings": "Configurações",
+		"storeSettings": "Configurações da Loja",
+		"billing": "Faturamento"
+	},
+	"user": {
+		"upgradeToPro": "Assinar Pro",
+		"account": "Conta",
+		"billing": "Faturamento",
+		"notifications": "Notificações"
+	},
+	"dashboard": {
+		"title": "Painel",
+		"welcome": "Bem-vindo de volta",
+		"welcomeSubtitle": "Veja o que está acontecendo com seus modelos",
 		"breadcrumbs": {
-			"accounts": "Contas",
-			"all": "Todas as Contas",
-			"bank": "Contas Bancarias",
-			"creditCards": "Cartoes de Credito",
-			"cashWallets": "Dinheiro e Carteiras",
-			"details": "Detalhes da Conta"
-		},
-		"tabs": {
-			"all": "Todas",
-			"bank": "Banco",
-			"creditCards": "Cartoes",
-			"cashWallets": "Dinheiro"
-		},
-		"summary": {
-			"bankBalance": "Saldo Bancario",
-			"creditDebt": "Divida do Cartao",
-			"availableCredit": "Credito Disponivel",
-			"cashWallets": "Dinheiro e Carteiras",
-			"totalAccounts": "{count} contas"
-		},
-		"types": {
-			"bank": "Conta Bancaria",
-			"credit_card": "Cartao de Credito",
-			"cash": "Dinheiro",
-			"wallet": "Carteira Digital"
-		},
-		"subtypes": {
-			"checking": "Conta Corrente",
-			"savings": "Poupanca"
-		},
-		"status": {
-			"active": "Ativa",
-			"inactive": "Inativa",
-			"closed": "Encerrada"
-		},
-		"cardBrands": {
-			"visa": "Visa",
-			"mastercard": "Mastercard",
-			"amex": "American Express",
-			"discover": "Discover"
-		},
-		"walletTypes": {
-			"digital": "Digital",
-			"physical": "Fisica"
-		},
-		"card": {
-			"balance": "Saldo",
-			"available": "Disponivel",
-			"creditLimit": "Limite de Credito",
-			"creditUsage": "Uso do Credito",
-			"minimumPayment": "Pag. Minimo",
-			"dueDate": "Vencimento",
-			"apr": "Taxa Anual",
-			"accountNumber": "Conta",
-			"location": "Localizacao",
-			"provider": "Provedor",
-			"dueSoon": "Vence em Breve",
-			"overdue": "Vencido"
-		},
-		"detail": {
-			"accountInfo": "Informacoes da Conta",
-			"creditInfo": "Informacoes de Credito",
-			"recentTransactions": "Transacoes Recentes",
-			"noTransactions": "Sem transacoes recentes",
-			"viewAllTransactions": "Ver todas as transacoes",
-			"quickActions": "Acoes Rapidas",
-			"transfer": "Transferir",
-			"makePayment": "Fazer Pagamento",
-			"viewStatements": "Ver Extratos"
-		},
-		"dialog": {
-			"addTitle": "Adicionar Nova Conta",
-			"addDescription": "Escolha o tipo de conta que deseja adicionar",
-			"deleteTitle": "Excluir Conta",
-			"deleteDescription": "Tem certeza que deseja excluir esta conta? Esta acao nao pode ser desfeita.",
-			"deleteConfirm": "Excluir Conta",
-			"step1": "Selecionar Tipo",
-			"step2": "Detalhes da Conta"
-		},
-		"form": {
-			"name": "Nome da Conta",
-			"namePlaceholder": "Digite o nome da conta",
-			"bankName": "Nome do Banco",
-			"bankNamePlaceholder": "Digite o nome do banco",
-			"accountNumber": "Numero da Conta",
-			"accountNumberPlaceholder": "Digite os ultimos 4 digitos",
-			"subtype": "Tipo de Conta",
-			"balance": "Saldo Atual",
-			"balancePlaceholder": "0,00",
-			"currency": "Moeda",
-			"color": "Cor",
-			"cardNumber": "Numero do Cartao",
-			"cardNumberPlaceholder": "Digite os ultimos 4 digitos",
-			"cardHolder": "Titular do Cartao",
-			"expiryDate": "Data de Validade",
-			"cvv": "CVV",
-			"currentBalance": "Saldo Atual",
-			"cardBrand": "Bandeira do Cartao",
-			"creditLimit": "Limite de Credito",
-			"creditLimitPlaceholder": "0,00",
-			"apr": "Taxa de Juros Anual",
-			"aprPlaceholder": "0,00",
-			"dueDate": "Data de Vencimento",
-			"location": "Localizacao",
-			"locationPlaceholder": "Onde este dinheiro esta guardado?",
-			"walletType": "Tipo de Carteira",
-			"provider": "Provedor",
-			"providerPlaceholder": "ex. PayPal, Venmo"
-		},
-		"validation": {
-			"nameRequired": "Nome da conta e obrigatorio",
-			"bankNameRequired": "Nome do banco e obrigatorio",
-			"accountNumberRequired": "Numero da conta e obrigatorio",
-			"balanceRequired": "Saldo e obrigatorio",
-			"currencyRequired": "Moeda e obrigatoria",
-			"cardNumberRequired": "Numero do cartao e obrigatorio",
-			"cardBrandRequired": "Bandeira do cartao e obrigatoria",
-			"creditLimitRequired": "Limite de credito e obrigatorio",
-			"aprRequired": "Taxa de juros e obrigatoria",
-			"dueDateRequired": "Data de vencimento e obrigatoria",
-			"walletTypeRequired": "Tipo de carteira e obrigatorio"
-		},
-		"empty": {
-			"title": "Nenhuma conta encontrada",
-			"description": "Comece adicionando sua primeira conta",
-			"addButton": "Adicionar Conta"
-		},
-		"actions": {
-			"addAccount": "Adicionar Conta",
-			"editAccount": "Editar Conta",
-			"deleteAccount": "Excluir Conta"
+			"dashboard": "Painel",
+			"overview": "Visão Geral"
 		}
 	},
 	"models": {
-		"title": "Modelos de IA",
-		"subtitle": "Crie e gerencie seus influenciadores de IA",
+		"title": "Modelos",
+		"subtitle": "Crie e gerencie seus modelos virtuais",
 		"breadcrumbs": {
 			"models": "Modelos",
 			"all": "Todos os Modelos",
 			"create": "Criar Modelo",
-			"calibration": "Calibracao",
 			"details": "Detalhes do Modelo"
 		},
 		"status": {
@@ -345,26 +154,48 @@
 		},
 		"create": {
 			"title": "Criar Novo Modelo",
-			"subtitle": "Defina as caracteristicas do seu influenciador de IA",
-			"step1": "Informacoes Basicas",
-			"step2": "Aparencia",
-			"step3": "Configuracao de Moda",
-			"step4": "Imagens de Referencia",
-			"step5": "Revisar e Criar"
+			"subtitle": "Defina as características do seu modelo",
+			"step1": "Informações Básicas",
+			"step2": "Aparência",
+			"step3": "Configuração de Moda",
+			"step4": "Imagens de Referência",
+			"step5": "Revisar e Criar",
+			"steps": {
+				"basicInfo": {
+					"title": "Informações Básicas",
+					"description": "Digite informações básicas sobre seu modelo"
+				},
+				"appearance": {
+					"title": "Aparência",
+					"description": "Defina a aparência física do seu modelo"
+				},
+				"fashionConfig": {
+					"title": "Configuração de Moda",
+					"description": "Configure preferências de iluminação, câmera e estilo para resultados otimizados"
+				},
+				"referenceImages": {
+					"title": "Imagens de Referência",
+					"description": "Envie imagens para guiar a geração do modelo"
+				},
+				"review": {
+					"title": "Revisar e Criar",
+					"description": "Revise sua configuração antes de criar o modelo"
+				}
+			}
 		},
 		"form": {
 			"name": "Nome do Modelo",
 			"namePlaceholder": "Digite um nome para seu modelo",
-			"nameDescription": "De um nome memoravel ao seu influenciador de IA",
-			"description": "Descricao",
+			"nameDescription": "Dê um nome memorável ao seu modelo",
+			"description": "Descrição",
 			"descriptionPlaceholder": "Descreva a personalidade e estilo do seu modelo",
-			"gender": "Genero",
+			"gender": "Gênero",
 			"genderOptions": {
 				"male": "Masculino",
 				"female": "Feminino",
-				"nonBinary": "Nao-Binario"
+				"nonBinary": "Não-Binário"
 			},
-			"ageRange": "Faixa Etaria",
+			"ageRange": "Faixa Etária",
 			"ageRangeOptions": {
 				"young": "18-25",
 				"adult": "26-35",
@@ -373,52 +204,54 @@
 			},
 			"ethnicity": "Etnia",
 			"ethnicityOptions": {
-				"asian": "Asiatico",
+				"asian": "Asiático",
 				"black": "Negro",
 				"caucasian": "Caucasiano",
-				"hispanic": "Hispanico",
-				"middleEastern": "Oriente Medio",
+				"hispanic": "Hispânico",
+				"middleEastern": "Oriente Médio",
 				"mixed": "Misto",
-				"southAsian": "Sul-Asiatico"
+				"southAsian": "Sul-Asiático"
 			},
-			"bodyType": "Tipo Fisico",
+			"bodyType": "Tipo Físico",
 			"bodyTypeOptions": {
 				"slim": "Magro",
-				"athletic": "Atletico",
-				"average": "Medio",
-				"curvy": "Curvilinea",
+				"athletic": "Atlético",
+				"average": "Médio",
+				"curvy": "Curvilíneo",
 				"plusSize": "Plus Size"
 			},
 			"prompt": "Prompt Personalizado",
-			"promptPlaceholder": "Adicione detalhes especificos sobre a aparencia do modelo",
+			"promptPlaceholder": "Adicione detalhes específicos sobre a aparência do modelo",
 			"promptDescription": "Opcional: Forneça detalhes adicionais para resultados mais precisos",
-			"referenceImages": "Imagens de Referencia",
-			"referenceImagesDescription": "Envie 3-5 imagens para ajudar a definir a aparencia do modelo",
-			"lightingPreset": "Preset de Iluminacao",
+			"referenceImages": "Imagens de Referência",
+			"referenceImagesDescription": "Envie 3-5 imagens para ajudar a definir a aparência do modelo",
+			"lightingPreset": "Preset de Iluminação",
+			"lightingPresetTooltip": "Controla o estilo de iluminação das imagens geradas. Escolha com base nas suas necessidades de fotografia de produto.",
 			"lightingOptions": {
-				"softStudio": "Estudio Suave",
+				"softStudio": "Estúdio Suave",
 				"editorialContrast": "Contraste Editorial",
 				"naturalDaylight": "Luz Natural",
 				"ringLight": "Ring Light",
 				"goldenHour": "Hora Dourada",
-				"dramaticShadow": "Sombra Dramatica",
+				"dramaticShadow": "Sombra Dramática",
 				"butterfly": "Butterfly",
 				"rembrandt": "Rembrandt"
 			},
-			"cameraFraming": "Enquadramento da Camera",
+			"cameraFraming": "Enquadramento",
+			"cameraFramingTooltip": "Define como o modelo é enquadrado nas imagens geradas.",
 			"cameraOptions": {
-				"waistUp50mm": "Cintura Para Cima (50mm)",
+				"waistUp50mm": "Cintura para Cima (50mm)",
 				"fullBody35mm": "Corpo Inteiro (35mm)",
 				"portrait85mm": "Retrato (85mm)",
 				"closeUp": "Close Up",
 				"threeQuarter": "Vista 3/4",
 				"backView": "Vista Traseira",
-				"kneeUp": "Joelho Para Cima"
+				"kneeUp": "Joelho para Cima"
 			},
-			"backgroundType": "Fundo/Cenario",
+			"backgroundType": "Fundo",
 			"backgroundOptions": {
-				"studioWhite": "Estudio Branco",
-				"studioGray": "Estudio Cinza",
+				"studioWhite": "Estúdio Branco",
+				"studioGray": "Estúdio Cinza",
 				"gradient": "Gradiente",
 				"outdoorUrban": "Externo Urbano",
 				"outdoorNature": "Externo Natural",
@@ -426,22 +259,22 @@
 			},
 			"poseStyle": "Estilo de Pose",
 			"poseOptions": {
-				"staticFront": "Estatica Frontal",
-				"staticSide": "Estatica Lateral",
+				"staticFront": "Estática Frontal",
+				"staticSide": "Estática Lateral",
 				"walking": "Caminhando",
 				"editorial": "Editorial",
 				"casual": "Casual",
-				"dynamic": "Dinamica"
+				"dynamic": "Dinâmica"
 			},
-			"expression": "Expressao do Modelo",
+			"expression": "Expressão",
 			"expressionOptions": {
-				"neutral": "Neutro",
+				"neutral": "Neutra",
 				"smile": "Sorriso",
-				"serious": "Serio",
+				"serious": "Séria",
 				"confident": "Confiante",
 				"soft": "Suave"
 			},
-			"postProcessingStyle": "Estilo de Pos-Processamento",
+			"postProcessingStyle": "Estilo de Pós-Processamento",
 			"postProcessingOptions": {
 				"natural": "Natural",
 				"vibrant": "Vibrante",
@@ -450,167 +283,87 @@
 				"warm": "Quente",
 				"cool": "Frio"
 			},
-			"texturePreferences": "Preferencias de Textura",
+			"texturePreferences": "Preferências de Textura",
+			"texturePreferencesTooltip": "Adicione palavras-chave descrevendo texturas e materiais de tecido.",
 			"productCategories": "Categorias de Produto",
+			"productCategoriesTooltip": "Selecione até 3 categorias de produto em que este modelo se especializa.",
 			"categoryOptions": {
 				"tops": "Blusas",
-				"bottoms": "Calcas",
+				"bottoms": "Calças",
 				"dresses": "Vestidos",
 				"outerwear": "Casacos",
-				"accessories": "Acessorios",
-				"footwear": "Calcados",
+				"accessories": "Acessórios",
+				"footwear": "Calçados",
 				"swimwear": "Moda Praia",
 				"activewear": "Roupas Esportivas",
 				"formal": "Roupas Formais",
 				"jewelry": "Joias"
 			},
 			"outfitSwapping": "Habilitar Troca de Roupa",
-			"outfitSwappingDescription": "Use este modelo para provar roupas virtualmente"
+			"outfitSwappingDescription": "Use este modelo para provador virtual e geração de looks"
+		},
+		"card": {
+			"generations": "Gerações",
+			"created": "Criado em",
+			"viewDetails": "Ver Detalhes",
+			"startCalibration": "Iniciar Calibração",
+			"generateImage": "Gerar Imagem"
 		},
 		"empty": {
 			"title": "Nenhum modelo ainda",
-			"description": "Crie seu primeiro influenciador de IA para comecar",
+			"description": "Crie seu primeiro modelo para começar",
 			"createButton": "Criar Modelo"
-		}
-	},
-	"generations": {
-		"title": "Geracoes",
-		"subtitle": "Gerar e gerenciar imagens criadas por IA",
-		"breadcrumbs": {
-			"generations": "Geracoes",
-			"all": "Todas as Geracoes",
-			"new": "Nova Geracao",
-			"history": "Historico",
-			"details": "Detalhes da Geracao"
 		},
-		"status": {
-			"pending": "Pendente",
-			"processing": "Processando",
-			"completed": "Concluido",
-			"failed": "Falhou"
-		},
-		"create": {
-			"title": "Criar Nova Geracao",
-			"subtitle": "Gere imagens com seu influenciador de IA",
-			"selectModel": "Selecionar Modelo",
-			"selectModelPlaceholder": "Escolha um modelo de IA",
-			"selectGarment": "Selecionar Roupa",
-			"selectGarmentPlaceholder": "Escolha uma imagem de roupa",
-			"scenePrompt": "Descricao da Cena",
-			"scenePromptPlaceholder": "Descreva a cena, pose e configuracao",
-			"scenePromptDescription": "Seja especifico sobre o ambiente, iluminacao e pose",
-			"presetSelector": "Construtor de Cena",
-			"presetSelectorDescription": "Escolha presets para construir sua cena automaticamente",
-			"setting": "Cenario Fotografico",
-			"settingDescription": "Onde a foto deve ser tirada?",
-			"lighting": "Estilo de Iluminacao",
-			"lightingDescription": "Que tipo de iluminacao funciona melhor?",
-			"pose": "Pose e Acao",
-			"poseDescription": "Como o modelo deve ser posicionado?",
-			"angle": "Angulo da Camera",
-			"angleDescription": "Qual perspectiva da camera deve ser usada?",
-			"mood": "Estilo e Atmosfera (Opcional)",
-			"advancedOptions": "Opcoes Avancadas",
-			"showAdvanced": "Mostrar Opcoes Avancadas",
-			"hideAdvanced": "Ocultar Opcoes Avancadas",
-			"generatedPrompt": "Descricao da Cena Gerada",
-			"advancedPromptDescription": "Este prompt e criado automaticamente a partir de suas selecoes de preset",
-			"customPromptOverride": "Substituicao de Prompt Personalizado",
-			"useCustomPrompt": "Usar prompt personalizado em vez de presets",
-			"customPromptHelp": "Ative isto para escrever sua propria descricao de cena",
-			"noPresetsSelected": "Nenhum preset selecionado ainda. Escolha opcoes acima para comecar.",
-			"presetsSelected": "{count} presets selecionados",
-			"aspectRatio": "Proporcao de Aspecto",
-			"aspectRatioOptions": {
-				"portrait": "Retrato (4:5)",
-				"story": "Historia (9:16)",
-				"square": "Quadrado (1:1)",
-				"landscape": "Paisagem (16:9)"
-			},
-			"imageCount": "Numero de Imagens",
-			"imageCountDescription": "Gere de 1 a 4 imagens por solicitacao",
-			"generate": "Gerar Imagens",
-			"generating": "Gerando..."
-		},
-		"card": {
-			"model": "Modelo",
-			"images": "Imagens",
-			"created": "Criado",
-			"viewImages": "Ver Imagens",
-			"download": "Baixar Tudo",
-			"regenerate": "Regerar"
-		},
-		"empty": {
-			"title": "Nenhuma geracao ainda",
-			"description": "Crie sua primeira geracao para ver imagens criadas por IA",
-			"createButton": "Nova Geracao"
-		},
-		"detail": {
-			"generatedImages": "Imagens Geradas",
-			"metadata": "Detalhes da Geracao",
-			"downloadSelected": "Baixar Selecionados",
-			"downloadAll": "Baixar Tudo"
+		"actions": {
+			"create": "Criar Modelo",
+			"edit": "Editar Modelo",
+			"archive": "Arquivar Modelo",
+			"delete": "Excluir Modelo",
+			"duplicate": "Duplicar Modelo"
 		}
 	},
 	"settings": {
-		"title": "Configuracoes",
-		"subtitle": "Gerencie as configuracoes da sua loja",
-		"saveChanges": "Salvar Alteracoes",
-		"saveSuccess": "Configuracoes salvas com sucesso",
-		"saveError": "Falha ao salvar configuracoes",
+		"title": "Configurações",
+		"subtitle": "Gerencie as configurações da sua loja",
+		"saveChanges": "Salvar Alterações",
+		"saveSuccess": "Configurações salvas com sucesso",
+		"saveError": "Falha ao salvar configurações",
 		"nav": {
 			"general": "Geral",
 			"billing": "Faturamento"
 		},
 		"breadcrumbs": {
-			"settings": "Configuracoes",
-			"store": "Configuracoes da Loja",
-			"branding": "Marca",
-			"billing": "Faturamento",
-			"team": "Equipe"
+			"settings": "Configurações",
+			"store": "Configurações da Loja",
+			"billing": "Faturamento"
 		},
 		"store": {
-			"title": "Configuracoes da Loja",
-			"subtitle": "Configure as preferencias da sua loja",
+			"title": "Configurações da Loja",
+			"subtitle": "Configure as preferências da sua loja",
 			"name": "Nome da Loja",
 			"namePlaceholder": "Digite o nome da sua loja",
-			"description": "Descricao da Loja",
+			"description": "Descrição da Loja",
 			"descriptionPlaceholder": "Descreva sua loja",
-			"defaultAspectRatio": "Proporcao Padrao",
-			"defaultImageCount": "Quantidade Padrao de Imagens",
-			"watermark": "Ativar Marca d'Agua",
-			"watermarkDescription": "Adicionar marca d'agua as imagens geradas"
-		},
-		"branding": {
-			"title": "Marca",
-			"subtitle": "Personalize a aparencia da sua marca",
-			"logo": "Logo da Loja",
-			"logoDescription": "Faca upload do logo da sua loja",
-			"defaultStyle": "Estilo Padrao",
-			"defaultStylePlaceholder": "Descreva o estilo visual da sua marca"
+			"defaultAspectRatio": "Proporção Padrão",
+			"defaultImageCount": "Quantidade Padrão de Imagens",
+			"watermark": "Ativar Marca d'Água",
+			"watermarkDescription": "Adicionar marca d'água às imagens geradas"
 		},
 		"billing": {
 			"title": "Faturamento",
 			"subtitle": "Gerencie sua assinatura e pagamentos",
 			"currentPlan": "Plano Atual",
-			"usage": "Uso Este Mes",
-			"generations": "Geracoes",
+			"usage": "Uso Este Mês",
+			"generations": "Gerações",
 			"storage": "Armazenamento",
 			"upgrade": "Atualizar Plano",
 			"viewInvoices": "Ver Faturas",
-			"emptyTitle": "Sem informacoes de faturamento",
-			"emptyDescription": "O gerenciamento de faturamento e assinaturas estara disponivel em breve. Fique atento as atualizacoes."
-		},
-		"team": {
-			"title": "Equipe",
-			"subtitle": "Gerencie membros da equipe e permissoes",
-			"members": "Membros da Equipe",
-			"invite": "Convidar Membro",
-			"roles": {
-				"owner": "Proprietario",
-				"admin": "Administrador",
-				"member": "Membro"
-			}
+			"emptyTitle": "Sem informações de faturamento",
+			"emptyDescription": "O gerenciamento de faturamento e assinaturas estará disponível em breve. Fique atento às atualizações."
 		}
+	},
+	"localeSwitcher": {
+		"label": "Idioma",
+		"switchTo": "Mudar para {locale}"
 	}
 }

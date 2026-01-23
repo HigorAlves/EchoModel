@@ -1,8 +1,4 @@
 {
-	"metadata": {
-		"title": "EchoModel - AI Influencer Platform",
-		"description": "Create AI influencers and generate social-media-ready photos for your clothing store"
-	},
 	"common": {
 		"login": "Login",
 		"signup": "Sign up",
@@ -33,16 +29,6 @@
 		"next": "Next",
 		"previous": "Previous"
 	},
-	"home": {
-		"getStarted": "To get started, edit the page.tsx file.",
-		"lookingForStart": "Looking for a starting point or more instructions? Head over to",
-		"lookingForMiddle": "or the",
-		"lookingForEnd": " center.",
-		"templates": "Templates",
-		"learning": "Learning",
-		"deployNow": "Deploy Now",
-		"documentation": "Documentation"
-	},
 	"auth": {
 		"login": {
 			"title": "Welcome back",
@@ -61,7 +47,7 @@
 		},
 		"signup": {
 			"title": "Create your account",
-			"subtitle": "Start creating AI influencers for your store",
+			"subtitle": "Start creating models for your store",
 			"emailDescription": "We'll use this to contact you. We will not share your email with anyone else.",
 			"passwordMinLength": "Must be at least 8 characters long.",
 			"creatingAccount": "Creating Account...",
@@ -105,10 +91,7 @@
 		"veryStrong": "Very strong"
 	},
 	"navigation": {
-		"platform": "Platform",
-		"aiStudio": "AI Studio",
-		"content": "Content",
-		"management": "Management"
+		"platform": "Platform"
 	},
 	"stores": {
 		"yourStores": "Your Stores",
@@ -131,25 +114,12 @@
 	"sidebar": {
 		"dashboard": "Dashboard",
 		"overview": "Overview",
-		"analytics": "Analytics",
-		"models": "AI Models",
+		"models": "Models",
 		"allModels": "All Models",
 		"createModel": "Create Model",
-		"calibration": "Calibration",
-		"generations": "Generations",
-		"allGenerations": "All Generations",
-		"newGeneration": "New Generation",
-		"history": "History",
-		"assets": "Assets",
-		"allAssets": "All Assets",
-		"garments": "Garments",
-		"generated": "Generated Images",
-		"references": "Reference Images",
 		"settings": "Settings",
 		"storeSettings": "Store Settings",
-		"branding": "Branding",
-		"billing": "Billing",
-		"team": "Team"
+		"billing": "Billing"
 	},
 	"user": {
 		"upgradeToPro": "Upgrade to Pro",
@@ -160,40 +130,19 @@
 	"dashboard": {
 		"title": "Dashboard",
 		"welcome": "Welcome back",
-		"welcomeSubtitle": "Here's what's happening with your AI influencers",
+		"welcomeSubtitle": "Here's what's happening with your models",
 		"breadcrumbs": {
 			"dashboard": "Dashboard",
-			"overview": "Overview",
-			"analytics": "Analytics"
-		},
-		"stats": {
-			"totalModels": "Total Models",
-			"activeModels": "Active Models",
-			"totalGenerations": "Total Generations",
-			"thisMonth": "This Month",
-			"totalAssets": "Total Assets",
-			"storageUsed": "Storage Used"
-		},
-		"recentActivity": {
-			"title": "Recent Activity",
-			"noActivity": "No recent activity",
-			"viewAll": "View all activity"
-		},
-		"quickActions": {
-			"title": "Quick Actions",
-			"createModel": "Create New Model",
-			"generateImage": "Generate Image",
-			"uploadAsset": "Upload Asset"
+			"overview": "Overview"
 		}
 	},
 	"models": {
-		"title": "AI Models",
-		"subtitle": "Create and manage your AI influencers",
+		"title": "Models",
+		"subtitle": "Create and manage your virtual models",
 		"breadcrumbs": {
 			"models": "Models",
 			"all": "All Models",
 			"create": "Create Model",
-			"calibration": "Calibration",
 			"details": "Model Details"
 		},
 		"status": {
@@ -205,7 +154,7 @@
 		},
 		"create": {
 			"title": "Create New Model",
-			"subtitle": "Define the characteristics of your AI influencer",
+			"subtitle": "Define the characteristics of your model",
 			"step1": "Basic Info",
 			"step2": "Appearance",
 			"step3": "Fashion Configuration",
@@ -214,7 +163,7 @@
 			"steps": {
 				"basicInfo": {
 					"title": "Basic Information",
-					"description": "Enter basic information about your AI model"
+					"description": "Enter basic information about your model"
 				},
 				"appearance": {
 					"title": "Appearance",
@@ -226,7 +175,7 @@
 				},
 				"referenceImages": {
 					"title": "Reference Images",
-					"description": "Upload images to guide the AI model generation"
+					"description": "Upload images to guide the model generation"
 				},
 				"review": {
 					"title": "Review & Create",
@@ -237,7 +186,7 @@
 		"form": {
 			"name": "Model Name",
 			"namePlaceholder": "Enter a name for your model",
-			"nameDescription": "Give your AI influencer a memorable name",
+			"nameDescription": "Give your model a memorable name",
 			"description": "Description",
 			"descriptionPlaceholder": "Describe your model's personality and style",
 			"gender": "Gender",
@@ -299,7 +248,7 @@
 				"backView": "Back View",
 				"kneeUp": "Knee Up"
 			},
-			"backgroundType": "Background/Backdrop",
+			"backgroundType": "Background",
 			"backgroundOptions": {
 				"studioWhite": "Studio White",
 				"studioGray": "Studio Gray",
@@ -317,7 +266,7 @@
 				"casual": "Casual",
 				"dynamic": "Dynamic"
 			},
-			"expression": "Model Expression",
+			"expression": "Expression",
 			"expressionOptions": {
 				"neutral": "Neutral",
 				"smile": "Smile",
@@ -353,15 +302,6 @@
 			"outfitSwapping": "Enable Outfit Swapping",
 			"outfitSwappingDescription": "Use this model for virtual try-on and outfit generation"
 		},
-		"calibration": {
-			"title": "Model Calibration",
-			"subtitle": "Review and approve calibration images",
-			"inProgress": "Calibration in Progress",
-			"selectImages": "Select the best images that represent your model",
-			"approve": "Approve & Activate",
-			"reject": "Reject & Retry",
-			"generating": "Generating calibration images..."
-		},
 		"card": {
 			"generations": "Generations",
 			"created": "Created",
@@ -371,7 +311,7 @@
 		},
 		"empty": {
 			"title": "No models yet",
-			"description": "Create your first AI influencer to get started",
+			"description": "Create your first model to get started",
 			"createButton": "Create Model"
 		},
 		"actions": {
@@ -380,138 +320,6 @@
 			"archive": "Archive Model",
 			"delete": "Delete Model",
 			"duplicate": "Duplicate Model"
-		}
-	},
-	"generations": {
-		"title": "Generations",
-		"subtitle": "Generate and manage AI-created images",
-		"breadcrumbs": {
-			"generations": "Generations",
-			"all": "All Generations",
-			"new": "New Generation",
-			"history": "History",
-			"details": "Generation Details"
-		},
-		"status": {
-			"pending": "Pending",
-			"processing": "Processing",
-			"completed": "Completed",
-			"failed": "Failed"
-		},
-		"create": {
-			"title": "Create New Generation",
-			"subtitle": "Generate images with your AI influencer",
-			"selectModel": "Select Model",
-			"selectModelPlaceholder": "Choose an AI model",
-			"selectGarment": "Select Garment",
-			"selectGarmentPlaceholder": "Choose a garment image",
-			"scenePrompt": "Scene Description",
-			"scenePromptPlaceholder": "Describe the scene, pose, and setting",
-			"scenePromptDescription": "Be specific about the environment, lighting, and pose",
-			"presetSelector": "Scene Builder",
-			"presetSelectorDescription": "Choose presets to build your scene automatically",
-			"setting": "Photography Setting",
-			"settingDescription": "Where should the photo be taken?",
-			"lighting": "Lighting Style",
-			"lightingDescription": "What type of lighting works best?",
-			"pose": "Pose & Action",
-			"poseDescription": "How should the model be positioned?",
-			"angle": "Camera Angle",
-			"angleDescription": "What camera perspective should be used?",
-			"mood": "Style & Mood (Optional)",
-			"advancedOptions": "Advanced Options",
-			"showAdvanced": "Show Advanced Options",
-			"hideAdvanced": "Hide Advanced Options",
-			"generatedPrompt": "Generated Scene Description",
-			"advancedPromptDescription": "This prompt is automatically created from your preset selections",
-			"customPromptOverride": "Custom Prompt Override",
-			"useCustomPrompt": "Use custom prompt instead of presets",
-			"customPromptHelp": "Enable this to write your own scene description",
-			"noPresetsSelected": "No presets selected yet. Choose options above to get started.",
-			"presetsSelected": "{count} presets selected",
-			"aspectRatio": "Aspect Ratio",
-			"aspectRatioOptions": {
-				"portrait": "Portrait (4:5)",
-				"story": "Story (9:16)",
-				"square": "Square (1:1)",
-				"landscape": "Landscape (16:9)"
-			},
-			"imageCount": "Number of Images",
-			"imageCountDescription": "Generate 1-4 images per request",
-			"generate": "Generate Images",
-			"generating": "Generating..."
-		},
-		"card": {
-			"model": "Model",
-			"images": "Images",
-			"created": "Created",
-			"viewImages": "View Images",
-			"download": "Download All",
-			"regenerate": "Regenerate"
-		},
-		"empty": {
-			"title": "No generations yet",
-			"description": "Create your first generation to see AI-created images",
-			"createButton": "New Generation"
-		},
-		"detail": {
-			"generatedImages": "Generated Images",
-			"metadata": "Generation Details",
-			"downloadSelected": "Download Selected",
-			"downloadAll": "Download All"
-		}
-	},
-	"assets": {
-		"title": "Assets",
-		"subtitle": "Manage your images and files",
-		"breadcrumbs": {
-			"assets": "Assets",
-			"all": "All Assets",
-			"garments": "Garments",
-			"generated": "Generated",
-			"references": "References",
-			"details": "Asset Details"
-		},
-		"categories": {
-			"all": "All",
-			"garment": "Garments",
-			"generated": "Generated",
-			"modelReference": "Model References",
-			"calibration": "Calibration",
-			"storeLogo": "Store Logo"
-		},
-		"status": {
-			"pendingUpload": "Pending Upload",
-			"uploaded": "Uploaded",
-			"processing": "Processing",
-			"ready": "Ready",
-			"failed": "Failed"
-		},
-		"upload": {
-			"title": "Upload Assets",
-			"dragDrop": "Drag and drop files here",
-			"or": "or",
-			"browse": "Browse files",
-			"supportedFormats": "Supported formats: JPEG, PNG, WebP",
-			"maxSize": "Max file size: 10MB"
-		},
-		"card": {
-			"size": "Size",
-			"uploaded": "Uploaded",
-			"category": "Category",
-			"viewDetails": "View Details",
-			"download": "Download",
-			"delete": "Delete"
-		},
-		"empty": {
-			"title": "No assets yet",
-			"description": "Upload your first asset to get started",
-			"uploadButton": "Upload Asset"
-		},
-		"filters": {
-			"category": "Category",
-			"status": "Status",
-			"dateRange": "Date Range"
 		}
 	},
 	"settings": {
@@ -527,9 +335,7 @@
 		"breadcrumbs": {
 			"settings": "Settings",
 			"store": "Store Settings",
-			"branding": "Branding",
-			"billing": "Billing",
-			"team": "Team"
+			"billing": "Billing"
 		},
 		"store": {
 			"title": "Store Settings",
@@ -543,14 +349,6 @@
 			"watermark": "Enable Watermark",
 			"watermarkDescription": "Add a watermark to generated images"
 		},
-		"branding": {
-			"title": "Branding",
-			"subtitle": "Customize your brand appearance",
-			"logo": "Store Logo",
-			"logoDescription": "Upload your store logo",
-			"defaultStyle": "Default Style",
-			"defaultStylePlaceholder": "Describe your brand's visual style"
-		},
 		"billing": {
 			"title": "Billing",
 			"subtitle": "Manage your subscription and payments",
@@ -562,17 +360,6 @@
 			"viewInvoices": "View Invoices",
 			"emptyTitle": "No billing information",
 			"emptyDescription": "Billing and subscription management will be available soon. Stay tuned for updates."
-		},
-		"team": {
-			"title": "Team",
-			"subtitle": "Manage team members and permissions",
-			"members": "Team Members",
-			"invite": "Invite Member",
-			"roles": {
-				"owner": "Owner",
-				"admin": "Admin",
-				"member": "Member"
-			}
 		}
 	},
 	"localeSwitcher": {
