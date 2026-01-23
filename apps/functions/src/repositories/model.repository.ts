@@ -56,6 +56,7 @@ export class FirestoreModelRepository implements IModelRepository {
 			prompt: model.prompt?.value ?? null,
 			referenceImages: [...model.referenceImages],
 			calibrationImages: [...model.calibrationImages],
+			generatedImages: [...model.generatedImages],
 			lockedIdentityUrl: model.lockedIdentityUrl,
 			failureReason: model.failureReason,
 			// Fashion configuration - use toJSON() to exclude undefined values
@@ -110,6 +111,7 @@ export class FirestoreModelRepository implements IModelRepository {
 			prompt: data.prompt ? ModelPrompt.create(data.prompt) : null,
 			referenceImages: data.referenceImages,
 			calibrationImages: data.calibrationImages,
+			generatedImages: data.generatedImages ?? [],
 			lockedIdentityUrl: data.lockedIdentityUrl,
 			failureReason: data.failureReason,
 			// Fashion configuration

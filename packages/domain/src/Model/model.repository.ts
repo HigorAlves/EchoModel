@@ -54,6 +54,7 @@ export interface PersistenceModel {
 	readonly prompt: string | null
 	readonly referenceImages: string[]
 	readonly calibrationImages: string[]
+	readonly generatedImages: string[]
 	readonly lockedIdentityUrl: string | null
 	readonly failureReason: string | null
 	// Seedream 4.5 Fashion configuration

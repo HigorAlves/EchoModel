@@ -6,6 +6,7 @@ import {
 	Grid3x3,
 	Heart,
 	List,
+	Loader2,
 	MoreHorizontal,
 	Plus,
 	Search,
@@ -22,6 +23,7 @@ import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 
 import { useBreadcrumbs } from '@/components/layout/dashboard/dashboard-header'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -37,6 +39,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useModels } from '@/features/models/hooks/use-models'
+import { useCurrentStore } from '@/features/stores/hooks/use-stores'
 
 // Sample model data - will be replaced with real data
 const sampleModels = [
@@ -52,6 +56,12 @@ const sampleModels = [
 		generations: 24,
 		createdAt: '2024-01-15',
 		thumbnailUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=500&fit=crop',
+		images: [
+			'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=500&fit=crop',
+			'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=500&fit=crop',
+			'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=400&h=500&fit=crop',
+			'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=500&fit=crop',
+		],
 	},
 	{
 		id: '2',
@@ -65,6 +75,12 @@ const sampleModels = [
 		generations: 18,
 		createdAt: '2024-01-10',
 		thumbnailUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop',
+		images: [
+			'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop',
+			'https://images.unsplash.com/photo-1490114538077-0a7f8cb49891?w=400&h=500&fit=crop',
+			'https://images.unsplash.com/photo-1516826957135-700dedea698c?w=400&h=500&fit=crop',
+			'https://images.unsplash.com/photo-1519058082700-08a0b56da9b4?w=400&h=500&fit=crop',
+		],
 	},
 	{
 		id: '3',
@@ -78,6 +94,7 @@ const sampleModels = [
 		generations: 0,
 		createdAt: '2024-01-18',
 		thumbnailUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=500&fit=crop',
+		images: [],
 	},
 	{
 		id: '4',
@@ -91,6 +108,7 @@ const sampleModels = [
 		generations: 0,
 		createdAt: '2024-01-19',
 		thumbnailUrl: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=500&fit=crop',
+		images: [],
 	},
 	{
 		id: '5',
@@ -104,6 +122,11 @@ const sampleModels = [
 		generations: 32,
 		createdAt: '2024-01-12',
 		thumbnailUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=500&fit=crop',
+		images: [
+			'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=500&fit=crop',
+			'https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?w=400&h=500&fit=crop',
+			'https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=400&h=500&fit=crop',
+		],
 	},
 	{
 		id: '6',
@@ -117,29 +140,50 @@ const sampleModels = [
 		generations: 45,
 		createdAt: '2024-01-08',
 		thumbnailUrl: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=500&fit=crop',
+		images: [
+			'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=500&fit=crop',
+			'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400&h=500&fit=crop',
+			'https://images.unsplash.com/photo-1479936343636-73cdc5aae0c3?w=400&h=500&fit=crop',
+			'https://images.unsplash.com/photo-1496440737103-cd596325d314?w=400&h=500&fit=crop',
+		],
 	},
 ]
 
 type ViewMode = 'grid' | 'list'
+
+type ModelCardProps = {
+	id: string
+	name: string
+	description: string
+	status: 'draft' | 'calibrating' | 'active' | 'failed' | 'archived'
+	gender: string
+	ageRange: string
+	ethnicity: string
+	bodyType: string
+	generations: number
+	createdAt: string
+	images: string[]
+	hasGeneratedImages?: boolean
+	isReadyForGeneration?: boolean
+}
 
 function ModelCard({
 	model,
 	t,
 	viewMode,
 }: {
-	model: (typeof sampleModels)[0]
+	model: ModelCardProps
 	t: ReturnType<typeof useTranslations>
 	viewMode: ViewMode
 }) {
+	const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+
 	const statusColors = {
-		draft: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400 border-amber-200 dark:border-amber-800/50',
-		calibrating:
-			'bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400 border-blue-200 dark:border-blue-800/50',
-		active:
-			'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50',
-		failed: 'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-400 border-red-200 dark:border-red-800/50',
-		archived:
-			'bg-gray-50 text-gray-700 dark:bg-gray-950/50 dark:text-gray-400 border-gray-200 dark:border-gray-800/50',
+		draft: 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300',
+		calibrating: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+		active: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
+		failed: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
+		archived: 'bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300',
 	}
 
 	const statusIcons = {
@@ -152,22 +196,18 @@ function ModelCard({
 
 	const StatusIcon = statusIcons[model.status]
 
+	// List view - horizontal card
 	if (viewMode === 'list') {
 		return (
-			<motion.div
-				initial={{ opacity: 0, y: 20 }}
-				animate={{ opacity: 1, y: 0 }}
-				exit={{ opacity: 0, y: -20 }}
-				transition={{ duration: 0.2 }}
-				className='group'>
-				<Card className='overflow-hidden transition-all hover:shadow-lg'>
-					<div className='flex gap-6 p-6'>
-						{/* Image - Smaller in list view */}
-						<div className='relative h-32 w-24 shrink-0 overflow-hidden rounded-lg bg-muted'>
-							{model.thumbnailUrl ? (
+			<Card className='group overflow-hidden transition-all hover:shadow-lg'>
+				<div className='flex gap-6 p-6'>
+					{/* Image - Smaller in list view */}
+					<Link href={`/dashboard/models/${model.id}`} className='shrink-0'>
+						<div className='relative h-32 w-24 overflow-hidden rounded-lg bg-muted'>
+							{model.images.length > 0 ? (
 								// biome-ignore lint/performance/noImgElement: Dynamic user-generated content
 								<img
-									src={model.thumbnailUrl}
+									src={model.images[0]}
 									alt={model.name}
 									className='h-full w-full object-cover transition-transform duration-500 group-hover:scale-110'
 								/>
@@ -177,211 +217,220 @@ function ModelCard({
 								</div>
 							)}
 						</div>
+					</Link>
 
-						{/* Content */}
-						<div className='flex flex-1 flex-col justify-between'>
-							<div>
-								<div className='mb-2 flex items-start justify-between'>
-									<div>
-										<h3 className='text-xl font-semibold tracking-tight'>{model.name}</h3>
-										<p className='mt-1 text-sm text-muted-foreground'>{model.description}</p>
-									</div>
-									<DropdownMenu>
-										<DropdownMenuTrigger
-											render={
-												<Button variant='ghost' size='icon-sm' className='shrink-0 hover:bg-muted' />
-											}>
-											<MoreHorizontal className='h-4 w-4' />
-										</DropdownMenuTrigger>
-										<DropdownMenuContent align='end'>
-											<DropdownMenuItem>{t('card.viewDetails')}</DropdownMenuItem>
-											{model.status === 'active' && (
-												<DropdownMenuItem>
-													<Sparkles className='mr-2 h-4 w-4' />
-													{t('card.generateImage')}
-												</DropdownMenuItem>
-											)}
-											{model.status === 'draft' && <DropdownMenuItem>{t('card.startCalibration')}</DropdownMenuItem>}
-											<DropdownMenuSeparator />
-											<DropdownMenuItem>{t('actions.edit')}</DropdownMenuItem>
-											<DropdownMenuItem className='text-destructive'>{t('actions.archive')}</DropdownMenuItem>
-										</DropdownMenuContent>
-									</DropdownMenu>
+					{/* Content */}
+					<div className='flex flex-1 flex-col justify-between'>
+						<div>
+							<div className='mb-2 flex items-start justify-between'>
+								<div>
+									<Link href={`/dashboard/models/${model.id}`}>
+										<h3 className='text-xl font-semibold tracking-tight hover:text-primary'>{model.name}</h3>
+									</Link>
+									<p className='mt-1 text-sm text-muted-foreground'>{model.description}</p>
 								</div>
-
-								<div className='flex flex-wrap gap-2'>
-									<Badge variant='secondary' className='bg-secondary/80 text-secondary-foreground dark:bg-secondary/40 dark:text-foreground text-xs font-medium border-0'>
-										{model.gender}
-									</Badge>
-									<Badge variant='secondary' className='bg-secondary/80 text-secondary-foreground dark:bg-secondary/40 dark:text-foreground text-xs font-medium border-0'>
-										{model.ageRange}
-									</Badge>
-									<Badge variant='secondary' className='bg-secondary/80 text-secondary-foreground dark:bg-secondary/40 dark:text-foreground text-xs font-medium border-0'>
-										{model.ethnicity}
-									</Badge>
-									<Badge variant='secondary' className='bg-secondary/80 text-secondary-foreground dark:bg-secondary/40 dark:text-foreground text-xs font-medium border-0'>
-										{model.bodyType}
-									</Badge>
-								</div>
+								<DropdownMenu>
+									<DropdownMenuTrigger
+										render={
+											<Button variant='ghost' size='icon-sm' className='shrink-0 hover:bg-muted' />
+										}>
+										<MoreHorizontal className='h-4 w-4' />
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align='end'>
+										<DropdownMenuItem>{t('card.viewDetails')}</DropdownMenuItem>
+										{model.status === 'active' && (
+											<DropdownMenuItem>
+												<Sparkles className='mr-2 h-4 w-4' />
+												{t('card.generateImage')}
+											</DropdownMenuItem>
+										)}
+										{model.status === 'draft' && <DropdownMenuItem>{t('card.startCalibration')}</DropdownMenuItem>}
+										<DropdownMenuSeparator />
+										<DropdownMenuItem>{t('actions.edit')}</DropdownMenuItem>
+										<DropdownMenuItem className='text-destructive'>{t('actions.archive')}</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
 							</div>
 
-							{/* Bottom Row */}
-							<div className='flex items-center justify-between'>
-								<div className='flex items-center gap-6'>
-									<div className='flex items-center gap-2 text-sm text-muted-foreground'>
-										<Sparkles className='h-4 w-4 text-violet-500' />
-										<span className='font-medium'>{model.generations}</span>
-										<span className='text-xs'>generations</span>
-									</div>
-									<div className='flex items-center gap-2 text-sm text-muted-foreground'>
-										<Eye className='h-4 w-4 text-blue-500' />
-										<span className='font-medium'>{Math.floor(Math.random() * 1000)}</span>
-										<span className='text-xs'>views</span>
-									</div>
-									<div className='flex items-center gap-2 text-sm text-muted-foreground'>
-										<Heart className='h-4 w-4 text-rose-500' />
-										<span className='font-medium'>{Math.floor(Math.random() * 100)}</span>
-									</div>
-								</div>
-
-								<Badge variant='outline' className={statusColors[model.status]}>
-									<StatusIcon className='mr-1.5 h-3.5 w-3.5' />
-									{t(`status.${model.status}`)}
+							<div className='flex flex-wrap gap-2'>
+								<Badge variant='secondary' className='bg-secondary/80 text-secondary-foreground dark:bg-secondary/40 dark:text-foreground text-xs font-medium border-0'>
+									{model.gender}
+								</Badge>
+								<Badge variant='secondary' className='bg-secondary/80 text-secondary-foreground dark:bg-secondary/40 dark:text-foreground text-xs font-medium border-0'>
+									{model.ageRange}
+								</Badge>
+								<Badge variant='secondary' className='bg-secondary/80 text-secondary-foreground dark:bg-secondary/40 dark:text-foreground text-xs font-medium border-0'>
+									{model.ethnicity}
+								</Badge>
+								<Badge variant='secondary' className='bg-secondary/80 text-secondary-foreground dark:bg-secondary/40 dark:text-foreground text-xs font-medium border-0'>
+									{model.bodyType}
 								</Badge>
 							</div>
 						</div>
-					</div>
-				</Card>
-			</motion.div>
-		)
-	}
 
-	// Grid view
-	return (
-		<motion.div
-			layout
-			initial={{ opacity: 0, scale: 0.9 }}
-			animate={{ opacity: 1, scale: 1 }}
-			exit={{ opacity: 0, scale: 0.9 }}
-			transition={{ duration: 0.3 }}
-			className='group'>
-			<Card className='overflow-hidden transition-all hover:shadow-2xl hover:shadow-black/20 dark:hover:shadow-black/40 hover:-translate-y-1'>
-				{/* Image Container */}
-				<Link href={`/dashboard/models/${model.id}`} className='block'>
-					<div className='relative aspect-[3/4] w-full overflow-hidden bg-gradient-to-br from-muted/50 via-muted to-muted/80'>
-						{model.thumbnailUrl ? (
-							<>
-								{/* biome-ignore lint/performance/noImgElement: Dynamic user-generated content */}
-								<img
-									src={model.thumbnailUrl}
-									alt={model.name}
-									className='h-full w-full object-cover transition-all duration-700 group-hover:scale-110'
-								/>
-								{/* Subtle vignette effect */}
-								<div className='absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10 pointer-events-none' />
-							</>
-						) : (
-							<div className='flex h-full w-full items-center justify-center'>
-								<Users className='h-20 w-20 text-muted-foreground/30' />
+						{/* Bottom Row */}
+						<div className='mt-4 flex items-center justify-between'>
+							<div className='flex items-center gap-6'>
+								<div className='flex items-center gap-2 text-sm text-muted-foreground'>
+									<Sparkles className='h-4 w-4 text-violet-500' />
+									<span className='font-medium'>{model.generations}</span>
+									<span className='text-xs'>generations</span>
+								</div>
 							</div>
-						)}
 
-						{/* Gradient Overlay on Hover */}
-						<div className='absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100' />
-
-						{/* Status Badge */}
-						<div className='absolute left-3 top-3 z-10'>
-							<Badge variant='outline' className={`${statusColors[model.status]} backdrop-blur-md shadow-lg`}>
-								<StatusIcon className='mr-1.5 h-3 w-3' />
+							<Badge variant='outline' className={statusColors[model.status]}>
+								<StatusIcon className='mr-1.5 h-3.5 w-3.5' />
 								{t(`status.${model.status}`)}
 							</Badge>
 						</div>
-
-						{/* Quick Actions - Show on Hover */}
-						<div className='absolute right-3 top-3 z-10 flex gap-2 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0 translate-x-2'>
-							<Button
-								variant='ghost'
-								size='icon-sm'
-								className='h-8 w-8 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md hover:bg-white dark:hover:bg-gray-900 shadow-lg'>
-								<Heart className='h-4 w-4' />
-							</Button>
-							<DropdownMenu>
-								<DropdownMenuTrigger
-									render={
-										<Button
-											variant='ghost'
-											size='icon-sm'
-											className='h-8 w-8 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md hover:bg-white dark:hover:bg-gray-900 shadow-lg'
-										/>
-									}>
-									<MoreHorizontal className='h-4 w-4' />
-								</DropdownMenuTrigger>
-								<DropdownMenuContent align='end'>
-									<DropdownMenuItem>{t('card.viewDetails')}</DropdownMenuItem>
-									{model.status === 'active' && (
-										<DropdownMenuItem>
-											<Sparkles className='mr-2 h-4 w-4' />
-											{t('card.generateImage')}
-										</DropdownMenuItem>
-									)}
-									{model.status === 'draft' && <DropdownMenuItem>{t('card.startCalibration')}</DropdownMenuItem>}
-									<DropdownMenuSeparator />
-									<DropdownMenuItem>{t('actions.edit')}</DropdownMenuItem>
-									<DropdownMenuItem className='text-destructive'>{t('actions.archive')}</DropdownMenuItem>
-								</DropdownMenuContent>
-							</DropdownMenu>
-						</div>
-
-						{/* Stats Overlay - Show on Hover */}
-						<div className='absolute bottom-0 left-0 right-0 z-10 p-4 translate-y-full transition-transform duration-300 group-hover:translate-y-0'>
-							<div className='flex items-center gap-5 text-white drop-shadow-lg'>
-								<div className='flex items-center gap-2'>
-									<div className='rounded-full bg-violet-500/90 p-1.5'>
-										<Sparkles className='h-3.5 w-3.5' />
-									</div>
-									<div className='flex flex-col'>
-										<span className='text-xs text-white/80'>Generations</span>
-										<span className='text-sm font-bold'>{model.generations}</span>
-									</div>
-								</div>
-								<div className='flex items-center gap-2'>
-									<div className='rounded-full bg-blue-500/90 p-1.5'>
-										<Eye className='h-3.5 w-3.5' />
-									</div>
-									<div className='flex flex-col'>
-										<span className='text-xs text-white/80'>Views</span>
-										<span className='text-sm font-bold'>{Math.floor(Math.random() * 1000)}</span>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</Link>
-
-				{/* Content */}
-				<div className='p-5'>
-					<Link href={`/dashboard/models/${model.id}`} className='block'>
-						<h3 className='mb-2 text-xl font-bold tracking-tight transition-colors hover:text-primary'>
-							{model.name}
-						</h3>
-					</Link>
-					<p className='mb-4 line-clamp-2 text-sm leading-relaxed text-muted-foreground'>{model.description}</p>
-
-					{/* Attributes */}
-					<div className='flex flex-wrap gap-2'>
-						<Badge variant='secondary' className='bg-secondary/80 text-secondary-foreground dark:bg-secondary/40 dark:text-foreground text-xs font-medium px-2.5 py-0.5 border-0'>
-							{model.gender}
-						</Badge>
-						<Badge variant='secondary' className='bg-secondary/80 text-secondary-foreground dark:bg-secondary/40 dark:text-foreground text-xs font-medium px-2.5 py-0.5 border-0'>
-							{model.ageRange}
-						</Badge>
-						<Badge variant='secondary' className='bg-secondary/80 text-secondary-foreground dark:bg-secondary/40 dark:text-foreground text-xs font-medium px-2.5 py-0.5 border-0'>
-							{model.ethnicity}
-						</Badge>
 					</div>
 				</div>
 			</Card>
-		</motion.div>
+		)
+	}
+
+	// Grid view - vertical card with carousel (like GenerationCard)
+	return (
+		<Card className='group relative flex h-full flex-col overflow-hidden transition-all hover:shadow-lg'>
+			{/* Main Image Container - Fixed 4:5 aspect ratio */}
+			<Link href={`/dashboard/models/${model.id}`} className='block'>
+				<div className='relative aspect-[4/5] w-full overflow-hidden bg-muted'>
+					{model.status === 'active' && model.images.length > 0 ? (
+						<>
+							{/* biome-ignore lint/performance/noImgElement: Dynamic user-generated content */}
+							<img
+								src={model.images[selectedImageIndex]}
+								alt={model.name}
+								className='h-full w-full object-cover transition-transform duration-300 group-hover:scale-105'
+							/>
+
+							{/* Image Counter Badge */}
+							{model.images.length > 1 && (
+								<div className='absolute bottom-3 right-3'>
+									<Badge variant='secondary' className='bg-background/80 backdrop-blur-sm'>
+										{selectedImageIndex + 1}/{model.images.length}
+									</Badge>
+								</div>
+							)}
+						</>
+					) : model.status === 'calibrating' ? (
+						<div className='flex h-full items-center justify-center'>
+							<div className='text-center'>
+								<Loader2 className='text-muted-foreground mx-auto mb-3 h-12 w-12 animate-spin' />
+								<p className='text-muted-foreground text-sm font-medium'>Generating model...</p>
+								<p className='text-muted-foreground mt-1 text-xs'>This may take a few minutes</p>
+							</div>
+						</div>
+					) : model.status === 'failed' ? (
+						<div className='flex h-full items-center justify-center'>
+							<div className='text-center'>
+								<div className='bg-destructive/10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full'>
+									<X className='text-destructive h-6 w-6' />
+								</div>
+								<p className='text-muted-foreground text-sm font-medium'>Generation failed</p>
+								<p className='text-muted-foreground mt-1 text-xs'>Please try again</p>
+							</div>
+						</div>
+					) : model.status === 'draft' ? (
+						<div className='flex h-full items-center justify-center'>
+							<div className='text-center'>
+								<Zap className='text-muted-foreground mx-auto mb-3 h-12 w-12' />
+								<p className='text-muted-foreground text-sm font-medium'>Draft model</p>
+								<p className='text-muted-foreground mt-1 text-xs'>Start calibration to generate</p>
+							</div>
+						</div>
+					) : (
+						<div className='flex h-full items-center justify-center'>
+							<Users className='text-muted-foreground h-16 w-16' />
+						</div>
+					)}
+
+					{/* Status Badge Overlay */}
+					<div className='absolute left-3 top-3'>
+						<Badge className={statusColors[model.status]}>{t(`status.${model.status}`)}</Badge>
+					</div>
+
+					{/* Actions Menu Overlay */}
+					<div className='absolute right-3 top-3'>
+						<DropdownMenu>
+							<DropdownMenuTrigger
+								render={
+									<Button
+										variant='ghost'
+										size='icon-sm'
+										className='bg-background/80 backdrop-blur-sm hover:bg-background'
+									/>
+								}>
+								<MoreHorizontal className='h-4 w-4' />
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align='end'>
+								<DropdownMenuItem>
+									<Eye className='mr-2 h-4 w-4' />
+									{t('card.viewDetails')}
+								</DropdownMenuItem>
+								{model.status === 'active' && (
+									<DropdownMenuItem>
+										<Sparkles className='mr-2 h-4 w-4' />
+										{t('card.generateImage')}
+									</DropdownMenuItem>
+								)}
+								{model.status === 'draft' && <DropdownMenuItem>{t('card.startCalibration')}</DropdownMenuItem>}
+								<DropdownMenuSeparator />
+								<DropdownMenuItem>{t('actions.edit')}</DropdownMenuItem>
+								<DropdownMenuItem className='text-destructive'>{t('actions.archive')}</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</div>
+				</div>
+			</Link>
+
+			{/* Content Below Image - Flex grow to fill remaining space */}
+			<div className='flex flex-1 flex-col p-4'>
+				{/* Thumbnail Grid for Multiple Images */}
+				{model.status === 'active' && model.images.length > 1 && (
+					<div className='mb-3 grid grid-cols-4 gap-2'>
+						{model.images.map((image, index) => (
+							<button
+								type='button'
+								// biome-ignore lint/suspicious/noArrayIndexKey: Image array order is stable
+								key={index}
+								onClick={(e) => {
+									e.preventDefault()
+									e.stopPropagation()
+									setSelectedImageIndex(index)
+								}}
+								className={`relative aspect-square overflow-hidden rounded-md transition-all ${
+									selectedImageIndex === index ? 'ring-2 ring-primary ring-offset-2' : 'opacity-60 hover:opacity-100'
+								}`}>
+								{/* biome-ignore lint/performance/noImgElement: Dynamic user-generated content */}
+								<img src={image} alt={`Thumbnail ${index + 1}`} className='h-full w-full object-cover' />
+							</button>
+						))}
+					</div>
+				)}
+
+				{/* Model Name and Description */}
+				<div className='mb-3'>
+					<div className='mb-1 flex items-center gap-2'>
+						<h3 className='font-semibold'>{model.name}</h3>
+					</div>
+					<p className='text-muted-foreground line-clamp-2 text-sm'>{model.description}</p>
+				</div>
+
+				{/* Footer Stats - Push to bottom */}
+				<div className='mt-auto flex items-center justify-between border-t pt-3 text-xs text-muted-foreground'>
+					<div className='flex items-center gap-2'>
+						<Badge variant='secondary' className='text-xs'>
+							{model.gender}
+						</Badge>
+						<Badge variant='secondary' className='text-xs'>
+							{model.ageRange}
+						</Badge>
+					</div>
+					<span className='text-xs'>{model.createdAt}</span>
+				</div>
+			</div>
+		</Card>
 	)
 }
 
@@ -451,7 +500,7 @@ export default function ModelsPage() {
 	}, [])
 
 	// Filter and sort models
-	const filteredModels = useMemo(() => {
+	const filteredModels: ModelCardProps[] = useMemo(() => {
 		let filtered = sampleModels.filter((model) => {
 			// Search filter
 			const matchesSearch =
@@ -493,7 +542,13 @@ export default function ModelsPage() {
 			}
 		})
 
-		return filtered
+		// Transform to ModelCardProps with images array
+		return filtered.map((model) => ({
+			...model,
+			images: model.images && model.images.length > 0 ? model.images : (model.thumbnailUrl ? [model.thumbnailUrl] : []),
+			hasGeneratedImages: (model.images?.length > 0 || !!model.thumbnailUrl) && model.status === 'active',
+			isReadyForGeneration: model.status === 'active',
+		}))
 	}, [
 		searchQuery,
 		selectedStatuses,

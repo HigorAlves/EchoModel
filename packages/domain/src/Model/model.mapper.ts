@@ -56,6 +56,7 @@ export function toDomain(data: PersistenceModel): Model {
 		prompt: data.prompt ? ModelPrompt.create(data.prompt) : null,
 		referenceImages: data.referenceImages,
 		calibrationImages: data.calibrationImages,
+		generatedImages: data.generatedImages ?? [],
 		lockedIdentityUrl: data.lockedIdentityUrl,
 		failureReason: data.failureReason,
 		lightingConfig,
@@ -90,6 +91,7 @@ export function toPersistence(entity: Model): PersistenceModel {
 		prompt: entity.prompt?.value ?? null,
 		referenceImages: [...entity.referenceImages],
 		calibrationImages: [...entity.calibrationImages],
+		generatedImages: [...entity.generatedImages],
 		lockedIdentityUrl: entity.lockedIdentityUrl,
 		failureReason: entity.failureReason,
 		// Fashion configuration

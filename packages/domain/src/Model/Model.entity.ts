@@ -22,6 +22,7 @@ import {
 	createModelCalibrationImageAddedEvent,
 	createModelCalibrationStartedEvent,
 	createModelCreatedEvent,
+	createModelGeneratedImageAddedEvent,
 	createModelRejectedEvent,
 	createModelUpdatedEvent,
 } from './model.event'
@@ -62,6 +63,7 @@ export interface ModelProps {
 	readonly prompt: ModelPrompt | null
 	readonly referenceImages: readonly string[]
 	readonly calibrationImages: readonly string[]
+	readonly generatedImages: readonly string[]
 	readonly lockedIdentityUrl: string | null
 	readonly failureReason: string | null
 	// Seedream 4.5 Fashion configuration
@@ -185,6 +187,7 @@ export class Model {
 			prompt,
 			referenceImages: dto.referenceImageIds ?? [],
 			calibrationImages: [],
+			generatedImages: [],
 			lockedIdentityUrl: null,
 			failureReason: null,
 			lightingConfig,
@@ -263,6 +266,10 @@ export class Model {
 
 	get calibrationImages(): readonly string[] {
 		return this.data.calibrationImages
+	}
+
+	get generatedImages(): readonly string[] {
+		return this.data.generatedImages
 	}
 
 	get lockedIdentityUrl(): string | null {
@@ -344,6 +351,21 @@ export class Model {
 
 	get isArchived(): boolean {
 		return this.data.status === ModelStatus.ARCHIVED
+	}
+
+	/**
+	 * Check if model has generated showcase images
+	 */
+	get hasGeneratedImages(): boolean {
+		return this.data.generatedImages.length > 0
+	}
+
+	/**
+	 * Check if model is ready to be used for new generations
+	 * Must be ACTIVE status (calibration complete)
+	 */
+	get isReadyForGeneration(): boolean {
+		return this.isActive
 	}
 
 	get domainEvents(): readonly ModelEvent[] {
@@ -456,6 +478,33 @@ export class Model {
 			createModelCalibrationImageAddedEvent(this.data.id.value, {
 				modelId: this.data.id.value,
 				imageId,
+			}),
+		)
+
+		return updatedModel
+	}
+
+	/**
+	 * Add a generated showcase image URL
+	 * Only allowed when model is ACTIVE
+	 */
+	addGeneratedImage(imageUrl: string): Model {
+		if (!this.isActive) {
+			throw new ModelInvalidTransitionError(this.data.status, ModelStatus.ACTIVE)
+		}
+
+		const now = new Date()
+
+		const updatedModel = new Model({
+			...this.data,
+			generatedImages: [...this.data.generatedImages, imageUrl],
+			updatedAt: now,
+		})
+
+		updatedModel.addDomainEvent(
+			createModelGeneratedImageAddedEvent(this.data.id.value, {
+				modelId: this.data.id.value,
+				imageUrl,
 			}),
 		)
 

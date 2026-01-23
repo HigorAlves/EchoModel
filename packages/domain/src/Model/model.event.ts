@@ -52,6 +52,17 @@ export interface ModelCalibrationImageAddedEvent extends BaseModelEvent {
 }
 
 /**
+ * Event fired when a generated showcase image is added
+ */
+export interface ModelGeneratedImageAddedEvent extends BaseModelEvent {
+	readonly eventType: 'ModelGeneratedImageAdded'
+	readonly eventData: {
+		readonly modelId: string
+		readonly imageUrl: string
+	}
+}
+
+/**
  * Event fired when model is approved (calibration complete)
  */
 export interface ModelApprovedEvent extends BaseModelEvent {
@@ -116,6 +127,7 @@ export type ModelEvent =
 	| ModelCreatedEvent
 	| ModelCalibrationStartedEvent
 	| ModelCalibrationImageAddedEvent
+	| ModelGeneratedImageAddedEvent
 	| ModelApprovedEvent
 	| ModelRejectedEvent
 	| ModelUpdatedEvent
@@ -160,6 +172,21 @@ export function createModelCalibrationImageAddedEvent(
 	return {
 		eventId: crypto.randomUUID(),
 		eventType: 'ModelCalibrationImageAdded',
+		aggregateId,
+		aggregateType: 'Model',
+		eventVersion: 1,
+		occurredOn: new Date(),
+		eventData: data,
+	}
+}
+
+export function createModelGeneratedImageAddedEvent(
+	aggregateId: string,
+	data: ModelGeneratedImageAddedEvent['eventData'],
+): ModelGeneratedImageAddedEvent {
+	return {
+		eventId: crypto.randomUUID(),
+		eventType: 'ModelGeneratedImageAdded',
 		aggregateId,
 		aggregateType: 'Model',
 		eventVersion: 1,

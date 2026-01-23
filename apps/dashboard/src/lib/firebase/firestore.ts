@@ -61,6 +61,7 @@ export interface ModelDocument {
 	prompt: string | null
 	referenceImages: string[]
 	calibrationImages: string[]
+	generatedImages: string[]
 	lockedIdentityUrl: string | null
 	failureReason: string | null
 	createdAt: Date
