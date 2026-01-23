@@ -1,6 +1,6 @@
 'use client'
 
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
 	ArrowLeft,
 	Calendar,
@@ -12,14 +12,12 @@ import {
 	Loader2,
 	MoreHorizontal,
 	Settings,
-	Sparkles,
 	Star,
 	TrendingUp,
 	Users,
 	X,
 	Zap,
 } from 'lucide-react'
-import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useState } from 'react'
@@ -29,11 +27,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-	Dialog,
-	DialogContent,
-	DialogClose,
-} from '@/components/ui/dialog'
+import { Dialog, DialogClose, DialogContent } from '@/components/ui/dialog'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -77,19 +71,14 @@ export default function ModelDetailPage() {
 
 	// Set breadcrumbs
 	useEffect(() => {
-		setItems([
-			{ label: t('breadcrumbs.models'), href: '/dashboard/models' },
-			{ label: model?.name ?? 'Loading...' },
-		])
+		setItems([{ label: t('breadcrumbs.models'), href: '/dashboard/models' }, { label: model?.name ?? 'Loading...' }])
 	}, [setItems, t, model?.name])
 
 	// Build resolved reference image URLs array (memoized for keyboard handler)
 	const resolvedReferenceImagesForNav = referenceImageIds
 		.map((id) => resolvedReferenceUrls.get(id))
 		.filter((url): url is string => !!url)
-	const allImagesForNav = model?.generatedImages?.length
-		? model.generatedImages
-		: resolvedReferenceImagesForNav
+	const allImagesForNav = model?.generatedImages?.length ? model.generatedImages : resolvedReferenceImagesForNav
 
 	// Keyboard navigation for lightbox
 	useEffect(() => {
@@ -97,13 +86,9 @@ export default function ModelDetailPage() {
 
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === 'ArrowLeft') {
-				setLightboxIndex((prev) =>
-					prev > 0 ? prev - 1 : allImagesForNav.length - 1
-				)
+				setLightboxIndex((prev) => (prev > 0 ? prev - 1 : allImagesForNav.length - 1))
 			} else if (e.key === 'ArrowRight') {
-				setLightboxIndex((prev) =>
-					prev < allImagesForNav.length - 1 ? prev + 1 : 0
-				)
+				setLightboxIndex((prev) => (prev < allImagesForNav.length - 1 ? prev + 1 : 0))
 			} else if (e.key === 'Escape') {
 				setLightboxOpen(false)
 			}
@@ -153,15 +138,9 @@ export default function ModelDetailPage() {
 		return (
 			<div className='flex flex-1 flex-col gap-8 p-4 pt-0'>
 				<Alert variant='destructive'>
-					<AlertDescription>
-						Failed to load model: {error.message}
-					</AlertDescription>
+					<AlertDescription>Failed to load model: {error.message}</AlertDescription>
 				</Alert>
-				<Button
-					variant='outline'
-					onClick={() => router.push('/dashboard/models')}
-					className='self-start'
-				>
+				<Button variant='outline' onClick={() => router.push('/dashboard/models')} className='self-start'>
 					<ArrowLeft className='mr-2 h-4 w-4' />
 					Back to Models
 				</Button>
@@ -176,11 +155,7 @@ export default function ModelDetailPage() {
 				<Alert>
 					<AlertDescription>Model not found</AlertDescription>
 				</Alert>
-				<Button
-					variant='outline'
-					onClick={() => router.push('/dashboard/models')}
-					className='self-start'
-				>
+				<Button variant='outline' onClick={() => router.push('/dashboard/models')} className='self-start'>
 					<ArrowLeft className='mr-2 h-4 w-4' />
 					Back to Models
 				</Button>
@@ -196,9 +171,7 @@ export default function ModelDetailPage() {
 		.filter((url): url is string => !!url)
 
 	// Use generated images if available, otherwise use resolved reference images
-	const allImages = model.generatedImages?.length > 0
-		? model.generatedImages
-		: resolvedReferenceImages
+	const allImages = model.generatedImages?.length > 0 ? model.generatedImages : resolvedReferenceImages
 
 	const formatDate = (date: Date | null | undefined) => {
 		if (!date) return 'N/A'
@@ -211,11 +184,7 @@ export default function ModelDetailPage() {
 			{/* Header */}
 			<div className='flex flex-col gap-4'>
 				<div className='flex items-center gap-4'>
-					<Button
-						variant='ghost'
-						size='icon'
-						onClick={() => router.push('/dashboard/models')}
-					>
+					<Button variant='ghost' size='icon' onClick={() => router.push('/dashboard/models')}>
 						<ArrowLeft className='h-5 w-5' />
 					</Button>
 					<div className='flex-1'>
@@ -226,21 +195,11 @@ export default function ModelDetailPage() {
 								{t(`status.${model.status.toLowerCase()}`)}
 							</Badge>
 						</div>
-						{model.description && (
-							<p className='mt-1 text-muted-foreground'>{model.description}</p>
-						)}
+						{model.description && <p className='mt-1 text-muted-foreground'>{model.description}</p>}
 					</div>
 					<div className='flex items-center gap-2'>
-						{model.status === 'ACTIVE' && (
-							<Button render={<Link href={`/dashboard/generations/new?modelId=${model.id}`} />} nativeButton={false}>
-								<Sparkles className='mr-2 h-4 w-4' />
-								Generate Images
-							</Button>
-						)}
 						<DropdownMenu>
-							<DropdownMenuTrigger
-								render={<Button variant='outline' size='icon' />}
-							>
+							<DropdownMenuTrigger render={<Button variant='outline' size='icon' />}>
 								<MoreHorizontal className='h-4 w-4' />
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align='end'>
@@ -253,9 +212,7 @@ export default function ModelDetailPage() {
 									Settings
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem className='text-destructive'>
-									Archive Model
-								</DropdownMenuItem>
+								<DropdownMenuItem className='text-destructive'>Archive Model</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
 					</div>
@@ -268,9 +225,7 @@ export default function ModelDetailPage() {
 					<Badge variant='secondary'>{model.ethnicity}</Badge>
 					<Badge variant='secondary'>{model.bodyType}</Badge>
 					<Separator orientation='vertical' className='h-4' />
-					<span className='text-sm text-muted-foreground'>
-						Created {formatDate(model.createdAt)}
-					</span>
+					<span className='text-sm text-muted-foreground'>Created {formatDate(model.createdAt)}</span>
 				</div>
 			</div>
 
@@ -286,9 +241,7 @@ export default function ModelDetailPage() {
 									<Loader2 className='h-6 w-6 animate-spin text-blue-600 dark:text-blue-400' />
 								</div>
 								<div>
-									<h3 className='font-semibold text-blue-900 dark:text-blue-100'>
-										Model is being generated
-									</h3>
+									<h3 className='font-semibold text-blue-900 dark:text-blue-100'>Model is being generated</h3>
 									<p className='text-sm text-blue-700 dark:text-blue-300'>
 										This process may take a few minutes. You'll be notified when it's ready.
 									</p>
@@ -304,9 +257,7 @@ export default function ModelDetailPage() {
 									<X className='h-6 w-6 text-red-600 dark:text-red-400' />
 								</div>
 								<div className='flex-1'>
-									<h3 className='font-semibold text-red-900 dark:text-red-100'>
-										Model generation failed
-									</h3>
+									<h3 className='font-semibold text-red-900 dark:text-red-100'>Model generation failed</h3>
 									<p className='text-sm text-red-700 dark:text-red-300'>
 										{model.failureReason ?? 'An unknown error occurred. Please try again.'}
 									</p>
@@ -332,9 +283,7 @@ export default function ModelDetailPage() {
 								<h2 className='text-xl font-semibold'>
 									{model.generatedImages?.length > 0 ? 'Generated Images' : 'Reference Images'}
 								</h2>
-								<span className='text-sm text-muted-foreground'>
-									{allImages.length} images
-								</span>
+								<span className='text-sm text-muted-foreground'>{allImages.length} images</span>
 							</div>
 
 							{/* Masonry Grid using CSS columns */}
@@ -345,15 +294,13 @@ export default function ModelDetailPage() {
 										initial={{ opacity: 0, y: 20 }}
 										animate={{ opacity: 1, y: 0 }}
 										transition={{ duration: 0.3, delay: index * 0.05 }}
-										className='mb-4 break-inside-avoid'
-									>
+										className='mb-4 break-inside-avoid'>
 										<div
 											className='group relative cursor-pointer overflow-hidden rounded-xl bg-muted'
 											onClick={() => openLightbox(index)}
 											onKeyDown={(e) => e.key === 'Enter' && openLightbox(index)}
 											role='button'
-											tabIndex={0}
-										>
+											tabIndex={0}>
 											{/* biome-ignore lint/performance/noImgElement: Dynamic user-generated content */}
 											<img
 												src={image}
@@ -371,8 +318,7 @@ export default function ModelDetailPage() {
 														onClick={(e) => {
 															e.stopPropagation()
 															openLightbox(index)
-														}}
-													>
+														}}>
 														<ImageIcon className='h-5 w-5' />
 													</Button>
 													<Button
@@ -386,8 +332,7 @@ export default function ModelDetailPage() {
 															link.href = image
 															link.download = `${model.name}-${index + 1}.jpg`
 															link.click()
-														}}
-													>
+														}}>
 														<Download className='h-5 w-5' />
 													</Button>
 												</div>
@@ -413,25 +358,21 @@ export default function ModelDetailPage() {
 								</div>
 								<h3 className='mb-2 text-lg font-semibold'>Reference images unavailable</h3>
 								<p className='text-sm text-muted-foreground max-w-md'>
-									This model was created with an older format. The {referenceImageIds.length} reference image(s)
-									cannot be displayed. For new models, images will display correctly.
+									This model was created with an older format. The {referenceImageIds.length} reference image(s) cannot
+									be displayed. For new models, images will display correctly.
 								</p>
 							</CardContent>
 						</Card>
 					) : model.status === 'ACTIVE' ? (
 						<Card className='border-dashed'>
-							<CardContent className='flex min-h-[300px] flex-col items-center justify-center p-12 text-center'>
-								<div className='mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted'>
-									<ImageIcon className='h-8 w-8 text-muted-foreground' />
+							<CardContent className='flex min-h-[200px] flex-col items-center justify-center p-12 text-center'>
+								<div className='mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted'>
+									<ImageIcon className='h-6 w-6 text-muted-foreground' />
 								</div>
-								<h3 className='mb-2 text-xl font-semibold'>No images generated yet</h3>
-								<p className='mb-6 text-sm text-muted-foreground max-w-md'>
-									Start generating images with this model to see them here.
+								<h3 className='mb-2 text-lg font-semibold'>Model is ready</h3>
+								<p className='text-sm text-muted-foreground max-w-md'>
+									This model has been calibrated and is ready for use.
 								</p>
-								<Button render={<Link href={`/dashboard/generations/new?modelId=${model.id}`} />} nativeButton={false}>
-									<Sparkles className='mr-2 h-4 w-4' />
-									Generate First Image
-								</Button>
 							</CardContent>
 						</Card>
 					) : referenceImageIds.length === 0 ? (
@@ -464,14 +405,6 @@ export default function ModelDetailPage() {
 									<span>Generated Images</span>
 								</div>
 								<span className='font-semibold'>{model.generatedImages?.length ?? 0}</span>
-							</div>
-							<Separator />
-							<div className='flex items-center justify-between'>
-								<div className='flex items-center gap-2 text-sm text-muted-foreground'>
-									<Sparkles className='h-4 w-4' />
-									<span>Total Generations</span>
-								</div>
-								<span className='font-semibold'>0</span>
 							</div>
 							<Separator />
 							<div className='flex items-center justify-between'>
@@ -527,9 +460,7 @@ export default function ModelDetailPage() {
 								<>
 									<Separator />
 									<div>
-										<h4 className='mb-2 text-sm font-medium text-muted-foreground'>
-											Reference Images
-										</h4>
+										<h4 className='mb-2 text-sm font-medium text-muted-foreground'>Reference Images</h4>
 										{isResolvingUrls ? (
 											<div className='flex items-center justify-center py-4'>
 												<Loader2 className='h-5 w-5 animate-spin text-muted-foreground' />
@@ -538,16 +469,9 @@ export default function ModelDetailPage() {
 											<>
 												<div className='grid grid-cols-3 gap-2'>
 													{resolvedReferenceImages.slice(0, 6).map((url, idx) => (
-														<div
-															key={url}
-															className='relative aspect-square overflow-hidden rounded-md bg-muted'
-														>
+														<div key={url} className='relative aspect-square overflow-hidden rounded-md bg-muted'>
 															{/* biome-ignore lint/performance/noImgElement: Dynamic user-generated content */}
-															<img
-																src={url}
-																alt={`Reference ${idx + 1}`}
-																className='h-full w-full object-cover'
-															/>
+															<img src={url} alt={`Reference ${idx + 1}`} className='h-full w-full object-cover' />
 														</div>
 													))}
 												</div>
@@ -570,8 +494,7 @@ export default function ModelDetailPage() {
 			<Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
 				<DialogContent
 					className='max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-0 sm:max-w-[95vw]'
-					showCloseButton={false}
-				>
+					showCloseButton={false}>
 					<AnimatePresence mode='wait'>
 						{allImages[lightboxIndex] && (
 							<motion.div
@@ -580,8 +503,7 @@ export default function ModelDetailPage() {
 								animate={{ opacity: 1 }}
 								exit={{ opacity: 0 }}
 								transition={{ duration: 0.2 }}
-								className='relative flex items-center justify-center min-h-[80vh]'
-							>
+								className='relative flex items-center justify-center min-h-[80vh]'>
 								{/* biome-ignore lint/performance/noImgElement: Dynamic user-generated content */}
 								<img
 									src={allImages[lightboxIndex]}
@@ -597,8 +519,7 @@ export default function ModelDetailPage() {
 											size='icon'
 											className='absolute top-4 right-4 text-white hover:bg-white/20'
 										/>
-									}
-								>
+									}>
 									<X className='h-6 w-6' />
 								</DialogClose>
 
@@ -609,24 +530,14 @@ export default function ModelDetailPage() {
 											variant='ghost'
 											size='icon'
 											className='absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12'
-											onClick={() =>
-												setLightboxIndex((prev) =>
-													prev > 0 ? prev - 1 : allImages.length - 1
-												)
-											}
-										>
+											onClick={() => setLightboxIndex((prev) => (prev > 0 ? prev - 1 : allImages.length - 1))}>
 											<ChevronLeft className='h-8 w-8' />
 										</Button>
 										<Button
 											variant='ghost'
 											size='icon'
 											className='absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12'
-											onClick={() =>
-												setLightboxIndex((prev) =>
-													prev < allImages.length - 1 ? prev + 1 : 0
-												)
-											}
-										>
+											onClick={() => setLightboxIndex((prev) => (prev < allImages.length - 1 ? prev + 1 : 0))}>
 											<ChevronRight className='h-8 w-8' />
 										</Button>
 									</>
@@ -634,10 +545,7 @@ export default function ModelDetailPage() {
 
 								{/* Image counter */}
 								<div className='absolute bottom-4 left-1/2 -translate-x-1/2'>
-									<Badge
-										variant='secondary'
-										className='bg-black/50 text-white backdrop-blur-sm'
-									>
+									<Badge variant='secondary' className='bg-black/50 text-white backdrop-blur-sm'>
 										{lightboxIndex + 1} / {allImages.length}
 									</Badge>
 								</div>
@@ -654,8 +562,7 @@ export default function ModelDetailPage() {
 										link.href = imageUrl
 										link.download = `${model.name}-${lightboxIndex + 1}.jpg`
 										link.click()
-									}}
-								>
+									}}>
 									<Download className='h-5 w-5' />
 								</Button>
 							</motion.div>

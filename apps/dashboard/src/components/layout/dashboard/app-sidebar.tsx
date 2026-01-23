@@ -1,6 +1,6 @@
 'use client'
 
-import { Cog, FolderOpen, LayoutDashboard, Sparkles, Users } from 'lucide-react'
+import { Cog, LayoutDashboard, Users } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import type * as React from 'react'
 import { NavMain } from '@/components/layout/dashboard/nav-main'
@@ -26,35 +26,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			url: '/dashboard',
 			icon: LayoutDashboard,
 			isActive: true,
-			items: [
-				{ title: t('overview'), url: '/dashboard' },
-			],
+			items: [{ title: t('overview'), url: '/dashboard' }],
 		},
 		{
 			title: t('models'),
 			url: '/dashboard/models',
 			icon: Users,
-			items: [
-				{ title: t('allModels'), url: '/dashboard/models' },
-			],
-		},
-		{
-			title: t('generations'),
-			url: '/dashboard/generations',
-			icon: Sparkles,
-			items: [
-				{ title: t('allGenerations'), url: '/dashboard/generations' },
-				{ title: t('history'), url: '/dashboard/generations/history' },
-			],
-		},
-		{
-			title: t('assets'),
-			url: '/dashboard/assets',
-			icon: FolderOpen,
-			items: [
-				{ title: t('allAssets'), url: '/dashboard/assets' },
-				{ title: t('garments'), url: '/dashboard/assets/garments' },
-			],
+			items: [{ title: t('allModels'), url: '/dashboard/models' }],
 		},
 		{
 			title: t('settings'),

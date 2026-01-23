@@ -3,21 +3,11 @@
 /**
  * @fileoverview Models Hooks
  *
- * React hooks for model management with real-time Firestore updates
- * and Cloud Functions for mutations.
+ * React hooks for model management with real-time Firestore updates.
  */
 
 import { useCallback, useEffect, useState } from 'react'
-import {
-	approveCalibration,
-	type CreateModelInput,
-	createModel,
-	getModel,
-	type ModelDocument,
-	rejectCalibration,
-	startCalibration,
-	subscribeToModels,
-} from '@/lib/firebase'
+import { getModel, type ModelDocument, subscribeToModels } from '@/lib/firebase'
 
 // ==================== Types ====================
 
@@ -40,20 +30,6 @@ export interface UseModelResult {
 	isLoading: boolean
 	error: Error | null
 	refresh: () => Promise<void>
-}
-
-export interface UseCreateModelResult {
-	createModel: (input: Omit<CreateModelInput, 'storeId'>) => Promise<{ modelId: string }>
-	isLoading: boolean
-	error: Error | null
-}
-
-export interface UseCalibrationResult {
-	startCalibration: () => Promise<void>
-	approveCalibration: (selectedImageIds: string[]) => Promise<void>
-	rejectCalibration: (reason: string) => Promise<void>
-	isLoading: boolean
-	error: Error | null
 }
 
 // ==================== Hooks ====================
@@ -134,119 +110,4 @@ export function useModel(modelId: string | null): UseModelResult {
 	}, [fetchModel])
 
 	return { model, isLoading, error, refresh: fetchModel }
-}
-
-/**
- * Hook to create a new model
- */
-export function useCreateModel(storeId: string | null): UseCreateModelResult {
-	const [isLoading, setIsLoading] = useState(false)
-	const [error, setError] = useState<Error | null>(null)
-
-	const create = useCallback(
-		async (input: Omit<CreateModelInput, 'storeId'>) => {
-			if (!storeId) {
-				throw new Error('Store ID is required')
-			}
-
-			setIsLoading(true)
-			setError(null)
-
-			try {
-				const result = await createModel({ ...input, storeId })
-				return { modelId: result.data.modelId }
-			} catch (err) {
-				const error = err instanceof Error ? err : new Error('Failed to create model')
-				setError(error)
-				throw error
-			} finally {
-				setIsLoading(false)
-			}
-		},
-		[storeId],
-	)
-
-	return { createModel: create, isLoading, error }
-}
-
-/**
- * Hook to manage model calibration
- */
-export function useCalibration(modelId: string | null, storeId: string | null): UseCalibrationResult {
-	const [isLoading, setIsLoading] = useState(false)
-	const [error, setError] = useState<Error | null>(null)
-
-	const start = useCallback(async () => {
-		if (!modelId || !storeId) {
-			throw new Error('Model ID and Store ID are required')
-		}
-
-		setIsLoading(true)
-		setError(null)
-
-		try {
-			const result = await startCalibration({ modelId, storeId })
-			if (!result.data.success) {
-				throw new Error(result.data.error ?? 'Calibration failed')
-			}
-		} catch (err) {
-			const error = err instanceof Error ? err : new Error('Failed to start calibration')
-			setError(error)
-			throw error
-		} finally {
-			setIsLoading(false)
-		}
-	}, [modelId, storeId])
-
-	const approve = useCallback(
-		async (selectedImageIds: string[]) => {
-			if (!modelId || !storeId) {
-				throw new Error('Model ID and Store ID are required')
-			}
-
-			setIsLoading(true)
-			setError(null)
-
-			try {
-				await approveCalibration({ modelId, storeId, selectedImageIds })
-			} catch (err) {
-				const error = err instanceof Error ? err : new Error('Failed to approve calibration')
-				setError(error)
-				throw error
-			} finally {
-				setIsLoading(false)
-			}
-		},
-		[modelId, storeId],
-	)
-
-	const reject = useCallback(
-		async (reason: string) => {
-			if (!modelId || !storeId) {
-				throw new Error('Model ID and Store ID are required')
-			}
-
-			setIsLoading(true)
-			setError(null)
-
-			try {
-				await rejectCalibration({ modelId, storeId, reason })
-			} catch (err) {
-				const error = err instanceof Error ? err : new Error('Failed to reject calibration')
-				setError(error)
-				throw error
-			} finally {
-				setIsLoading(false)
-			}
-		},
-		[modelId, storeId],
-	)
-
-	return {
-		startCalibration: start,
-		approveCalibration: approve,
-		rejectCalibration: reject,
-		isLoading,
-		error,
-	}
 }

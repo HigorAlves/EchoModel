@@ -1,7 +1,8 @@
 'use client'
 
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
+	Eye,
 	Filter,
 	Grid3x3,
 	Heart,
@@ -11,12 +12,11 @@ import {
 	Plus,
 	Search,
 	Sparkles,
+	Star,
 	TrendingUp,
 	Users,
 	X,
 	Zap,
-	Eye,
-	Star,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
@@ -125,9 +125,7 @@ function ModelCard({
 								</div>
 								<DropdownMenu>
 									<DropdownMenuTrigger
-										render={
-											<Button variant='ghost' size='icon-sm' className='shrink-0 hover:bg-muted' />
-										}>
+										render={<Button variant='ghost' size='icon-sm' className='shrink-0 hover:bg-muted' />}>
 										<MoreHorizontal className='h-4 w-4' />
 									</DropdownMenuTrigger>
 									<DropdownMenuContent align='end'>
@@ -147,16 +145,24 @@ function ModelCard({
 							</div>
 
 							<div className='flex flex-wrap gap-2'>
-								<Badge variant='secondary' className='bg-secondary/80 text-secondary-foreground dark:bg-secondary/40 dark:text-foreground text-xs font-medium border-0'>
+								<Badge
+									variant='secondary'
+									className='bg-secondary/80 text-secondary-foreground dark:bg-secondary/40 dark:text-foreground text-xs font-medium border-0'>
 									{model.gender}
 								</Badge>
-								<Badge variant='secondary' className='bg-secondary/80 text-secondary-foreground dark:bg-secondary/40 dark:text-foreground text-xs font-medium border-0'>
+								<Badge
+									variant='secondary'
+									className='bg-secondary/80 text-secondary-foreground dark:bg-secondary/40 dark:text-foreground text-xs font-medium border-0'>
 									{model.ageRange}
 								</Badge>
-								<Badge variant='secondary' className='bg-secondary/80 text-secondary-foreground dark:bg-secondary/40 dark:text-foreground text-xs font-medium border-0'>
+								<Badge
+									variant='secondary'
+									className='bg-secondary/80 text-secondary-foreground dark:bg-secondary/40 dark:text-foreground text-xs font-medium border-0'>
 									{model.ethnicity}
 								</Badge>
-								<Badge variant='secondary' className='bg-secondary/80 text-secondary-foreground dark:bg-secondary/40 dark:text-foreground text-xs font-medium border-0'>
+								<Badge
+									variant='secondary'
+									className='bg-secondary/80 text-secondary-foreground dark:bg-secondary/40 dark:text-foreground text-xs font-medium border-0'>
 									{model.bodyType}
 								</Badge>
 							</div>
@@ -370,7 +376,11 @@ export default function ModelsPage() {
 	const { currentStore, isLoading: isStoreLoading } = useCurrentStore()
 
 	// Load models from Firestore
-	const { models: firestoreModels, isLoading: isModelsLoading, error: modelsError } = useModels(currentStore?.id ?? null)
+	const {
+		models: firestoreModels,
+		isLoading: isModelsLoading,
+		error: modelsError,
+	} = useModels(currentStore?.id ?? null)
 
 	// Collect all unique reference image identifiers from all models
 	const { storagePaths, assetIds } = useMemo(() => {
@@ -444,9 +454,8 @@ export default function ModelsPage() {
 				bodyType: model.bodyType,
 				generations: 0, // TODO: Calculate from generations collection
 				createdAt: getCreatedAt(),
-				images: model.generatedImages && model.generatedImages.length > 0
-					? model.generatedImages
-					: resolvedReferenceImages,
+				images:
+					model.generatedImages && model.generatedImages.length > 0 ? model.generatedImages : resolvedReferenceImages,
 				hasGeneratedImages: (model.generatedImages?.length ?? 0) > 0,
 				isReadyForGeneration: model.status === 'ACTIVE',
 			}
@@ -541,9 +550,7 @@ export default function ModelsPage() {
 		return (
 			<div className='flex flex-1 flex-col gap-8 p-4 pt-0'>
 				<Alert variant='destructive'>
-					<AlertDescription>
-						Failed to load models: {modelsError.message}
-					</AlertDescription>
+					<AlertDescription>Failed to load models: {modelsError.message}</AlertDescription>
 				</Alert>
 			</div>
 		)
@@ -554,9 +561,7 @@ export default function ModelsPage() {
 		return (
 			<div className='flex flex-1 flex-col gap-8 p-4 pt-0'>
 				<Alert>
-					<AlertDescription>
-						Please select a store to view models
-					</AlertDescription>
+					<AlertDescription>Please select a store to view models</AlertDescription>
 				</Alert>
 			</div>
 		)
@@ -612,7 +617,11 @@ export default function ModelsPage() {
 						<h1 className='text-3xl font-bold tracking-tight'>Model Catalog</h1>
 						<p className='mt-1 text-muted-foreground'>Your AI fashion models collection</p>
 					</div>
-					<Button render={<Link href='/dashboard/models/create' />} nativeButton={false} size='lg' className='self-start sm:self-auto'>
+					<Button
+						render={<Link href='/dashboard/models/create' />}
+						nativeButton={false}
+						size='lg'
+						className='self-start sm:self-auto'>
 						<Plus className='mr-2 h-5 w-5' />
 						Create Model
 					</Button>
@@ -646,9 +655,7 @@ export default function ModelsPage() {
 						<div className='flex items-center justify-between'>
 							<div>
 								<p className='text-sm text-muted-foreground'>Generations</p>
-								<p className='mt-1 text-2xl font-bold'>
-									{models.reduce((acc, m) => acc + m.generations, 0)}
-								</p>
+								<p className='mt-1 text-2xl font-bold'>{models.reduce((acc, m) => acc + m.generations, 0)}</p>
 							</div>
 							<div className='rounded-full bg-violet-500/10 p-3'>
 								<Sparkles className='h-5 w-5 text-violet-600' />
@@ -691,7 +698,14 @@ export default function ModelsPage() {
 								<DropdownMenuTrigger
 									render={
 										<Button variant='outline' size='default'>
-											Sort: {sortBy === 'recent' ? 'Recent' : sortBy === 'popular' ? 'Popular' : sortBy === 'name' ? 'Name' : 'Generations'}
+											Sort:{' '}
+											{sortBy === 'recent'
+												? 'Recent'
+												: sortBy === 'popular'
+													? 'Popular'
+													: sortBy === 'name'
+														? 'Name'
+														: 'Generations'}
 										</Button>
 									}
 								/>
@@ -725,169 +739,169 @@ export default function ModelsPage() {
 
 					{/* Filter Chips */}
 					<div className='flex flex-wrap items-center gap-2'>
-							{/* Status Filter */}
-							<DropdownMenu>
-								<DropdownMenuTrigger
-									render={
-										<Button variant='outline' size='sm' className='h-9'>
-											<Filter className='mr-2 h-4 w-4' />
-											Status
-											{selectedStatuses.length > 0 && (
-												<Badge variant='secondary' className='ml-2 h-5 min-w-5 px-1 text-xs'>
-													{selectedStatuses.length}
-												</Badge>
-											)}
-										</Button>
-									}
-								/>
-								<DropdownMenuContent align='start' className='w-48'>
-									<DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
-									<DropdownMenuSeparator />
-									{filterOptions.statuses.map((status) => (
-										<DropdownMenuCheckboxItem
-											key={status}
-											checked={selectedStatuses.includes(status)}
-											onCheckedChange={(checked) => {
-												setSelectedStatuses((prev) => (checked ? [...prev, status] : prev.filter((s) => s !== status)))
-											}}>
-											{t(`status.${status}`)}
-										</DropdownMenuCheckboxItem>
-									))}
-								</DropdownMenuContent>
-							</DropdownMenu>
+						{/* Status Filter */}
+						<DropdownMenu>
+							<DropdownMenuTrigger
+								render={
+									<Button variant='outline' size='sm' className='h-9'>
+										<Filter className='mr-2 h-4 w-4' />
+										Status
+										{selectedStatuses.length > 0 && (
+											<Badge variant='secondary' className='ml-2 h-5 min-w-5 px-1 text-xs'>
+												{selectedStatuses.length}
+											</Badge>
+										)}
+									</Button>
+								}
+							/>
+							<DropdownMenuContent align='start' className='w-48'>
+								<DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+								<DropdownMenuSeparator />
+								{filterOptions.statuses.map((status) => (
+									<DropdownMenuCheckboxItem
+										key={status}
+										checked={selectedStatuses.includes(status)}
+										onCheckedChange={(checked) => {
+											setSelectedStatuses((prev) => (checked ? [...prev, status] : prev.filter((s) => s !== status)))
+										}}>
+										{t(`status.${status}`)}
+									</DropdownMenuCheckboxItem>
+								))}
+							</DropdownMenuContent>
+						</DropdownMenu>
 
-							{/* Gender Filter */}
-							<DropdownMenu>
-								<DropdownMenuTrigger
-									render={
-										<Button variant='outline' size='sm' className='h-9'>
-											Gender
-											{selectedGenders.length > 0 && (
-												<Badge variant='secondary' className='ml-2 h-5 min-w-5 px-1 text-xs'>
-													{selectedGenders.length}
-												</Badge>
-											)}
-										</Button>
-									}
-								/>
-								<DropdownMenuContent align='start' className='w-48'>
-									<DropdownMenuLabel>Filter by Gender</DropdownMenuLabel>
-									<DropdownMenuSeparator />
-									{filterOptions.genders.map((gender) => (
-										<DropdownMenuCheckboxItem
-											key={gender}
-											checked={selectedGenders.includes(gender)}
-											onCheckedChange={(checked) => {
-												setSelectedGenders((prev) => (checked ? [...prev, gender] : prev.filter((g) => g !== gender)))
-											}}>
-											{gender}
-										</DropdownMenuCheckboxItem>
-									))}
-								</DropdownMenuContent>
-							</DropdownMenu>
+						{/* Gender Filter */}
+						<DropdownMenu>
+							<DropdownMenuTrigger
+								render={
+									<Button variant='outline' size='sm' className='h-9'>
+										Gender
+										{selectedGenders.length > 0 && (
+											<Badge variant='secondary' className='ml-2 h-5 min-w-5 px-1 text-xs'>
+												{selectedGenders.length}
+											</Badge>
+										)}
+									</Button>
+								}
+							/>
+							<DropdownMenuContent align='start' className='w-48'>
+								<DropdownMenuLabel>Filter by Gender</DropdownMenuLabel>
+								<DropdownMenuSeparator />
+								{filterOptions.genders.map((gender) => (
+									<DropdownMenuCheckboxItem
+										key={gender}
+										checked={selectedGenders.includes(gender)}
+										onCheckedChange={(checked) => {
+											setSelectedGenders((prev) => (checked ? [...prev, gender] : prev.filter((g) => g !== gender)))
+										}}>
+										{gender}
+									</DropdownMenuCheckboxItem>
+								))}
+							</DropdownMenuContent>
+						</DropdownMenu>
 
-							{/* Age Range Filter */}
-							<DropdownMenu>
-								<DropdownMenuTrigger
-									render={
-										<Button variant='outline' size='sm' className='h-9'>
-											Age
-											{selectedAgeRanges.length > 0 && (
-												<Badge variant='secondary' className='ml-2 h-5 min-w-5 px-1 text-xs'>
-													{selectedAgeRanges.length}
-												</Badge>
-											)}
-										</Button>
-									}
-								/>
-								<DropdownMenuContent align='start' className='w-48'>
-									<DropdownMenuLabel>Filter by Age Range</DropdownMenuLabel>
-									<DropdownMenuSeparator />
-									{filterOptions.ageRanges.map((age) => (
-										<DropdownMenuCheckboxItem
-											key={age}
-											checked={selectedAgeRanges.includes(age)}
-											onCheckedChange={(checked) => {
-												setSelectedAgeRanges((prev) => (checked ? [...prev, age] : prev.filter((a) => a !== age)))
-											}}>
-											{age}
-										</DropdownMenuCheckboxItem>
-									))}
-								</DropdownMenuContent>
-							</DropdownMenu>
+						{/* Age Range Filter */}
+						<DropdownMenu>
+							<DropdownMenuTrigger
+								render={
+									<Button variant='outline' size='sm' className='h-9'>
+										Age
+										{selectedAgeRanges.length > 0 && (
+											<Badge variant='secondary' className='ml-2 h-5 min-w-5 px-1 text-xs'>
+												{selectedAgeRanges.length}
+											</Badge>
+										)}
+									</Button>
+								}
+							/>
+							<DropdownMenuContent align='start' className='w-48'>
+								<DropdownMenuLabel>Filter by Age Range</DropdownMenuLabel>
+								<DropdownMenuSeparator />
+								{filterOptions.ageRanges.map((age) => (
+									<DropdownMenuCheckboxItem
+										key={age}
+										checked={selectedAgeRanges.includes(age)}
+										onCheckedChange={(checked) => {
+											setSelectedAgeRanges((prev) => (checked ? [...prev, age] : prev.filter((a) => a !== age)))
+										}}>
+										{age}
+									</DropdownMenuCheckboxItem>
+								))}
+							</DropdownMenuContent>
+						</DropdownMenu>
 
-							{/* Ethnicity Filter */}
-							<DropdownMenu>
-								<DropdownMenuTrigger
-									render={
-										<Button variant='outline' size='sm' className='h-9'>
-											Ethnicity
-											{selectedEthnicities.length > 0 && (
-												<Badge variant='secondary' className='ml-2 h-5 min-w-5 px-1 text-xs'>
-													{selectedEthnicities.length}
-												</Badge>
-											)}
-										</Button>
-									}
-								/>
-								<DropdownMenuContent align='start' className='w-48'>
-									<DropdownMenuLabel>Filter by Ethnicity</DropdownMenuLabel>
-									<DropdownMenuSeparator />
-									{filterOptions.ethnicities.map((ethnicity) => (
-										<DropdownMenuCheckboxItem
-											key={ethnicity}
-											checked={selectedEthnicities.includes(ethnicity)}
-											onCheckedChange={(checked) => {
-												setSelectedEthnicities((prev) =>
-													checked ? [...prev, ethnicity] : prev.filter((e) => e !== ethnicity),
-												)
-											}}>
-											{ethnicity}
-										</DropdownMenuCheckboxItem>
-									))}
-								</DropdownMenuContent>
-							</DropdownMenu>
+						{/* Ethnicity Filter */}
+						<DropdownMenu>
+							<DropdownMenuTrigger
+								render={
+									<Button variant='outline' size='sm' className='h-9'>
+										Ethnicity
+										{selectedEthnicities.length > 0 && (
+											<Badge variant='secondary' className='ml-2 h-5 min-w-5 px-1 text-xs'>
+												{selectedEthnicities.length}
+											</Badge>
+										)}
+									</Button>
+								}
+							/>
+							<DropdownMenuContent align='start' className='w-48'>
+								<DropdownMenuLabel>Filter by Ethnicity</DropdownMenuLabel>
+								<DropdownMenuSeparator />
+								{filterOptions.ethnicities.map((ethnicity) => (
+									<DropdownMenuCheckboxItem
+										key={ethnicity}
+										checked={selectedEthnicities.includes(ethnicity)}
+										onCheckedChange={(checked) => {
+											setSelectedEthnicities((prev) =>
+												checked ? [...prev, ethnicity] : prev.filter((e) => e !== ethnicity),
+											)
+										}}>
+										{ethnicity}
+									</DropdownMenuCheckboxItem>
+								))}
+							</DropdownMenuContent>
+						</DropdownMenu>
 
-							{/* Body Type Filter */}
-							<DropdownMenu>
-								<DropdownMenuTrigger
-									render={
-										<Button variant='outline' size='sm' className='h-9'>
-											Body Type
-											{selectedBodyTypes.length > 0 && (
-												<Badge variant='secondary' className='ml-2 h-5 min-w-5 px-1 text-xs'>
-													{selectedBodyTypes.length}
-												</Badge>
-											)}
-										</Button>
-									}
-								/>
-								<DropdownMenuContent align='start' className='w-48'>
-									<DropdownMenuLabel>Filter by Body Type</DropdownMenuLabel>
-									<DropdownMenuSeparator />
-									{filterOptions.bodyTypes.map((bodyType) => (
-										<DropdownMenuCheckboxItem
-											key={bodyType}
-											checked={selectedBodyTypes.includes(bodyType)}
-											onCheckedChange={(checked) => {
-												setSelectedBodyTypes((prev) =>
-													checked ? [...prev, bodyType] : prev.filter((b) => b !== bodyType),
-												)
-											}}>
-											{bodyType}
-										</DropdownMenuCheckboxItem>
-									))}
-								</DropdownMenuContent>
-							</DropdownMenu>
+						{/* Body Type Filter */}
+						<DropdownMenu>
+							<DropdownMenuTrigger
+								render={
+									<Button variant='outline' size='sm' className='h-9'>
+										Body Type
+										{selectedBodyTypes.length > 0 && (
+											<Badge variant='secondary' className='ml-2 h-5 min-w-5 px-1 text-xs'>
+												{selectedBodyTypes.length}
+											</Badge>
+										)}
+									</Button>
+								}
+							/>
+							<DropdownMenuContent align='start' className='w-48'>
+								<DropdownMenuLabel>Filter by Body Type</DropdownMenuLabel>
+								<DropdownMenuSeparator />
+								{filterOptions.bodyTypes.map((bodyType) => (
+									<DropdownMenuCheckboxItem
+										key={bodyType}
+										checked={selectedBodyTypes.includes(bodyType)}
+										onCheckedChange={(checked) => {
+											setSelectedBodyTypes((prev) =>
+												checked ? [...prev, bodyType] : prev.filter((b) => b !== bodyType),
+											)
+										}}>
+										{bodyType}
+									</DropdownMenuCheckboxItem>
+								))}
+							</DropdownMenuContent>
+						</DropdownMenu>
 
-							{/* Clear Filters */}
-							{activeFilterCount > 0 && (
-								<Button variant='ghost' size='sm' onClick={clearAllFilters} className='h-9'>
-									Clear all
-									<X className='ml-2 h-4 w-4' />
-								</Button>
-							)}
-						</div>
+						{/* Clear Filters */}
+						{activeFilterCount > 0 && (
+							<Button variant='ghost' size='sm' onClick={clearAllFilters} className='h-9'>
+								Clear all
+								<X className='ml-2 h-4 w-4' />
+							</Button>
+						)}
+					</div>
 
 					{/* Active Filters Display */}
 					{activeFilterCount > 0 && (

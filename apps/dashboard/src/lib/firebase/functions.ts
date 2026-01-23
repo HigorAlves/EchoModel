@@ -29,7 +29,7 @@ if (process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_USE_FIREBA
 
 // ==================== Type Definitions ====================
 
-// Fashion configuration types (expanded)
+// Fashion configuration types
 export type LightingPreset =
 	| 'SOFT_STUDIO'
 	| 'EDITORIAL_CONTRAST'
@@ -101,7 +101,6 @@ export interface CreateModelInput {
 	bodyType: 'SLIM' | 'ATHLETIC' | 'AVERAGE' | 'CURVY' | 'PLUS_SIZE'
 	prompt?: string
 	referenceImageIds?: string[]
-	// Seedream 4.5 Fashion configuration (expanded)
 	lightingPreset?: LightingPreset
 	customLightingSettings?: CustomLightingSettings
 	cameraFraming?: CameraFraming
@@ -119,71 +118,6 @@ export interface CreateModelResult {
 	success: boolean
 	modelId: string
 	status: string
-}
-
-export interface StartCalibrationInput {
-	modelId: string
-	storeId: string
-}
-
-export interface StartCalibrationResult {
-	success: boolean
-	modelId: string
-	calibrationImages?: Array<{
-		id: string
-		url: string
-		thumbnailUrl?: string
-	}>
-	lockedIdentityUrl?: string
-	error?: string
-}
-
-export interface ApproveCalibrationInput {
-	modelId: string
-	storeId: string
-	selectedImageIds: string[]
-}
-
-export interface ApproveCalibrationResult {
-	success: boolean
-	modelId: string
-	status: string
-	lockedIdentityUrl: string
-}
-
-// Generation types
-export interface CreateGenerationInput {
-	storeId: string
-	modelId: string
-	garmentAssetId: string
-	scenePrompt: string
-	aspectRatios: Array<'4:5' | '9:16' | '1:1' | '16:9'>
-	imageCount: number
-	idempotencyKey?: string
-}
-
-export interface CreateGenerationResult {
-	success: boolean
-	generationId: string
-	status: string
-	isExisting: boolean
-}
-
-export interface ProcessGenerationInput {
-	generationId: string
-}
-
-export interface ProcessGenerationResult {
-	success: boolean
-	generationId: string
-	status: string
-	images?: Array<{
-		id: string
-		assetId: string
-		aspectRatio: string
-		url: string | null
-		thumbnailUrl: string | null
-	}>
 }
 
 // Asset types
@@ -216,18 +150,6 @@ export interface ConfirmUploadResult {
 	assetId: string
 	status: string
 	cdnUrl?: string
-}
-
-export interface GetDownloadUrlInput {
-	assetId: string
-	storeId: string
-}
-
-export interface GetDownloadUrlResult {
-	success: boolean
-	assetId: string
-	downloadUrl: string
-	expiresInSeconds: number
 }
 
 // Store types
@@ -286,28 +208,6 @@ export interface GetStoreResult {
 
 // Model functions
 export const createModel = httpsCallable<CreateModelInput, CreateModelResult>(functions, 'createModel')
-export const startCalibration = httpsCallable<StartCalibrationInput, StartCalibrationResult>(
-	functions,
-	'startCalibration',
-)
-export const approveCalibration = httpsCallable<ApproveCalibrationInput, ApproveCalibrationResult>(
-	functions,
-	'approveCalibration',
-)
-export const rejectCalibration = httpsCallable<
-	{ modelId: string; storeId: string; reason: string },
-	{ success: boolean; modelId: string; status: string }
->(functions, 'rejectCalibration')
-
-// Generation functions
-export const createGeneration = httpsCallable<CreateGenerationInput, CreateGenerationResult>(
-	functions,
-	'createGeneration',
-)
-export const processGeneration = httpsCallable<ProcessGenerationInput, ProcessGenerationResult>(
-	functions,
-	'processGeneration',
-)
 
 // Asset functions
 export const requestUploadUrl = httpsCallable<RequestUploadUrlInput, RequestUploadUrlResult>(
@@ -315,11 +215,6 @@ export const requestUploadUrl = httpsCallable<RequestUploadUrlInput, RequestUplo
 	'requestUploadUrl',
 )
 export const confirmUpload = httpsCallable<ConfirmUploadInput, ConfirmUploadResult>(functions, 'confirmUpload')
-export const getDownloadUrl = httpsCallable<GetDownloadUrlInput, GetDownloadUrlResult>(functions, 'getDownloadUrl')
-export const deleteAsset = httpsCallable<{ assetId: string; storeId: string }, { success: boolean; assetId: string }>(
-	functions,
-	'deleteAsset',
-)
 
 // Store functions
 export const createStore = httpsCallable<CreateStoreInput, CreateStoreResult>(functions, 'createStore')

@@ -42,7 +42,6 @@ if (
 export const Collections = {
 	STORES: 'stores',
 	MODELS: 'models',
-	GENERATIONS: 'generations',
 	ASSETS: 'assets',
 } as const
 
@@ -67,36 +66,6 @@ export interface ModelDocument {
 	createdAt: Date
 	updatedAt: Date
 	deletedAt: Date | null
-}
-
-export interface GenerationDocument {
-	id: string
-	storeId: string
-	modelId: string
-	status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'
-	idempotencyKey: string
-	garmentAssetId: string
-	scenePrompt: string
-	aspectRatios: string[]
-	imageCount: number
-	generatedImages: Array<{
-		id: string
-		assetId: string
-		aspectRatio: string
-		url: string | null
-		thumbnailUrl: string | null
-		createdAt: Date
-	}>
-	startedAt: Date | null
-	completedAt: Date | null
-	failureReason: string | null
-	metadata: {
-		processingTimeMs?: number
-		aiModelVersion?: string
-		requestedAt?: Date
-	}
-	createdAt: Date
-	updatedAt: Date
 }
 
 export interface AssetDocument {
@@ -165,22 +134,6 @@ function convertDocument<T>(id: string, data: DocumentData): T {
 		}
 	}
 
-	// Handle nested arrays with timestamps
-	if (result.generatedImages && Array.isArray(result.generatedImages)) {
-		result.generatedImages = (result.generatedImages as any[]).map((img) => ({
-			...img,
-			createdAt: toDate(img.createdAt),
-		}))
-	}
-
-	// Handle metadata with timestamps
-	if (result.metadata && typeof result.metadata === 'object') {
-		const metadata = result.metadata as Record<string, unknown>
-		if (metadata.requestedAt) {
-			metadata.requestedAt = toDate(metadata.requestedAt)
-		}
-	}
-
 	return result as T
 }
 
@@ -239,56 +192,6 @@ export async function getModel(modelId: string): Promise<ModelDocument | null> {
 	}
 
 	return convertDocument<ModelDocument>(snapshot.id, snapshot.data())
-}
-
-/**
- * Subscribe to generations for a store
- */
-export function subscribeToGenerations(
-	storeId: string,
-	callback: (generations: GenerationDocument[]) => void,
-	options?: {
-		modelId?: string
-		status?: GenerationDocument['status']
-		limitCount?: number
-	},
-): Unsubscribe {
-	const constraints: QueryConstraint[] = [where('storeId', '==', storeId)]
-
-	if (options?.modelId) {
-		constraints.push(where('modelId', '==', options.modelId))
-	}
-
-	if (options?.status) {
-		constraints.push(where('status', '==', options.status))
-	}
-
-	constraints.push(orderBy('createdAt', 'desc'))
-
-	if (options?.limitCount) {
-		constraints.push(limit(options.limitCount))
-	}
-
-	const q = query(collection(db, Collections.GENERATIONS), ...constraints)
-
-	return onSnapshot(q, (snapshot) => {
-		const generations = snapshot.docs.map((doc) => convertDocument<GenerationDocument>(doc.id, doc.data()))
-		callback(generations)
-	})
-}
-
-/**
- * Get a single generation by ID
- */
-export async function getGeneration(generationId: string): Promise<GenerationDocument | null> {
-	const docRef = doc(db, Collections.GENERATIONS, generationId)
-	const snapshot = await getDoc(docRef)
-
-	if (!snapshot.exists()) {
-		return null
-	}
-
-	return convertDocument<GenerationDocument>(snapshot.id, snapshot.data())
 }
 
 /**

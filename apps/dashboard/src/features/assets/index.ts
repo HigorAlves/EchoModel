@@ -2,18 +2,4 @@
  * @fileoverview Assets Feature Module
  */
 
-export {
-	type UploadResult,
-	type UseAssetActionsResult,
-	type UseAssetResult,
-	type UseAssetsOptions,
-	type UseAssetsResult,
-	type UseUploadResult,
-	useAsset,
-	useAssetActions,
-	useAssetStats,
-	useAssets,
-	useResolvedAssetUrls,
-	useStorageUrls,
-	useUpload,
-} from './hooks/use-assets'
+export { useResolvedAssetUrls, useStorageUrls } from './hooks/use-assets'

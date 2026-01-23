@@ -128,7 +128,10 @@ export const createModel = onCall<CreateModelInput>({ maxInstances: 10, timeoutS
 			throw error
 		}
 
-		throw new HttpsError('internal', `Failed to create model: ${error instanceof Error ? error.message : String(error)}`)
+		throw new HttpsError(
+			'internal',
+			`Failed to create model: ${error instanceof Error ? error.message : String(error)}`,
+		)
 	}
 })
 
@@ -173,20 +176,18 @@ export const startCalibration = onCall<StartCalibrationInput>(
 				const assetIds = model.referenceImages.filter((ref) => !ref.includes('/'))
 
 				// Generate URLs for storage paths directly
-				const storageUrls = await Promise.all(
-					storagePaths.map((path) => storageService.generateDownloadUrl(path)),
-				)
+				const storageUrls = await Promise.all(storagePaths.map((path) => storageService.generateDownloadUrl(path)))
 
 				// Look up asset IDs for backward compatibility
 				let assetUrls: string[] = []
 				if (assetIds.length > 0) {
-					const referenceAssets = await Promise.all(
-						assetIds.map((assetId) => assetRepository.findById(assetId)),
-					)
+					const referenceAssets = await Promise.all(assetIds.map((assetId) => assetRepository.findById(assetId)))
 
 					assetUrls = await Promise.all(
 						referenceAssets
-							.filter((asset): asset is NonNullable<typeof asset> => asset !== null && asset.status === AssetStatus.READY)
+							.filter(
+								(asset): asset is NonNullable<typeof asset> => asset !== null && asset.status === AssetStatus.READY,
+							)
 							.map((asset) => storageService.generateDownloadUrl(asset.storagePath.value)),
 					)
 				}
