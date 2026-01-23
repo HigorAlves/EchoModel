@@ -7,7 +7,7 @@ import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import { Textarea } from '@/components/ui/textarea'
 
-import type { UseModelWizardReturn } from '../_hooks/use-model-wizard'
+import type { UseModelWizardReturn } from '../../hooks/use-model-wizard'
 
 interface StepBasicInfoProps {
 	wizard: UseModelWizardReturn

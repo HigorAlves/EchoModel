@@ -13,18 +13,17 @@ import { useAuth } from '@/components/providers'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { createModelAction } from '@/features/models/actions/model.actions'
-import { useCurrentStore } from '@/features/stores'
-
 import {
+	createModelAction,
 	StepAppearance,
 	StepBasicInfo,
 	StepFashionConfig,
 	StepReferenceImages,
 	StepReview,
+	useModelWizard,
 	WizardProgress,
-} from './_components'
-import { useModelWizard } from './_hooks/use-model-wizard'
+} from '@/features/models'
+import { useCurrentStore } from '@/features/stores'
 
 const STEP_TITLES = ['Basic Info', 'Appearance', 'Fashion Configuration', 'Reference Images', 'Review & Create']
 

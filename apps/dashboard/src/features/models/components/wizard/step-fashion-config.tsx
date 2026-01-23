@@ -19,8 +19,8 @@ import {
 	POSE_STYLES,
 	POST_PROCESSING_STYLES,
 	PRODUCT_CATEGORIES,
-} from '../_constants'
-import type { UseModelWizardReturn } from '../_hooks/use-model-wizard'
+} from '../../constants'
+import type { UseModelWizardReturn } from '../../hooks/use-model-wizard'
 import { SelectionCard, SelectionCardContent, SelectionCardGrid } from './selection-card'
 
 interface StepFashionConfigProps {

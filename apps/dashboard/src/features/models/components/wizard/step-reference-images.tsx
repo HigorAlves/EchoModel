@@ -8,7 +8,7 @@ import { useAuth } from '@/components/providers'
 import { Field, FieldDescription, FieldLabel } from '@/components/ui/field'
 import { useCurrentStore } from '@/features/stores'
 
-import type { UseModelWizardReturn } from '../_hooks/use-model-wizard'
+import type { UseModelWizardReturn } from '../../hooks/use-model-wizard'
 import { ImageUploadZone } from './image-upload-zone'
 
 interface StepReferenceImagesProps {

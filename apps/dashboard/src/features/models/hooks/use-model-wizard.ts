@@ -8,8 +8,8 @@
 
 import { useCallback, useState } from 'react'
 
-import type { CreateModelFormData } from '../_schemas'
-import { defaultFormValues, getStepErrors, validateStep } from '../_schemas'
+import type { CreateModelFormData } from '../schemas'
+import { defaultFormValues, getStepErrors, validateStep } from '../schemas'
 
 export type Step = 1 | 2 | 3 | 4 | 5
 

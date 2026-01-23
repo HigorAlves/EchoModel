@@ -7,7 +7,7 @@ import { useCallback, useState } from 'react'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 
-import { UPLOAD_CONFIG } from '../_constants'
+import { UPLOAD_CONFIG } from '../../constants'
 
 interface ImageUploadZoneProps {
 	images: Array<{

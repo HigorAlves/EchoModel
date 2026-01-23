@@ -6,8 +6,8 @@ import { Activity, Calendar, Globe, User } from 'lucide-react'
 import { Field, FieldDescription, FieldError, FieldLabel, FieldSeparator } from '@/components/ui/field'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { AGE_RANGE_OPTIONS, BODY_TYPE_OPTIONS, ETHNICITY_OPTIONS, GENDER_OPTIONS } from '../_constants'
-import type { UseModelWizardReturn } from '../_hooks/use-model-wizard'
+import { AGE_RANGE_OPTIONS, BODY_TYPE_OPTIONS, ETHNICITY_OPTIONS, GENDER_OPTIONS } from '../../constants'
+import type { UseModelWizardReturn } from '../../hooks/use-model-wizard'
 
 interface StepAppearanceProps {
 	wizard: UseModelWizardReturn
