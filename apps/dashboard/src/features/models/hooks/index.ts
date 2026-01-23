@@ -1,3 +1,7 @@
 export { useModel, useModels } from './use-models'
 export type { ReferenceImage, Step, UseModelWizardReturn } from './use-model-wizard'
 export { useModelWizard } from './use-model-wizard'
+export type { UseLightboxOptions, UseLightboxReturn } from './use-lightbox'
+export { useLightbox } from './use-lightbox'
+export type { UseModelImagesOptions, UseModelImagesReturn } from './use-model-images'
+export { useModelImages } from './use-model-images'

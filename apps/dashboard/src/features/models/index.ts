@@ -6,7 +6,7 @@
 export { createModelAction, type ModelActionState } from './actions'
 
 // Components
-export * from './components/wizard'
+export * from './components'
 
 // Constants
 export * from './constants'
@@ -19,6 +19,12 @@ export {
 	useModel,
 	useModelWizard,
 	useModels,
+	type UseLightboxOptions,
+	type UseLightboxReturn,
+	useLightbox,
+	type UseModelImagesOptions,
+	type UseModelImagesReturn,
+	useModelImages,
 } from './hooks'
 export type { UseModelResult, UseModelsOptions, UseModelsResult } from './hooks/use-models'
 
