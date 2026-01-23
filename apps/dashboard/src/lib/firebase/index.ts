@@ -26,7 +26,9 @@ export {
 	getModel,
 	getStoreById,
 	type LightingPreset,
+	type ModelCameraConfig,
 	type ModelDocument,
+	type ModelLightingConfig,
 	type PoseStyle,
 	type PostProcessingStyle,
 	type ProductCategory,
@@ -36,7 +38,7 @@ export {
 	subscribeToStore,
 	subscribeToStores,
 	updateStoreInfo,
-	updateStoreSettingsFirestore,
+	updateStoreSettings,
 } from './firestore'
 // Cloud Functions
 export {

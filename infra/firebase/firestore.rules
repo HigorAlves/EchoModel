@@ -57,10 +57,10 @@ service cloud.firestore {
       // Read: Owner of the store can read models
       allow read: if belongsToOwnedStore(resource);
 
-      // Create: Owner can create models in their store
+      // Create: Owner can create models in their store (starts calibration immediately)
       allow create: if isAuthenticated() &&
         isStoreOwner(request.resource.data.storeId) &&
-        request.resource.data.status == 'DRAFT';
+        request.resource.data.status == 'CALIBRATING';
 
       // Update: Owner can update models (Cloud Functions handle state transitions)
       allow update: if belongsToOwnedStore(resource) &&

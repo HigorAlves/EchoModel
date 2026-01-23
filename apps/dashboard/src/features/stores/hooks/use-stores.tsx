@@ -16,7 +16,7 @@ import {
 	subscribeToStore,
 	subscribeToStores,
 	updateStoreInfo,
-	updateStoreSettingsFirestore,
+	updateStoreSettings,
 } from '@/lib/firebase'
 
 // ==================== Types ====================
@@ -172,7 +172,7 @@ export function useStoreSettings(storeId: string | null): UseStoreSettingsResult
 			setError(null)
 
 			try {
-				await updateStoreSettingsFirestore(storeId, settings)
+				await updateStoreSettings(storeId, settings)
 			} catch (err) {
 				const error = err instanceof Error ? err : new Error('Failed to update settings')
 				setError(error)
@@ -351,7 +351,7 @@ export function StoreProvider({ children, userId }: StoreProviderProps) {
 			setUpdateError(null)
 
 			try {
-				await updateStoreSettingsFirestore(currentStoreId, settings)
+				await updateStoreSettings(currentStoreId, settings)
 			} catch (err) {
 				const error = err instanceof Error ? err : new Error('Failed to update store settings')
 				setUpdateError(error)
