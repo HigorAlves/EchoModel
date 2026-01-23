@@ -2,8 +2,8 @@ export {
 	clearUploadedImage,
 	clearUploadedImages,
 	getUploadedImageAssetId,
-	getUploadedImages,
 	getUploadedImageStoragePath,
+	getUploadedImages,
 	saveUploadedImage,
 	type UploadedImageState,
 } from './upload-storage'

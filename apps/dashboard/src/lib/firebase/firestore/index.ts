@@ -4,9 +4,11 @@
  * Re-exports all Firestore types and functions organized by bounded context.
  */
 
+// Asset bounded context
+export type { AssetDocument } from './assets'
+export { getAsset, subscribeToAssets } from './assets'
 // Core client and utilities
 export { Collections, db } from './client'
-
 // Model bounded context
 export type {
 	BackgroundType,
@@ -24,10 +26,6 @@ export type {
 	ProductCategory,
 } from './models'
 export { createModel, getModel, subscribeToModels } from './models'
-
-// Asset bounded context
-export type { AssetDocument } from './assets'
-export { getAsset, subscribeToAssets } from './assets'
 
 // Store bounded context
 export type { CreateStoreInput, StoreDocument } from './stores'

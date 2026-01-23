@@ -78,7 +78,7 @@ export function useResolvedAssetUrls(assetIds: string[]): {
 		return () => {
 			cancelled = true
 		}
-	}, [assetIds.join(',')])
+	}, [assetIds])
 
 	return { urls, isLoading, error }
 }
@@ -155,7 +155,7 @@ export function useStorageUrls(storagePaths: string[]): {
 		return () => {
 			cancelled = true
 		}
-	}, [storagePaths.join(',')])
+	}, [storagePaths])
 
 	return { urls, isLoading, error }
 }

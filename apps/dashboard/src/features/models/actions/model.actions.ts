@@ -6,7 +6,7 @@
  * Client-side actions for model creation using Firestore directly
  */
 
-import { createModel, type CreateModelInput } from '@/lib/firebase/firestore'
+import { type CreateModelInput, createModel } from '@/lib/firebase/firestore'
 
 export interface ModelActionState {
 	success: boolean

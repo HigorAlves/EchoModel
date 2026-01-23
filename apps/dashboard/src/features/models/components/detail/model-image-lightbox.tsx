@@ -50,11 +50,10 @@ export function ModelImageLightbox({
 							exit={{ opacity: 0 }}
 							transition={{ duration: 0.2 }}
 							className='relative flex items-center justify-center min-h-[80vh]'>
-							{/* biome-ignore lint/a11y/useAltText: Alt text is provided */}
 							{/* biome-ignore lint/performance/noImgElement: Dynamic user-generated content */}
 							<img
 								src={currentImage}
-								alt={`${modelName} - Image ${currentIndex + 1}`}
+								alt={`${modelName} - ${currentIndex + 1}`}
 								className='max-h-[85vh] max-w-full object-contain'
 							/>
 

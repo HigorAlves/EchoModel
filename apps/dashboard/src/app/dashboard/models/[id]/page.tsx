@@ -30,7 +30,13 @@ export default function ModelDetailPage() {
 	const { model, isLoading, error } = useModel(modelId)
 
 	// Resolve model images (handles both storage paths and asset IDs)
-	const { images, referenceImages, isLoading: isLoadingImages, hasGeneratedImages, unresolvedCount } = useModelImages({
+	const {
+		images,
+		referenceImages,
+		isLoading: isLoadingImages,
+		hasGeneratedImages,
+		unresolvedCount,
+	} = useModelImages({
 		model,
 	})
 
@@ -115,15 +121,8 @@ export default function ModelDetailPage() {
 
 				{/* Right: Sidebar with Model Details */}
 				<div className='space-y-6'>
-					<ModelStatisticsCard
-						generatedImagesCount={model.generatedImages?.length ?? 0}
-						createdAt={model.createdAt}
-					/>
-					<ModelConfigurationCard
-						model={model}
-						referenceImages={referenceImages}
-						isLoadingImages={isLoadingImages}
-					/>
+					<ModelStatisticsCard generatedImagesCount={model.generatedImages?.length ?? 0} createdAt={model.createdAt} />
+					<ModelConfigurationCard model={model} referenceImages={referenceImages} isLoadingImages={isLoadingImages} />
 				</div>
 			</div>
 

@@ -152,14 +152,12 @@ export default function CreateModelPage() {
 		}
 
 		// Only include optional string fields if they have valid values
-		if (formData.description && formData.description.trim()) {
+		if (formData.description?.trim()) {
 			cleanedData.description = formData.description.trim()
 		}
 		if (formData.prompt && formData.prompt.trim().length >= 10) {
 			cleanedData.prompt = formData.prompt.trim()
 		}
-
-		console.log('Submitting model data:', JSON.stringify(cleanedData, null, 2))
 
 		// Create FormData and submit
 		const formDataObj = new FormData()

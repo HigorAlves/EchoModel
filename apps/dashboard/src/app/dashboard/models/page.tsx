@@ -5,7 +5,6 @@ import {
 	Eye,
 	Filter,
 	Grid3x3,
-	Heart,
 	List,
 	Loader2,
 	MoreHorizontal,

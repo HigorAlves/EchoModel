@@ -14,11 +14,11 @@ import {
 	limit,
 	onSnapshot,
 	orderBy,
+	type QueryConstraint,
 	query,
 	setDoc,
-	where,
-	type QueryConstraint,
 	type Unsubscribe,
+	where,
 } from './client'
 
 // ==================== Fashion Configuration Types ====================

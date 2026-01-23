@@ -58,17 +58,14 @@ export function ModelImageGallery({
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.3, delay: index * 0.05 }}
 							className='mb-4 break-inside-avoid'>
-							<div
-								className='group relative cursor-pointer overflow-hidden rounded-xl bg-muted'
-								onClick={() => onImageClick(index)}
-								onKeyDown={(e) => e.key === 'Enter' && onImageClick(index)}
-								role='button'
-								tabIndex={0}>
-								{/* biome-ignore lint/a11y/useAltText: Alt text is provided */}
+							<button
+								type='button'
+								className='group relative cursor-pointer overflow-hidden rounded-xl bg-muted w-full text-left'
+								onClick={() => onImageClick(index)}>
 								{/* biome-ignore lint/performance/noImgElement: Dynamic user-generated content */}
 								<img
 									src={image}
-									alt={`${modelName} - Image ${index + 1}`}
+									alt={`${modelName} - ${index + 1}`}
 									className='w-full object-cover transition-transform duration-300 group-hover:scale-105'
 								/>
 
@@ -107,7 +104,7 @@ export function ModelImageGallery({
 										{index + 1}/{images.length}
 									</Badge>
 								</div>
-							</div>
+							</button>
 						</motion.div>
 					))}
 				</div>
@@ -142,9 +139,7 @@ export function ModelImageGallery({
 						<ImageIcon className='h-6 w-6 text-muted-foreground' />
 					</div>
 					<h3 className='mb-2 text-lg font-semibold'>Model is ready</h3>
-					<p className='text-sm text-muted-foreground max-w-md'>
-						This model has been calibrated and is ready for use.
-					</p>
+					<p className='text-sm text-muted-foreground max-w-md'>This model has been calibrated and is ready for use.</p>
 				</CardContent>
 			</Card>
 		)

@@ -4,8 +4,8 @@
  * Status colors, icons, and display configuration for model statuses.
  */
 
-import { Star, TrendingUp, Users, X, Zap } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { Star, TrendingUp, Users, X, Zap } from 'lucide-react'
 
 import type { ModelDocument } from '@/lib/firebase'
 

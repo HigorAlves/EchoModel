@@ -38,7 +38,7 @@ export function ImageCarousel({
 				{/* biome-ignore lint/performance/noImgElement: Dynamic user-generated content */}
 				<img
 					src={images[selectedImageIndex]}
-					alt={`${alt} - Image ${selectedImageIndex + 1}`}
+					alt={`${alt} - ${selectedImageIndex + 1}`}
 					className='h-full w-full object-cover transition-transform duration-300 group-hover:scale-105'
 				/>
 

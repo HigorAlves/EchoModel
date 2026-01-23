@@ -16,9 +16,9 @@ import {
 	query,
 	serverTimestamp,
 	setDoc,
+	type Unsubscribe,
 	updateDoc,
 	where,
-	type Unsubscribe,
 } from './client'
 
 // ==================== Store Document Type ====================

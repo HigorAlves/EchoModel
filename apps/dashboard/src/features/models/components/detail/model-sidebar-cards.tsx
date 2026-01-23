@@ -104,7 +104,6 @@ export function ModelConfigurationCard({ model, referenceImages, isLoadingImages
 									<div className='grid grid-cols-3 gap-2'>
 										{referenceImages.slice(0, 6).map((url, idx) => (
 											<div key={url} className='relative aspect-square overflow-hidden rounded-md bg-muted'>
-												{/* biome-ignore lint/a11y/useAltText: Alt text is provided */}
 												{/* biome-ignore lint/performance/noImgElement: Dynamic user-generated content */}
 												<img src={url} alt={`Reference ${idx + 1}`} className='h-full w-full object-cover' />
 											</div>

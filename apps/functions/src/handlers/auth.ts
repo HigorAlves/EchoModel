@@ -11,12 +11,11 @@ import { beforeUserCreated } from 'firebase-functions/v2/identity'
 import { db } from '../lib/firebase'
 import { FirestoreStoreRepository } from '../repositories/store.repository'
 import { FirestoreUserRepository } from '../repositories/user.repository'
-import {deriveStoreName, deriveUserName} from "../utils/user";
+import { deriveStoreName, deriveUserName } from '../utils/user'
 
 // Initialize repositories
 const userRepository = new FirestoreUserRepository(db)
 const storeRepository = new FirestoreStoreRepository(db)
-
 
 /**
  * Firebase Auth trigger - called before a new user is created
