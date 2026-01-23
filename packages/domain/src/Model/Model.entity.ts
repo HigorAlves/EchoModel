@@ -179,7 +179,7 @@ export class Model {
 			storeId: dto.storeId,
 			name,
 			description,
-			status: ModelStatus.DRAFT,
+			status: ModelStatus.CALIBRATING,
 			gender: dto.gender,
 			ageRange: dto.ageRange,
 			ethnicity: dto.ethnicity,

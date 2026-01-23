@@ -42,113 +42,6 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useModels } from '@/features/models/hooks/use-models'
 import { useCurrentStore } from '@/features/stores/hooks/use-stores'
 
-// Sample model data - will be replaced with real data
-const sampleModels = [
-	{
-		id: '1',
-		name: 'Sofia',
-		description: 'Young, confident, urban style',
-		status: 'active' as const,
-		gender: 'female',
-		ageRange: '18-25',
-		ethnicity: 'Caucasian',
-		bodyType: 'Athletic',
-		generations: 24,
-		createdAt: '2024-01-15',
-		thumbnailUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=500&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=500&fit=crop',
-			'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=500&fit=crop',
-			'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=400&h=500&fit=crop',
-			'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=500&fit=crop',
-		],
-	},
-	{
-		id: '2',
-		name: 'Marcus',
-		description: 'Athletic, casual, streetwear focus',
-		status: 'active' as const,
-		gender: 'male',
-		ageRange: '26-35',
-		ethnicity: 'African American',
-		bodyType: 'Athletic',
-		generations: 18,
-		createdAt: '2024-01-10',
-		thumbnailUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop',
-			'https://images.unsplash.com/photo-1490114538077-0a7f8cb49891?w=400&h=500&fit=crop',
-			'https://images.unsplash.com/photo-1516826957135-700dedea698c?w=400&h=500&fit=crop',
-			'https://images.unsplash.com/photo-1519058082700-08a0b56da9b4?w=400&h=500&fit=crop',
-		],
-	},
-	{
-		id: '3',
-		name: 'Luna',
-		description: 'Elegant, sophisticated, formal wear',
-		status: 'calibrating' as const,
-		gender: 'female',
-		ageRange: '26-35',
-		ethnicity: 'Asian',
-		bodyType: 'Slim',
-		generations: 0,
-		createdAt: '2024-01-18',
-		thumbnailUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=500&fit=crop',
-		images: [],
-	},
-	{
-		id: '4',
-		name: 'Alex',
-		description: 'Versatile, modern, gender-neutral aesthetic',
-		status: 'draft' as const,
-		gender: 'non-binary',
-		ageRange: '18-25',
-		ethnicity: 'Hispanic',
-		bodyType: 'Average',
-		generations: 0,
-		createdAt: '2024-01-19',
-		thumbnailUrl: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=500&fit=crop',
-		images: [],
-	},
-	{
-		id: '5',
-		name: 'Kai',
-		description: 'Edgy, alternative fashion, tattoos',
-		status: 'active' as const,
-		gender: 'male',
-		ageRange: '18-25',
-		ethnicity: 'Asian',
-		bodyType: 'Slim',
-		generations: 32,
-		createdAt: '2024-01-12',
-		thumbnailUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=500&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=500&fit=crop',
-			'https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?w=400&h=500&fit=crop',
-			'https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=400&h=500&fit=crop',
-		],
-	},
-	{
-		id: '6',
-		name: 'Emma',
-		description: 'Classic beauty, timeless elegance',
-		status: 'active' as const,
-		gender: 'female',
-		ageRange: '26-35',
-		ethnicity: 'Caucasian',
-		bodyType: 'Curvy',
-		generations: 45,
-		createdAt: '2024-01-08',
-		thumbnailUrl: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=500&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=500&fit=crop',
-			'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400&h=500&fit=crop',
-			'https://images.unsplash.com/photo-1479936343636-73cdc5aae0c3?w=400&h=500&fit=crop',
-			'https://images.unsplash.com/photo-1496440737103-cd596325d314?w=400&h=500&fit=crop',
-		],
-	},
-]
-
 type ViewMode = 'grid' | 'list'
 
 type ModelCardProps = {
@@ -446,7 +339,7 @@ function EmptyState({ t }: { t: ReturnType<typeof useTranslations> }) {
 			</div>
 			<h3 className='mb-3 text-2xl font-bold'>{t('empty.title')}</h3>
 			<p className='text-muted-foreground mb-8 max-w-md text-center'>{t('empty.description')}</p>
-			<Button render={<Link href='/dashboard/models/create' />} size='lg' className='gap-2'>
+			<Button render={<Link href='/dashboard/models/create' />} nativeButton={false} size='lg' className='gap-2'>
 				<Plus className='h-5 w-5' />
 				{t('empty.createButton')}
 			</Button>
@@ -472,6 +365,12 @@ export default function ModelsPage() {
 	const { setItems } = useBreadcrumbs()
 	const t = useTranslations('models')
 
+	// Get current store
+	const { currentStore, isLoading: isStoreLoading } = useCurrentStore()
+
+	// Load models from Firestore
+	const { models: firestoreModels, isLoading: isModelsLoading, error: modelsError } = useModels(currentStore?.id ?? null)
+
 	// View mode
 	const [viewMode, setViewMode] = useState<ViewMode>('grid')
 	const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'name' | 'generations'>('recent')
@@ -488,20 +387,49 @@ export default function ModelsPage() {
 		setItems([{ label: t('breadcrumbs.models'), href: '/dashboard/models' }, { label: t('breadcrumbs.all') }])
 	}, [setItems, t])
 
+	// Transform Firestore models to UI format
+	const models: ModelCardProps[] = useMemo(() => {
+		return firestoreModels.map((model): ModelCardProps => {
+			const getCreatedAt = (): string => {
+				if (!model.createdAt) return new Date().toISOString().split('T')[0] ?? ''
+				if (model.createdAt instanceof Date) return model.createdAt.toISOString().split('T')[0] ?? ''
+				return String(model.createdAt).split('T')[0] ?? ''
+			}
+
+			return {
+				id: model.id,
+				name: model.name,
+				description: model.description ?? 'No description',
+				status: model.status.toLowerCase() as 'draft' | 'calibrating' | 'active' | 'failed' | 'archived',
+				gender: model.gender,
+				ageRange: model.ageRange,
+				ethnicity: model.ethnicity,
+				bodyType: model.bodyType,
+				generations: 0, // TODO: Calculate from generations collection
+				createdAt: getCreatedAt(),
+				images: model.generatedImages && model.generatedImages.length > 0
+					? model.generatedImages
+					: model.referenceImages ?? [],
+				hasGeneratedImages: (model.generatedImages?.length ?? 0) > 0,
+				isReadyForGeneration: model.status === 'ACTIVE',
+			}
+		})
+	}, [firestoreModels])
+
 	// Extract unique filter values from models
 	const filterOptions = useMemo(() => {
-		const statuses = [...new Set(sampleModels.map((m) => m.status))]
-		const genders = [...new Set(sampleModels.map((m) => m.gender))]
-		const ageRanges = [...new Set(sampleModels.map((m) => m.ageRange))]
-		const ethnicities = [...new Set(sampleModels.map((m) => m.ethnicity))]
-		const bodyTypes = [...new Set(sampleModels.map((m) => m.bodyType))]
+		const statuses = [...new Set(models.map((m) => m.status))]
+		const genders = [...new Set(models.map((m) => m.gender))]
+		const ageRanges = [...new Set(models.map((m) => m.ageRange))]
+		const ethnicities = [...new Set(models.map((m) => m.ethnicity))]
+		const bodyTypes = [...new Set(models.map((m) => m.bodyType))]
 
 		return { statuses, genders, ageRanges, ethnicities, bodyTypes }
-	}, [])
+	}, [models])
 
 	// Filter and sort models
 	const filteredModels: ModelCardProps[] = useMemo(() => {
-		let filtered = sampleModels.filter((model) => {
+		let filtered = models.filter((model) => {
 			// Search filter
 			const matchesSearch =
 				searchQuery === '' ||
@@ -542,14 +470,9 @@ export default function ModelsPage() {
 			}
 		})
 
-		// Transform to ModelCardProps with images array
-		return filtered.map((model) => ({
-			...model,
-			images: model.images && model.images.length > 0 ? model.images : (model.thumbnailUrl ? [model.thumbnailUrl] : []),
-			hasGeneratedImages: (model.images?.length > 0 || !!model.thumbnailUrl) && model.status === 'active',
-			isReadyForGeneration: model.status === 'active',
-		}))
+		return filtered
 	}, [
+		models,
 		searchQuery,
 		selectedStatuses,
 		selectedGenders,
@@ -558,6 +481,49 @@ export default function ModelsPage() {
 		selectedBodyTypes,
 		sortBy,
 	])
+
+	// Loading state
+	const isLoading = isStoreLoading || isModelsLoading
+
+	// Handle loading state
+	if (isLoading) {
+		return (
+			<div className='flex flex-1 flex-col gap-8 p-4 pt-0'>
+				<div className='flex items-center justify-center min-h-[500px]'>
+					<div className='flex flex-col items-center gap-4'>
+						<Loader2 className='h-12 w-12 animate-spin text-primary' />
+						<p className='text-muted-foreground'>Loading your models...</p>
+					</div>
+				</div>
+			</div>
+		)
+	}
+
+	// Handle error state
+	if (modelsError) {
+		return (
+			<div className='flex flex-1 flex-col gap-8 p-4 pt-0'>
+				<Alert variant='destructive'>
+					<AlertDescription>
+						Failed to load models: {modelsError.message}
+					</AlertDescription>
+				</Alert>
+			</div>
+		)
+	}
+
+	// Handle no store selected
+	if (!currentStore) {
+		return (
+			<div className='flex flex-1 flex-col gap-8 p-4 pt-0'>
+				<Alert>
+					<AlertDescription>
+						Please select a store to view models
+					</AlertDescription>
+				</Alert>
+			</div>
+		)
+	}
 
 	// Count active filters
 	const activeFilterCount =
@@ -598,7 +564,7 @@ export default function ModelsPage() {
 		}
 	}
 
-	const hasModels = sampleModels.length > 0
+	const hasModels = models.length > 0
 
 	return (
 		<div className='flex flex-1 flex-col gap-8 p-4 pt-0'>
@@ -621,7 +587,7 @@ export default function ModelsPage() {
 						<div className='flex items-center justify-between'>
 							<div>
 								<p className='text-sm text-muted-foreground'>Total Models</p>
-								<p className='mt-1 text-2xl font-bold'>{sampleModels.length}</p>
+								<p className='mt-1 text-2xl font-bold'>{models.length}</p>
 							</div>
 							<div className='rounded-full bg-primary/10 p-3'>
 								<Users className='h-5 w-5 text-primary' />
@@ -632,7 +598,7 @@ export default function ModelsPage() {
 						<div className='flex items-center justify-between'>
 							<div>
 								<p className='text-sm text-muted-foreground'>Active</p>
-								<p className='mt-1 text-2xl font-bold'>{sampleModels.filter((m) => m.status === 'active').length}</p>
+								<p className='mt-1 text-2xl font-bold'>{models.filter((m) => m.status === 'active').length}</p>
 							</div>
 							<div className='rounded-full bg-emerald-500/10 p-3'>
 								<Star className='h-5 w-5 text-emerald-600' />
@@ -644,7 +610,7 @@ export default function ModelsPage() {
 							<div>
 								<p className='text-sm text-muted-foreground'>Generations</p>
 								<p className='mt-1 text-2xl font-bold'>
-									{sampleModels.reduce((acc, m) => acc + m.generations, 0)}
+									{models.reduce((acc, m) => acc + m.generations, 0)}
 								</p>
 							</div>
 							<div className='rounded-full bg-violet-500/10 p-3'>
@@ -950,7 +916,7 @@ export default function ModelsPage() {
 
 					{/* Results Count */}
 					<div className='text-sm text-muted-foreground'>
-						Showing {filteredModels.length} of {sampleModels.length} models
+						Showing {filteredModels.length} of {models.length} models
 					</div>
 				</div>
 			)}
