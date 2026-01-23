@@ -117,10 +117,11 @@ export default function CreateModelPage() {
 			return
 		}
 
-		// Collect assetIds from already-uploaded images
+		// Collect storagePaths from already-uploaded images
+		// We store the full storage path so we can get download URLs later
 		const referenceImageIds = formData.referenceImages
-			.map((img) => img.assetId)
-			.filter((assetId): assetId is string => assetId !== undefined)
+			.map((img) => img.storagePath)
+			.filter((path): path is string => path !== undefined)
 
 		// Clean up the data - only include fields with valid values
 		const cleanedData: any = {

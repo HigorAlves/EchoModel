@@ -28,7 +28,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			isActive: true,
 			items: [
 				{ title: t('overview'), url: '/dashboard' },
-				{ title: t('analytics'), url: '/dashboard/analytics' },
 			],
 		},
 		{
@@ -37,8 +36,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			icon: Users,
 			items: [
 				{ title: t('allModels'), url: '/dashboard/models' },
-				{ title: t('createModel'), url: '/dashboard/models/create' },
-				{ title: t('calibration'), url: '/dashboard/models/calibration' },
 			],
 		},
 		{
@@ -47,7 +44,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			icon: Sparkles,
 			items: [
 				{ title: t('allGenerations'), url: '/dashboard/generations' },
-				{ title: t('newGeneration'), url: '/dashboard/generations/new' },
 				{ title: t('history'), url: '/dashboard/generations/history' },
 			],
 		},
@@ -58,8 +54,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			items: [
 				{ title: t('allAssets'), url: '/dashboard/assets' },
 				{ title: t('garments'), url: '/dashboard/assets/garments' },
-				{ title: t('generated'), url: '/dashboard/assets/generated' },
-				{ title: t('references'), url: '/dashboard/assets/references' },
 			],
 		},
 		{

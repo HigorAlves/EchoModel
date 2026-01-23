@@ -13,5 +13,7 @@ export {
 	useAssetActions,
 	useAssetStats,
 	useAssets,
+	useResolvedAssetUrls,
+	useStorageUrls,
 	useUpload,
 } from './hooks/use-assets'

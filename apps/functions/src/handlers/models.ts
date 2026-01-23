@@ -164,17 +164,34 @@ export const startCalibration = onCall<StartCalibrationInput>(
 			}
 
 			// Get reference image URLs if any
+			// Reference images can be either:
+			// 1. Storage paths (new format): "stores/{storeId}/model-references/{modelId}/{filename}"
+			// 2. Asset IDs (old format): UUID strings
 			let referenceImageUrls: string[] = []
 			if (model.referenceImages.length > 0) {
-				const referenceAssets = await Promise.all(
-					model.referenceImages.map((assetId) => assetRepository.findById(assetId)),
+				const storagePaths = model.referenceImages.filter((ref) => ref.includes('/'))
+				const assetIds = model.referenceImages.filter((ref) => !ref.includes('/'))
+
+				// Generate URLs for storage paths directly
+				const storageUrls = await Promise.all(
+					storagePaths.map((path) => storageService.generateDownloadUrl(path)),
 				)
 
-				referenceImageUrls = await Promise.all(
-					referenceAssets
-						.filter((asset): asset is NonNullable<typeof asset> => asset !== null && asset.status === AssetStatus.READY)
-						.map((asset) => storageService.generateDownloadUrl(asset.storagePath.value)),
-				)
+				// Look up asset IDs for backward compatibility
+				let assetUrls: string[] = []
+				if (assetIds.length > 0) {
+					const referenceAssets = await Promise.all(
+						assetIds.map((assetId) => assetRepository.findById(assetId)),
+					)
+
+					assetUrls = await Promise.all(
+						referenceAssets
+							.filter((asset): asset is NonNullable<typeof asset> => asset !== null && asset.status === AssetStatus.READY)
+							.map((asset) => storageService.generateDownloadUrl(asset.storagePath.value)),
+					)
+				}
+
+				referenceImageUrls = [...storageUrls, ...assetUrls].filter((url): url is string => !!url)
 			}
 
 			// Transition model to calibrating

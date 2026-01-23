@@ -39,6 +39,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useResolvedAssetUrls, useStorageUrls } from '@/features/assets'
 import { useModels } from '@/features/models/hooks/use-models'
 import { useCurrentStore } from '@/features/stores/hooks/use-stores'
 
@@ -371,6 +372,37 @@ export default function ModelsPage() {
 	// Load models from Firestore
 	const { models: firestoreModels, isLoading: isModelsLoading, error: modelsError } = useModels(currentStore?.id ?? null)
 
+	// Collect all unique reference image identifiers from all models
+	const { storagePaths, assetIds } = useMemo(() => {
+		const paths = new Set<string>()
+		const ids = new Set<string>()
+		for (const model of firestoreModels) {
+			// Only collect reference images for models without generated images
+			if (!model.generatedImages || model.generatedImages.length === 0) {
+				for (const ref of model.referenceImages ?? []) {
+					// Storage paths contain '/', asset IDs don't
+					if (ref.includes('/')) {
+						paths.add(ref)
+					} else {
+						ids.add(ref)
+					}
+				}
+			}
+		}
+		return { storagePaths: Array.from(paths), assetIds: Array.from(ids) }
+	}, [firestoreModels])
+
+	// Resolve storage paths to download URLs (new format)
+	const { urls: storageUrls } = useStorageUrls(storagePaths)
+
+	// Resolve asset IDs to URLs (old format - for backwards compatibility)
+	const { urls: assetUrls } = useResolvedAssetUrls(assetIds)
+
+	// Combine resolved URLs from both sources
+	const resolvedAssetUrls = useMemo(() => {
+		return new Map([...assetUrls, ...storageUrls])
+	}, [assetUrls, storageUrls])
+
 	// View mode
 	const [viewMode, setViewMode] = useState<ViewMode>('grid')
 	const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'name' | 'generations'>('recent')
@@ -396,6 +428,11 @@ export default function ModelsPage() {
 				return String(model.createdAt).split('T')[0] ?? ''
 			}
 
+			// Resolve reference image URLs from asset IDs
+			const resolvedReferenceImages = (model.referenceImages ?? [])
+				.map((id) => resolvedAssetUrls.get(id))
+				.filter((url): url is string => !!url)
+
 			return {
 				id: model.id,
 				name: model.name,
@@ -409,12 +446,12 @@ export default function ModelsPage() {
 				createdAt: getCreatedAt(),
 				images: model.generatedImages && model.generatedImages.length > 0
 					? model.generatedImages
-					: model.referenceImages ?? [],
+					: resolvedReferenceImages,
 				hasGeneratedImages: (model.generatedImages?.length ?? 0) > 0,
 				isReadyForGeneration: model.status === 'ACTIVE',
 			}
 		})
-	}, [firestoreModels])
+	}, [firestoreModels, resolvedAssetUrls])
 
 	// Extract unique filter values from models
 	const filterOptions = useMemo(() => {
