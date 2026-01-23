@@ -5,123 +5,74 @@ service cloud.firestore {
 
     // ==================== Helper Functions ====================
 
-    // Check if user is authenticated
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Get the current user's ID
     function userId() {
       return request.auth.uid;
     }
 
-    // Check if the user owns a store
     function isStoreOwner(storeId) {
       return isAuthenticated() &&
         exists(/databases/$(database)/documents/stores/$(storeId)) &&
         get(/databases/$(database)/documents/stores/$(storeId)).data.ownerId == userId();
     }
 
-    // Check if a resource belongs to a store the user owns
     function belongsToOwnedStore(resource) {
       return isAuthenticated() &&
         resource.data.storeId != null &&
         isStoreOwner(resource.data.storeId);
     }
 
-    // ==================== Stores Collection ====================
+    // ==================== Stores ====================
 
     match /stores/{storeId} {
-      // Read: Only owner can read their stores
       allow read: if isAuthenticated() && resource.data.ownerId == userId();
 
-      // Create: Any authenticated user can create a store they own
       allow create: if isAuthenticated() &&
         request.resource.data.ownerId == userId() &&
         request.resource.data.status == 'ACTIVE' &&
         request.resource.data.deletedAt == null;
 
-      // Update: Only owner can update their stores
-      // Cannot change ownerId
       allow update: if isAuthenticated() &&
         resource.data.ownerId == userId() &&
         request.resource.data.ownerId == userId();
 
-      // Delete: Only owner can delete (soft delete)
       allow delete: if isAuthenticated() && resource.data.ownerId == userId();
     }
 
-    // ==================== Models Collection ====================
+    // ==================== Models ====================
 
     match /models/{modelId} {
-      // Read: Owner of the store can read models
       allow read: if belongsToOwnedStore(resource);
 
-      // Create: Owner can create models in their store (starts calibration immediately)
       allow create: if isAuthenticated() &&
         isStoreOwner(request.resource.data.storeId) &&
-        request.resource.data.status == 'CALIBRATING';
+        request.resource.data.status == 'CALIBRATING' &&
+        request.resource.data.deletedAt == null;
 
-      // Update: Owner can update models (Cloud Functions handle state transitions)
       allow update: if belongsToOwnedStore(resource) &&
         request.resource.data.storeId == resource.data.storeId;
 
-      // Delete: Owner can delete (soft delete)
       allow delete: if belongsToOwnedStore(resource);
     }
 
-    // ==================== Generations Collection ====================
-
-    match /generations/{generationId} {
-      // Read: Owner of the store can read generations
-      allow read: if belongsToOwnedStore(resource);
-
-      // Create: Owner can create generations in their store
-      allow create: if isAuthenticated() &&
-        isStoreOwner(request.resource.data.storeId) &&
-        request.resource.data.status == 'PENDING';
-
-      // Update: Owner can update generations (Cloud Functions handle processing)
-      allow update: if belongsToOwnedStore(resource) &&
-        request.resource.data.storeId == resource.data.storeId;
-
-      // Delete: Not allowed (generations are permanent records)
-      allow delete: if false;
-    }
-
-    // ==================== Assets Collection ====================
+    // ==================== Assets ====================
 
     match /assets/{assetId} {
-      // Read: Owner of the store can read assets
       allow read: if belongsToOwnedStore(resource);
 
-      // Create: Owner can create assets in their store
       allow create: if isAuthenticated() &&
         isStoreOwner(request.resource.data.storeId) &&
-        request.resource.data.uploadedBy == userId();
+        request.resource.data.uploadedBy == userId() &&
+        request.resource.data.deletedAt == null;
 
-      // Update: Owner can update assets
       allow update: if belongsToOwnedStore(resource) &&
-        request.resource.data.storeId == resource.data.storeId;
+        request.resource.data.storeId == resource.data.storeId &&
+        request.resource.data.uploadedBy == resource.data.uploadedBy;
 
-      // Delete: Owner can delete (soft delete)
       allow delete: if belongsToOwnedStore(resource);
-    }
-
-    // ==================== Users Collection (if needed) ====================
-
-    match /users/{uid} {
-      // Read: Users can only read their own document
-      allow read: if isAuthenticated() && uid == userId();
-
-      // Create: Users can create their own document
-      allow create: if isAuthenticated() && uid == userId();
-
-      // Update: Users can only update their own document
-      allow update: if isAuthenticated() && uid == userId();
-
-      // Delete: Users cannot delete (admin only)
-      allow delete: if false;
     }
   }
 }

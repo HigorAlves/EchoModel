@@ -5,69 +5,45 @@ service firebase.storage {
 
     // ==================== Helper Functions ====================
 
-    // Check if user is authenticated
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Get the current user's ID
     function userId() {
       return request.auth.uid;
     }
 
-    // Check if the user owns a store
     function isStoreOwner(storeId) {
       return isAuthenticated() &&
         firestore.exists(/databases/(default)/documents/stores/$(storeId)) &&
         firestore.get(/databases/(default)/documents/stores/$(storeId)).data.ownerId == userId();
     }
 
-    // Validate file size (max 50MB)
     function isValidSize() {
       return request.resource.size < 50 * 1024 * 1024;
     }
 
-    // Validate image content type
     function isImage() {
-      return request.resource.contentType.matches('image/(jpeg|png|webp)');
+      return request.resource.contentType.matches('image/(jpeg|png|webp|gif)');
     }
 
     // ==================== Store Assets ====================
-    // Path format: stores/{storeId}/{category}/{resourceId}/{filename}
-    // resourceId is modelId for MODEL_REFERENCE category, assetId for other categories
+    // Path: stores/{storeId}/{category}/{resourceId}/{filename}
 
     match /stores/{storeId}/{category}/{resourceId}/{filename} {
+      allow read: if isStoreOwner(storeId);
 
-      // Read: Allow if authenticated (for development)
-      // In production, you may want to add store ownership checks
-      allow read: if isAuthenticated();
-
-      // Write: Allow if authenticated and file meets requirements
-      allow write: if isAuthenticated() &&
+      allow write: if isStoreOwner(storeId) &&
         isValidSize() &&
         isImage();
 
-      // Delete: Allow if authenticated
-      allow delete: if isAuthenticated();
+      allow delete: if isStoreOwner(storeId);
     }
 
-    // Note: The main rule above already handles authenticated uploads
-    // No need for separate signed URL rules in development
+    // ==================== Deny All Other Paths ====================
 
-    // ==================== Public CDN Access ====================
-    // Generated images can be accessed publicly via CDN
-
-    match /stores/{storeId}/generated/{assetId}/{filename} {
-      // Allow public read for generated images (for sharing)
-      allow read: if true;
-    }
-
-    // ==================== Thumbnail Access ====================
-
-    match /stores/{storeId}/{category}/{assetId}/thumbnails/{thumbnailName} {
-      // Allow read if user owns the store or the parent is public
-      allow read: if isStoreOwner(storeId) ||
-        (resource != null && resource.metadata.public == 'true');
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }
