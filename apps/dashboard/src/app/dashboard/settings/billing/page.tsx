@@ -14,10 +14,7 @@ export default function BillingPage() {
 	const tBilling = useTranslations('settings.billing')
 
 	useEffect(() => {
-		setItems([
-			{ label: t('breadcrumbs.settings'), href: '/dashboard/settings' },
-			{ label: t('breadcrumbs.billing') },
-		])
+		setItems([{ label: t('breadcrumbs.settings'), href: '/dashboard/settings' }, { label: t('breadcrumbs.billing') }])
 	}, [setItems, t])
 
 	return (

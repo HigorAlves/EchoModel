@@ -44,7 +44,7 @@ export function CreateStoreDialog({ open, userId, onStoreCreated }: CreateStoreD
 			toast.success(t('success'))
 			setStoreName('')
 			onStoreCreated?.()
-		} catch (error) {
+		} catch (_error) {
 			toast.error(t('error'))
 		} finally {
 			setIsCreating(false)

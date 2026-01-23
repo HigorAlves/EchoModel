@@ -26,7 +26,9 @@ export {
 	onAssetUploaded,
 	requestUploadUrl,
 } from './handlers/assets'
-
+// ==================== Auth Functions ====================
+// Handle Firebase Authentication events
+export { onUserCreated } from './handlers/auth'
 // ==================== Generation Functions ====================
 // Handle image generation requests and processing
 export {
@@ -49,7 +51,6 @@ export {
 	cleanupExpiredGenerations,
 	processScheduledRetries,
 } from './handlers/queue'
-
 // ==================== Store Functions ====================
 // Handle multi-tenant store management
 export {
@@ -58,7 +59,3 @@ export {
 	getStore,
 	updateStoreSettings,
 } from './handlers/stores'
-
-// ==================== Auth Functions ====================
-// Handle Firebase Authentication events
-export { onUserCreated } from './handlers/auth'
