@@ -1,4 +1,6 @@
 export * from './ArchiveModel.input'
+export * from './CompleteCalibration.input'
 export * from './CreateModel.input'
+export * from './FailCalibration.input'
 export * from './GetModelById.input'
 export * from './ListModels.input'

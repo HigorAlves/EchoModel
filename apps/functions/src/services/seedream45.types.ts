@@ -154,6 +154,8 @@ export interface Seedream45Error {
 export interface Seedream45Config {
 	/** BytePlus API key */
 	apiKey?: string
+	/** Endpoint ID (e.g., 'ep-xxxxxxxx') - overrides default model */
+	endpointId?: string
 	/** API region (determines base URL) */
 	region?: BytePlusRegion
 	/** Custom base URL (overrides region-based URL) */

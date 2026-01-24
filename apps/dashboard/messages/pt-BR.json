@@ -134,6 +134,24 @@
 		"breadcrumbs": {
 			"dashboard": "Painel",
 			"overview": "Visão Geral"
+		},
+		"stats": {
+			"totalModels": "Total de Modelos",
+			"activeModels": "Ativos",
+			"totalGenerations": "Total de Gerações",
+			"thisMonth": "Este mês",
+			"totalAssets": "Total de Arquivos",
+			"storageUsed": "Armazenamento Usado"
+		},
+		"quickActions": {
+			"title": "Ações Rápidas",
+			"createModel": "Criar Modelo",
+			"generateImage": "Gerar Imagem",
+			"uploadAsset": "Enviar Arquivo"
+		},
+		"recentActivity": {
+			"title": "Atividade Recente",
+			"viewAll": "Ver Tudo"
 		}
 	},
 	"models": {

@@ -6,3 +6,6 @@
 
 // Auth handlers
 export { onUserCreated } from './auth'
+
+// Model handlers
+export { onModelCreated } from './model'

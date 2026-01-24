@@ -134,6 +134,24 @@
 		"breadcrumbs": {
 			"dashboard": "Dashboard",
 			"overview": "Overview"
+		},
+		"stats": {
+			"totalModels": "Total Models",
+			"activeModels": "Active",
+			"totalGenerations": "Total Generations",
+			"thisMonth": "This month",
+			"totalAssets": "Total Assets",
+			"storageUsed": "Storage Used"
+		},
+		"quickActions": {
+			"title": "Quick Actions",
+			"createModel": "Create Model",
+			"generateImage": "Generate Image",
+			"uploadAsset": "Upload Asset"
+		},
+		"recentActivity": {
+			"title": "Recent Activity",
+			"viewAll": "View All"
 		}
 	},
 	"models": {

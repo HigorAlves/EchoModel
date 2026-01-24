@@ -5,7 +5,7 @@
  * when a new user signs up.
  */
 
-import { Store, User } from '@foundry/domain'
+import { createContext, Store, User } from '@foundry/application'
 import * as logger from 'firebase-functions/logger'
 import { beforeUserCreated } from 'firebase-functions/v2/identity'
 import { db } from '../lib/firebase'
@@ -16,6 +16,13 @@ import { deriveStoreName, deriveUserName } from '../utils/user'
 // Initialize repositories
 const userRepository = new FirestoreUserRepository(db)
 const storeRepository = new FirestoreStoreRepository(db)
+
+// Initialize application layer commands
+const createUserCommand = new User.CreateUserCommand(userRepository)
+const createStoreCommand = new Store.CreateStoreCommand(storeRepository)
+
+// Initialize application layer queries
+const listStoresQuery = new Store.ListStoresQuery(storeRepository)
 
 /**
  * Firebase Auth trigger - called before a new user is created
@@ -33,16 +40,18 @@ export const onUserCreated = beforeUserCreated({ maxInstances: 10, timeoutSecond
 	}
 
 	const { uid, email, displayName } = userData
+	const correlationId = `auth-signup-${uid}-${Date.now()}`
 
-	logger.info('onUserCreated triggered', { uid, email, hasDisplayName: !!displayName })
+	logger.info('onUserCreated triggered', { uid, email, hasDisplayName: !!displayName, correlationId })
 
 	try {
 		// Idempotency check - verify store doesn't already exist for this user
-		const existingStores = await storeRepository.findByOwnerId(uid)
-		if (existingStores.length > 0) {
+		const existingStores = await listStoresQuery.execute({ page: 1, limit: 1 }, uid)
+		if (existingStores.total > 0) {
 			logger.info('Store already exists for user, skipping creation', {
 				uid,
-				existingStoreCount: existingStores.length,
+				existingStoreCount: existingStores.total,
+				correlationId,
 			})
 			return
 		}
@@ -51,39 +60,48 @@ export const onUserCreated = beforeUserCreated({ maxInstances: 10, timeoutSecond
 		const userName = deriveUserName(displayName, email)
 		const storeName = deriveStoreName(userName)
 
-		logger.info('Creating user and store', { uid, userName, storeName })
+		logger.info('Creating user and store', { uid, userName, storeName, correlationId })
 
-		// Create User entity with externalId linked to Firebase Auth UID
-		const user = User.create({
-			fullName: userName,
-			locale: 'en-US',
-			externalId: uid,
+		// Create context for application layer commands
+		const ctx = createContext({
+			correlationId,
+			userId: uid,
 		})
 
-		// Create Store entity with ownerId set to Firebase Auth UID
-		const store = Store.create({
-			ownerId: uid,
-			name: storeName,
-			description: 'My store',
-		})
+		// Create User via application layer command
+		const userResult = await createUserCommand.execute(
+			{
+				fullName: userName,
+				locale: 'en-US',
+				externalId: uid,
+				userId: uid, // Use Firebase Auth UID as document ID
+			},
+			ctx,
+		)
 
-		// Persist both entities
-		// Use the Firebase Auth UID as the document ID for the user
-		await userRepository.save(uid, user)
-		const storeId = await storeRepository.create(store)
+		// Create Store via application layer command
+		const storeResult = await createStoreCommand.execute(
+			{
+				name: storeName,
+				description: 'My store',
+			},
+			ctx,
+		)
 
 		logger.info('User and store created successfully', {
 			uid,
-			userId: uid,
-			storeId,
+			userId: userResult.userId,
+			storeId: storeResult.storeId,
 			userName,
 			storeName,
+			correlationId,
 		})
 	} catch (error) {
 		// Log the error but don't throw - we don't want to block user signup
 		logger.error('Failed to create user and store on signup', {
 			uid,
 			email,
+			correlationId,
 			error: error instanceof Error ? error.message : String(error),
 			stack: error instanceof Error ? error.stack : undefined,
 		})

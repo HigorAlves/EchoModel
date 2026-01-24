@@ -4,6 +4,7 @@
  * This module exports all Cloud Functions for the EchoModel platform.
  * Functions are organized by bounded context:
  * - Auth: User authentication events
+ * - Model: Model lifecycle events
  *
  * @see https://firebase.google.com/docs/functions
  */
@@ -17,3 +18,7 @@ setGlobalOptions({ maxInstances: 10 })
 // ==================== Auth Functions ====================
 // Handle Firebase Authentication events
 export { onUserCreated } from './handlers/auth'
+
+// ==================== Model Functions ====================
+// Handle Model Firestore events
+export { onModelCreated } from './handlers/model'

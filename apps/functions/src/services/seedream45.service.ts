@@ -64,6 +64,7 @@ const ASPECT_RATIO_DIMENSIONS: Record<AspectRatio, { width: number; height: numb
  */
 export class Seedream45Service implements IImageGenerationService, IModelCalibrationService {
 	private readonly apiKey: string | undefined
+	private readonly endpointId: string
 	private readonly baseUrl: string
 	private readonly timeout: number
 	private readonly maxRetries: number
@@ -71,6 +72,7 @@ export class Seedream45Service implements IImageGenerationService, IModelCalibra
 
 	constructor(config: Seedream45Config = {}) {
 		this.apiKey = config.apiKey ?? process.env.BYTEPLUS_API_KEY
+		this.endpointId = config.endpointId ?? process.env.BYTEPLUS_ENDPOINT_ID ?? Seedream45Model.SEEDREAM_4_5
 		this.timeout = config.timeout ?? 60000
 		this.maxRetries = config.maxRetries ?? 3
 		this.useMock = config.useMock ?? !this.apiKey
@@ -86,7 +88,10 @@ export class Seedream45Service implements IImageGenerationService, IModelCalibra
 		if (this.useMock) {
 			logger.info('Seedream45Service initialized in mock mode')
 		} else {
-			logger.info('Seedream45Service initialized', { region: config.region ?? 'ap-southeast' })
+			logger.info('Seedream45Service initialized', {
+				region: config.region ?? 'ap-southeast',
+				endpointId: this.endpointId,
+			})
 		}
 	}
 
@@ -141,7 +146,7 @@ export class Seedream45Service implements IImageGenerationService, IModelCalibra
 				const dimensions = ASPECT_RATIO_DIMENSIONS[aspectRatio]
 
 				const request: Seedream45Request = {
-					model: Seedream45Model.SEEDREAM_4_5,
+					model: this.endpointId,
 					prompt: composedPrompt,
 					image: params.modelIdentityUrl,
 					size: `${dimensions.width}x${dimensions.height}`,
@@ -207,7 +212,7 @@ export class Seedream45Service implements IImageGenerationService, IModelCalibra
 			const maxOutputImages = Math.min(params.count, MAX_TOTAL_IMAGES - inputImageCount)
 
 			const request: Seedream45Request = {
-				model: Seedream45Model.SEEDREAM_4_5,
+				model: this.endpointId,
 				prompt: composedPrompt,
 				image:
 					referenceImages && referenceImages.length > 0
@@ -672,7 +677,7 @@ export class Seedream45Service implements IImageGenerationService, IModelCalibra
 			const dimensions = ASPECT_RATIO_DIMENSIONS[aspectRatio]
 
 			const request: Seedream45Request = {
-				model: Seedream45Model.SEEDREAM_4_5,
+				model: this.endpointId,
 				prompt: composedPrompt,
 				image: params.modelIdentityUrl,
 				size: `${dimensions.width}x${dimensions.height}`,
@@ -832,7 +837,7 @@ export class Seedream45Service implements IImageGenerationService, IModelCalibra
 		try {
 			// Make a minimal test request
 			const request: Seedream45Request = {
-				model: Seedream45Model.SEEDREAM_4_5,
+				model: this.endpointId,
 				prompt: 'test validation',
 				n: 1,
 				size: '2K',

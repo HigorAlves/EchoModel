@@ -6,8 +6,11 @@
  * React hooks for resolving asset URLs from Firebase Storage and Firestore.
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { getAsset } from '@/lib/firebase'
+
+// Shared empty Map instance to avoid creating new references
+const EMPTY_MAP = new Map<string, string>()
 
 /**
  * Hook to resolve multiple asset IDs to their CDN URLs
@@ -19,14 +22,23 @@ export function useResolvedAssetUrls(assetIds: string[]): {
 	isLoading: boolean
 	error: Error | null
 } {
-	const [urls, setUrls] = useState<Map<string, string>>(new Map())
-	// Start with isLoading true if there are IDs to resolve
-	const [isLoading, setIsLoading] = useState(assetIds.length > 0)
+	const [urls, setUrls] = useState<Map<string, string>>(EMPTY_MAP)
+	const [isLoading, setIsLoading] = useState(false)
 	const [error, setError] = useState<Error | null>(null)
 
+	// Memoize the asset IDs to prevent unnecessary effect runs
+	const stableKey = useMemo(() => assetIds.join(','), [assetIds])
+	const stableAssetIds = useRef(assetIds)
+
+	// Update ref when key changes
 	useEffect(() => {
-		if (!assetIds || assetIds.length === 0) {
-			setUrls(new Map())
+		stableAssetIds.current = assetIds
+	}, [stableKey, assetIds])
+
+	useEffect(() => {
+		const ids = stableAssetIds.current
+		if (!ids || ids.length === 0) {
+			setUrls(EMPTY_MAP)
 			setIsLoading(false)
 			return
 		}
@@ -41,7 +53,7 @@ export function useResolvedAssetUrls(assetIds: string[]): {
 
 			try {
 				const results = await Promise.all(
-					assetIds.map(async (id) => {
+					ids.map(async (id) => {
 						try {
 							const asset = await getAsset(id)
 							// Try cdnUrl first, then thumbnailUrl as fallback
@@ -78,7 +90,7 @@ export function useResolvedAssetUrls(assetIds: string[]): {
 		return () => {
 			cancelled = true
 		}
-	}, [assetIds])
+	}, [stableKey])
 
 	return { urls, isLoading, error }
 }
@@ -92,14 +104,23 @@ export function useStorageUrls(storagePaths: string[]): {
 	isLoading: boolean
 	error: Error | null
 } {
-	const [urls, setUrls] = useState<Map<string, string>>(new Map())
-	// Start with isLoading true if there are paths to resolve
-	const [isLoading, setIsLoading] = useState(storagePaths.length > 0)
+	const [urls, setUrls] = useState<Map<string, string>>(EMPTY_MAP)
+	const [isLoading, setIsLoading] = useState(false)
 	const [error, setError] = useState<Error | null>(null)
 
+	// Memoize the storage paths to prevent unnecessary effect runs
+	const stableKey = useMemo(() => storagePaths.join(','), [storagePaths])
+	const stablePaths = useRef(storagePaths)
+
+	// Update ref when key changes
 	useEffect(() => {
-		if (!storagePaths || storagePaths.length === 0) {
-			setUrls(new Map())
+		stablePaths.current = storagePaths
+	}, [stableKey, storagePaths])
+
+	useEffect(() => {
+		const paths = stablePaths.current
+		if (!paths || paths.length === 0) {
+			setUrls(EMPTY_MAP)
 			setIsLoading(false)
 			return
 		}
@@ -110,7 +131,6 @@ export function useStorageUrls(storagePaths: string[]): {
 		let cancelled = false
 
 		const fetchUrls = async () => {
-			setIsLoading(true)
 			setError(null)
 
 			try {
@@ -119,7 +139,7 @@ export function useStorageUrls(storagePaths: string[]): {
 				const { storage } = await import('@/lib/firebase/storage')
 
 				const results = await Promise.all(
-					storagePaths.map(async (path) => {
+					paths.map(async (path) => {
 						try {
 							const storageRef = ref(storage, path)
 							const url = await getDownloadURL(storageRef)
@@ -155,7 +175,7 @@ export function useStorageUrls(storagePaths: string[]): {
 		return () => {
 			cancelled = true
 		}
-	}, [storagePaths])
+	}, [stableKey])
 
 	return { urls, isLoading, error }
 }

@@ -4,9 +4,7 @@ export default defineConfig({
 	entry: 'src/index.ts',
 	outDir: 'dist',
 	format: ['cjs'],
-	dts: {
-		resolve: true,
-	},
+	dts: false, // Cloud Functions don't need declaration files
 	clean: true,
 	minify: false,
 	hash: false,

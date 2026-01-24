@@ -58,10 +58,17 @@ export function ModelImageGallery({
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ duration: 0.3, delay: index * 0.05 }}
 							className='mb-4 break-inside-avoid'>
-							<button
-								type='button'
+							<div
+								role='button'
+								tabIndex={0}
 								className='group relative cursor-pointer overflow-hidden rounded-xl bg-muted w-full text-left'
-								onClick={() => onImageClick(index)}>
+								onClick={() => onImageClick(index)}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										e.preventDefault()
+										onImageClick(index)
+									}
+								}}>
 								{/* biome-ignore lint/performance/noImgElement: Dynamic user-generated content */}
 								<img
 									src={image}
@@ -104,7 +111,7 @@ export function ModelImageGallery({
 										{index + 1}/{images.length}
 									</Badge>
 								</div>
-							</button>
+							</div>
 						</motion.div>
 					))}
 				</div>

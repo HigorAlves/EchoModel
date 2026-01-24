@@ -20,9 +20,19 @@ export class CreateUserCommand {
 		const user = User.create({
 			fullName: validated.fullName,
 			locale: validated.locale,
+			externalId: validated.externalId,
 		})
 
-		const userId = await this.userRepository.create(user)
+		let userId: string
+
+		if (validated.userId) {
+			// Use provided ID (e.g., Firebase Auth UID)
+			await this.userRepository.save(validated.userId, user)
+			userId = validated.userId
+		} else {
+			// Auto-generate ID
+			userId = await this.userRepository.create(user)
+		}
 
 		await this.publishEvents(user, ctx)
 
